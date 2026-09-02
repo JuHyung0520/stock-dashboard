@@ -20,9 +20,18 @@ function watchlistCodes() {
   } catch { return []; }
 }
 
+/* 저장값은 믿지 않는다. 같은 파일의 watchlist 읽기는 try 로 감싸놓고 정작 이 키는 맨몸이라,
+ * 깨진 JSON 하나에 모듈 최상위에서 던져 페이지 전체가 즉사했다.
+ * 배열이 아니거나 항목 형식이 틀리면 버리고, 빈 배열은 '다 지운 상태'로 존중한다. */
+function readCodes() {
+  let v = null;
+  try { v = JSON.parse(localStorage.getItem('peak-codes-v1') || 'null'); } catch { /* 깨진 JSON */ }
+  if (!Array.isArray(v)) return null;
+  return [...new Set(v.filter((c) => typeof c === 'string' && /^[A-Z0-9]{1,12}$/.test(c)))];
+}
+
 const state = {
-  codes: JSON.parse(localStorage.getItem('peak-codes-v1') || 'null')
-    || [...new Set([...DEFAULT_CODES, ...watchlistCodes()])],
+  codes: readCodes() ?? [...new Set([...DEFAULT_CODES, ...watchlistCodes()])],
   range: localStorage.getItem('peak-range-v1') || '3Y',
   selected: null,
   rows: [],

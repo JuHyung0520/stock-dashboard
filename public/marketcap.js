@@ -14,8 +14,19 @@ const DEFAULT = [
   { code: '000660', name: 'SK하이닉스' },
 ];
 
+/* 저장값은 믿지 않는다. 손으로 고치다 깨진 JSON 이나 배열이 아닌 값이 들어 있으면
+ * 모듈 최상위의 JSON.parse 가 던져서 페이지 전체가 즉사했다(핸들러 하나 안 걸린 빈 화면).
+ * 형태까지 검증해서 못 쓰면 기본값으로 돌아간다. */
+function readPicks() {
+  let v = null;
+  try { v = JSON.parse(localStorage.getItem('mcap-picks-v1') || 'null'); } catch { /* 깨진 JSON */ }
+  if (!Array.isArray(v) || v.length !== 2) return DEFAULT;
+  const ok = v.every((x) => x && typeof x === 'object' && /^\d{6}$/.test(String(x.code)));
+  return ok ? v.map((x) => ({ code: String(x.code), name: String(x.name || x.code) })) : DEFAULT;
+}
+
 const state = {
-  picks: JSON.parse(localStorage.getItem('mcap-picks-v1') || 'null') || DEFAULT,
+  picks: readPicks(),
   range: localStorage.getItem('mcap-range-v1') || '1Y',
   pref: localStorage.getItem('mcap-pref-v1') === '1',
   data: null,
