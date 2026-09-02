@@ -110,9 +110,9 @@ function renderGrids() {
         <button class="cr-del" title="삭제">×</button>
       </div>
       <div class="cr-body grid-body">
-        <span class="cr-lbl">하단</span><input class="cr-in num" data-f="lower" type="number" value="${g.lower ?? ''}">
-        <span class="cr-lbl">상단</span><input class="cr-in num" data-f="upper" type="number" value="${g.upper ?? ''}">
-        <span class="cr-lbl">칸</span><input class="cr-in tiny num" data-f="cells" type="number" min="1" max="100" value="${g.cells ?? 10}">
+        <span class="cr-lbl">하단</span><input class="cr-in num" data-f="lower" type="number" min="0" value="${g.lower ?? ''}">
+        <span class="cr-lbl">상단</span><input class="cr-in num" data-f="upper" type="number" min="0" value="${g.upper ?? ''}">
+        <span class="cr-lbl">칸</span><input class="cr-in tiny num" data-f="cells" type="number" min="1" max="200" step="1" value="${g.cells ?? 10}">
         <span class="cr-cool">쿨다운 <input class="cr-in tiny num" data-f="cooldownMin" type="number" min="1" value="${g.cooldownMin ?? 15}">분</span>
       </div>
       <div class="cr-note">칸 간격 ${step ? px(g.symbol, step) : '—'} · 경계 ${(g.cells ?? 0) + 1}개</div>
@@ -237,18 +237,35 @@ $('#enabledToggle').addEventListener('change', (e) => {
 
 $('#saveBtn').addEventListener('click', async () => {
   try {
-    // 값이 안 채워진 조건은 데몬에서 조용히 무시되므로 저장 전에 걸러준다
-    const bad = [...state.cfg.targets.filter((t) => t.price == null && t.changePct == null),
-      ...state.cfg.grids.filter((g) => !g.lower || !g.upper || !g.cells || g.upper <= g.lower)];
-    if (bad.length) {
-      $('#saveMsg').textContent = `값이 비었거나 잘못된 조건이 ${bad.length}개 있습니다`;
+    /* 서버와 같은 범위로 미리 거른다. 서버는 범위 밖 조건을 조용히 버리고도 200 을 주는데,
+     * 예전엔 그 응답을 안 읽어서 '저장됨'이라 해놓고 새로고침하면 조건이 사라져 있었다. */
+    const why = [];
+    for (const t of state.cfg.targets) {
+      const nm = t.name || t.symbol || '이름없음';
+      if (t.price == null && t.changePct == null) why.push(`${nm}: 값이 비어 있음`);
+      else if (t.price != null && !(t.price >= 0)) why.push(`${nm}: 가격은 0 이상`);
+      else if (t.changePct != null && !(t.changePct >= -100 && t.changePct <= 1000)) why.push(`${nm}: 등락률은 −100~1000%`);
+    }
+    for (const g of state.cfg.grids) {
+      const nm = g.name || g.symbol || '이름없음';
+      if (!(g.lower >= 0) || !(g.upper >= 0) || !(g.upper > g.lower)) why.push(`${nm}: 구간은 0 이상, 상단 > 하단`);
+      else if (!Number.isInteger(g.cells) || g.cells < 1 || g.cells > 200) why.push(`${nm}: 칸 수는 1~200 정수`);
+    }
+    if (why.length) {
+      $('#saveMsg').textContent = `저장 안 함 — ${why.join(' · ')}`;
       return;
     }
-    await api('/api/alerts', {
+    const r = await api('/api/alerts', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(state.cfg),
     });
+    // 서버가 그래도 버린 게 있으면 성공으로 표시하지 않는다 — 편집 내용은 남겨 고칠 수 있게 dirty 유지
+    if (r?.dropped?.length) {
+      $('#saveMsg').textContent = `${r.dropped.length}개 조건은 저장되지 않았습니다 — ${r.dropped.join(' · ')}`;
+      markUpdated(false, '일부 저장 안 됨');
+      return;
+    }
     setDirty(false);
     markUpdated(true, `저장됨 ${new Date().toLocaleTimeString('en-GB', { hour12: false })}`);
   } catch (e) {

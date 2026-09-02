@@ -1622,7 +1622,8 @@ const server = http.createServer(async (req, res) => {
               const symbol = sym(g.symbol);
               const lower = numIn(g.lower, 0, 1e12, null);
               const upper = numIn(g.upper, 0, 1e12, null);
-              const cells = numIn(g.cells, 1, 200, null);
+              const cellsRaw = numIn(g.cells, 1, 200, null);
+              const cells = Number.isInteger(cellsRaw) ? cellsRaw : null;   // 2.5칸이면 경계선이 상단에 안 닿는다
               // 상단이 하단보다 작거나 칸이 없으면 경계 계산이 깨진다 — 아예 저장하지 않는다
               if (!symbol || lower == null || upper == null || cells == null || upper <= lower) {
                 dropped.push(`그리드 "${text(g.name, 20) || symbol || '이름없음'}": 구간·칸 수가 올바르지 않음`);

@@ -184,6 +184,13 @@ function markUpdated(ok) {
   // 실패했는데 화면은 그대로면 사용자는 낡은 값을 현재값으로 읽는다.
   // 흐림(시선)과 문구(설명)를 함께 준다 — 흐림만으로는 경고가 안 읽힌다.
   document.body.classList.toggle('stale', !ok);
+  /* 저장 실패는 시세 성공보다 우선한다. 예전엔 5초 폴링의 '갱신 hh:mm' 이 ⚠️ 경고를 지워서
+   * 사용자는 저장된 줄 알고 계속 입력했고, 새로고침 때 그 뒤 입력이 전부 사라졌다. */
+  if (saveFailed) {
+    $('#statusDot').classList.add('error');
+    $('#lastUpdated').textContent = '⚠️ 저장 실패 — 지금 입력은 이 화면에만 남아 있습니다. 내보내기로 백업하세요';
+    return;
+  }
   $('#statusDot').classList.toggle('error', !ok);
   $('#lastUpdated').textContent = ok
     ? `갱신 ${new Date().toLocaleTimeString('en-GB', { hour12: false })}`
