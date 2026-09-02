@@ -613,6 +613,13 @@ async function renderInvestorTab(id, code, wrap, hint) {
  * 유일하게 초 단위로 바뀌는 데이터라 장중에만 자동 갱신한다. */
 let obTimer = null;
 
+/* 세대 번호. 종목을 빠르게 두 번 바꾸면 첫 호출이 `await draw()` 에서 자고 있다가
+ * 뒤늦게 깨어나 **이미 지나간 종목의** 인터벌을 obTimer 에 덮어썼다.
+ * 그러면 앞 인터벌은 참조를 잃어 영원히 살아남고(좀비), 그 좀비가 2초 뒤
+ * "내 종목이 아니네" 하며 stopOrderbookPolling() 을 불러 **현재 종목의 타이머**를 죽였다.
+ * 증상은 '호가가 갑자기 안 움직임'인데 오류가 없어서 원인을 알 수 없었다. */
+let obSeq = 0;
+
 function stopOrderbookPolling() {
   if (obTimer) { clearInterval(obTimer); obTimer = null; }
 }
@@ -627,10 +634,13 @@ function isKRMarketOpen() {
 }
 
 async function renderOrderbookTab(id, wrap, hint) {
+  const seq = ++obSeq;
   stopOrderbookPolling();
 
   const draw = async () => {
-    // 그새 다른 탭/종목으로 옮겨갔으면 중단
+    // 그새 다른 탭/종목으로 옮겨갔으면 중단.
+    // 단, 내 세대가 아니면 남의 타이머는 건드리지 않는다 — 그게 좀비가 현재 폴링을 죽이던 경로다.
+    if (seq !== obSeq) return;
     if (state.selectedId !== id || state.detailTab !== 'orderbook') { stopOrderbookPolling(); return; }
     let d;
     try {
@@ -688,8 +698,13 @@ async function renderOrderbookTab(id, wrap, hint) {
   };
 
   await draw();
+  // 자는 사이에 다른 종목으로 넘어갔으면 타이머를 아예 걸지 않는다 (좀비 생성 차단)
+  if (seq !== obSeq) return;
   // 장중에만 폴링. 장외에는 안 움직이는 숫자를 긁을 이유가 없다.
-  if (isKRMarketOpen() && id.startsWith('KR:')) obTimer = setInterval(draw, 2000);
+  if (isKRMarketOpen() && id.startsWith('KR:')) {
+    stopOrderbookPolling();          // 덮어쓰기 전에 반드시 회수한다
+    obTimer = setInterval(draw, 2000);
+  }
 }
 
 function obRow(x, side, maxVol, fmtP) {
