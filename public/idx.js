@@ -24,7 +24,10 @@ const money = (v) => (v == null ? '—' : v >= 1e9 ? `$${(v / 1e9).toFixed(2)}B`
 // 첫 로드부터 실패하면 스켈레톤이 영원히 반짝인다 — 재시도 수단을 준다
 let everLoaded = false;
 
-function markUpdated(ok) {
+const okBy = {};   // 출처별 성패 — 차트 성공이 본체 실패를 덮어쓰지 못하게
+function markUpdated(ok, src = 'main') {
+  okBy[src] = ok;
+  ok = Object.values(okBy).every(Boolean);
   // 실패했는데 화면은 그대로면 사용자는 낡은 값을 현재값으로 읽는다.
   // 흐림(시선)과 문구(설명)를 함께 준다 — 흐림만으로는 경고가 안 읽힌다.
   document.body.classList.toggle('stale', !ok);
@@ -158,11 +161,12 @@ async function renderIdxChart() {
     $('#idxChartNote').textContent = row.isNewHigh
       ? `${row.firstDate.slice(0, 4)}년 이후 ${row.tradingDays.toLocaleString('ko-KR')}거래일 · 지금이 이 기간 최고점`
       : `${row.firstDate.slice(0, 4)}년 이후 ${row.tradingDays.toLocaleString('ko-KR')}거래일 · 전고점 ${f2.format(row.peak)} (${row.peakDate.slice(0, 4)}.${row.peakDate.slice(4, 6)}.${row.peakDate.slice(6, 8)}) 대비 ${pct(dd)}`;
-    everLoaded = true;
-    markUpdated(true);
+    markUpdated(true, 'chart');
   } catch (e) {
     console.warn('idxChart', e);
-    box.innerHTML = `<div class="inv-empty">차트를 불러오지 못했어요</div>`;
+    markUpdated(false, 'chart');
+    // 이미 그려진 차트는 남긴다 — 상단 문구가 '아래 값은 이전 것'이라고 말하는데 지우면 앞뒤가 안 맞는다
+    if (!box.querySelector('svg')) box.innerHTML = `<div class="inv-empty">차트를 불러오지 못했어요</div>`;
   }
 }
 
@@ -210,10 +214,11 @@ async function refresh() {
     renderSpot(d);
     renderFutures(d);
     renderGlobal(d);
-    markUpdated(true);
+    everLoaded = true;
+    markUpdated(true, 'main');
   } catch (e) {
     console.warn('idx', e);
-    markUpdated(false);
+    markUpdated(false, 'main');
     if (!everLoaded) {
       const el = $('#spotGrid');
       if (el) el.innerHTML = `<div class="inv-empty">데이터를 불러오지 못했어요. 서버가 꺼져 있을 수 있습니다. <button class="retry-btn" onclick="load()">다시 시도</button></div>`;

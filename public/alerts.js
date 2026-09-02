@@ -303,5 +303,5 @@ async function load() {
 }
 
 load();
-setInterval(renderDaemon, 30000);
+setInterval(() => { if (!document.hidden) renderDaemon(); }, 30000);
 setInterval(() => { if (!document.hidden && !state.dirty) refreshLive(); }, 15000);

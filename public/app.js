@@ -57,7 +57,12 @@ async function api(path) {
   return res.json();
 }
 
-function markUpdated(ok) {
+/* 출처별 성패를 따로 기억한다. 한 함수를 지수·시세가 번갈아 부르면 마지막 호출이 이겨서,
+ * 시세가 계속 실패해도 5초마다 지수 성공이 덮어써 장애가 보이지 않았다(상태점 플래핑). */
+const okBy = {};
+function markUpdated(ok, src = 'main') {
+  okBy[src] = ok;
+  ok = Object.values(okBy).every(Boolean);   // 하나라도 실패면 실패
   state.lastOk = ok;
   const dot = $('#statusDot');
   dot.classList.toggle('error', !ok);
@@ -126,10 +131,10 @@ async function refreshIndices() {
           <div class="idx-change ${cls}">${fmtChange({ change: ix.change, currency: 'IDX' })} (${fmtPct(ix.changePct)})</div>
         </div>`;
     }).join('');
-    markUpdated(true);
+    markUpdated(true, 'indices');
   } catch (e) {
     console.warn('indices', e);
-    markUpdated(false);
+    markUpdated(false, 'indices');
   }
 }
 
@@ -146,10 +151,10 @@ async function refreshQuotes() {
       // 10분 TTL 은 여기서만 발동한다 — 만료된 프로필이 없으면 즉시 false
       loadProfiles().then((fetched) => { if (fetched && state.view === 'card') renderCards(); });
     }
-    markUpdated(true);
+    markUpdated(true, 'quotes');
   } catch (e) {
     console.warn('quotes', e);
-    markUpdated(false);
+    markUpdated(false, 'quotes');
   }
 }
 
@@ -900,9 +905,11 @@ async function refreshGap() {
     const d = await api('/api/gap');
     if (!d.rows?.length) { body.innerHTML = '<div class="inv-empty">데이터 없음</div>'; return; }
 
-    const pref = localStorage.getItem('gap-basis-v1') || 'auto';
     // 어떤 기준이 실제로 존재하는지는 시간대마다 다르다 (NXT는 08~20시만 열린다)
     const available = ['auto', ...new Set(d.rows.flatMap((r) => r.bases.map((b) => b.key)))];
+    // 저장된 기준이 지금 시간대에 없으면(밤에 저장한 NXT 를 낮에 읽는 등) 버튼이 하나도 켜지지 않았다 → 자동으로 취급
+    const saved = localStorage.getItem('gap-basis-v1') || 'auto';
+    const pref = available.includes(saved) ? saved : 'auto';
     const LABELS = { auto: '자동', live: '현재가', nxt: 'NXT', prev: '전일종가' };
 
     const picker = `<div class="gap-basis" id="gapBasis">`

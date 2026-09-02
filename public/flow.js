@@ -273,6 +273,8 @@ function attachScrubber(grid, d, rows) {
   // 키보드 핸들러는 문서에 한 번만 붙인다 (매트릭스는 여러 번 다시 그려진다)
   scrubShow = show;
   scrubMax = Math.min(DAYS, (rows[0]?.valueSeq || []).length) - 1;
+  // 60초 재렌더로 격자가 새로 그려져도 고정해 둔 날짜는 그대로 보여야 한다
+  if (scrubPinned && state.hoverDay != null) show(Math.min(state.hoverDay, scrubMax));
 }
 
 let scrubShow = null;

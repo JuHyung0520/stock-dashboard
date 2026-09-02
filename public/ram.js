@@ -166,8 +166,9 @@ async function renderChart() {
     markUpdated(true);
   } catch (e) {
     console.warn('ram', e);
-    box.innerHTML = `<div class="inv-empty">불러오지 못했어요</div>`;
     markUpdated(false);
+    // 이미 그려진 차트는 남긴다 — 상단이 '아래 값은 이전 것'이라 말하는데 지우면 앞뒤가 안 맞는다
+    if (!box.querySelector('svg')) box.innerHTML = `<div class="inv-empty">불러오지 못했어요</div>`;
     if (!everLoaded) {
       const el = $('#dramChart');
       if (el) el.innerHTML = `<div class="inv-empty">데이터를 불러오지 못했어요. 서버가 꺼져 있을 수 있습니다. <button class="retry-btn" onclick="load()">다시 시도</button></div>`;
