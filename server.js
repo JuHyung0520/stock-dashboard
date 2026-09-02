@@ -549,9 +549,21 @@ function sendJSON(res, status, body) {
   res.end(JSON.stringify(body));
 }
 
+/* 한 요청이 프로세스를 죽이면 안 된다. 실측: request-target 이 `//300.300.300.300/` 이면 llhttp 는 통과시키고
+ * WHATWG 파서는 던진다 — 그 throw 가 try 밖에 있어서 unhandledRejection 으로 프로세스가 종료됐다.
+ * 서버가 죽으면 알림 데몬도 네이버 폴백으로만 돌아 미국 종목 알림이 조용히 빠진다. */
+process.on('unhandledRejection', (e) => console.error('[unhandledRejection]', e));
+process.on('uncaughtException', (e) => console.error('[uncaughtException]', e));
+
 const server = http.createServer(async (req, res) => {
-  const url = new URL(req.url, `http://localhost:${PORT}`);
+  let url;
+  try { url = new URL(req.url, `http://localhost:${PORT}`); }
+  catch { res.writeHead(400); return res.end('bad url'); }
   const p = url.pathname;
+  // 읽기 전용 서버다. /api/alerts 만 PUT 을 받고 나머지는 GET/HEAD 뿐 — 그 외 메서드는 실행 없이 거절
+  if (p !== '/api/alerts' && req.method !== 'GET' && req.method !== 'HEAD') {
+    res.writeHead(405, { Allow: 'GET, HEAD' }); return res.end();
+  }
 
   try {
     if (p === '/api/overview') {
@@ -704,7 +716,7 @@ const server = http.createServer(async (req, res) => {
         '6M': { interval: '1d', count: 126 },
         '1Y': { interval: '1d', count: 200 },   // 토스 상한 200
       };
-      const cfg = CFG[range] || CFG['1D'];
+      const cfg = Object.hasOwn(CFG, range) ? CFG[range] : CFG['1D'];
       const data = await cached(`rel:${codes.join(',')}:${range}`, range === '1D' ? 20000 : 300000, async () => {
         const series = await Promise.all(codes.map(async (c) => {
           try {
@@ -1057,7 +1069,7 @@ const server = http.createServer(async (req, res) => {
        * 그래서 10년을 상한으로 둔다. 감자·출자전환 같은 대형 이벤트는 대개 그 밖에 있다. */
       const MAX_RANGE = '10Y';
       const asked = url.searchParams.get('range');
-      const valid = RANGES[asked] !== undefined ? asked : '1Y';
+      const valid = Object.hasOwn(RANGES, asked) ? asked : '1Y';
       const capped = valid === 'ALL';
       const range = capped ? MAX_RANGE : valid;
       const from = rangeFrom(range);
@@ -1153,7 +1165,7 @@ const server = http.createServer(async (req, res) => {
     if (p === '/api/peak') {
       const syms = (url.searchParams.get('codes') || 'KOSPI,KOSDAQ,005930,000660')
         .split(',').map((s) => s.trim()).filter((c) => /^[A-Z0-9]{3,10}$/i.test(c)).slice(0, 24);
-      const range = RANGES[url.searchParams.get('range')] !== undefined ? url.searchParams.get('range') : '1Y';
+      const range = Object.hasOwn(RANGES, url.searchParams.get('range') ?? '') ? url.searchParams.get('range') : '1Y';
       const from = rangeFrom(range);
 
       const data = await cached(`peak:${syms.join(',')}:${range}`, 60000, async () => {
@@ -1563,6 +1575,10 @@ const server = http.createServer(async (req, res) => {
           body = JSON.parse(Buffer.concat(chunks).toString('utf8'));
         } catch {
           return sendJSON(res, 400, { error: 'JSON 파싱 실패' });
+        }
+        // `[]`·`123`·`"x"` 도 유효한 JSON 이다 — 객체가 아니면 targets/grids 가 [] 로 읽혀 기존 조건이 전부 지워진다
+        if (!body || typeof body !== 'object' || Array.isArray(body)) {
+          return sendJSON(res, 400, { error: '객체 본문이 필요합니다' });
         }
         /* 데몬이 신뢰하고 읽는 파일이라 형태를 여기서 강제한다.
          * 로컬 전용이지만 잘못된 값 하나가 데몬을 매분 죽이면 알림이 조용히 멈춘다 —
