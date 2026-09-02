@@ -141,7 +141,11 @@ async function refreshQuotes() {
     const data = await api(`/api/quotes?ids=${encodeURIComponent(ids)}`);
     for (const q of data.quotes) state.quotes.set(q.id, q);
     renderQuotes();
-    if (state.view === 'card') renderCards();
+    if (state.view === 'card') {
+      renderCards();
+      // 10분 TTL 은 여기서만 발동한다 — 만료된 프로필이 없으면 즉시 false
+      loadProfiles().then((fetched) => { if (fetched && state.view === 'card') renderCards(); });
+    }
     markUpdated(true);
   } catch (e) {
     console.warn('quotes', e);
@@ -305,12 +309,14 @@ async function loadProfiles() {
   const now = Date.now();
   const missing = state.watchlist.map((w) => w.id)
     .filter((id) => !profileCache.has(id) || now - profileCache.get(id).__at > PROFILE_TTL);
-  if (!missing.length) return;
+  if (!missing.length) return false;
   try {
     const { profiles } = await api(`/api/profiles?ids=${encodeURIComponent(missing.join(','))}`);
     for (const p of profiles) profileCache.set(p.id, { ...p, __at: Date.now() });
+    return true;
   } catch (e) {
     console.warn('profiles', e);
+    return false;
   }
 }
 
@@ -958,13 +964,19 @@ $('#newsTabs').addEventListener('click', (e) => {
 
 const RANKING_TABS = { gainers: '급상승', losers: '급하락', amount: '거래대금' };
 
+/* 탭·종목을 빠르게 바꾸면 느린 옛 응답이 나중에 도착해 새 탭 내용을 덮어썼다.
+ * 요청마다 번호를 매기고, 돌아왔을 때 최신이 아니면 버린다. */
+let newsSeq = 0;
+
 async function refreshNews() {
   const list = $('#newsList');
+  const seq = ++newsSeq;
 
   // 랭킹 탭 — 뉴스 목록 자리를 그대로 쓰되 표로 그린다
   if (RANKING_TABS[state.newsTab]) {
     try {
       const d = await api(`/api/rankings/${state.newsTab}`);
+      if (seq !== newsSeq) return;   // 그새 다른 탭으로 갔다
       if (d.unavailable) { list.innerHTML = '<li class="news-empty">토스증권 API 키가 필요해요</li>'; return; }
       if (!d.rows?.length) { list.innerHTML = '<li class="news-empty">랭킹 데이터 없음</li>'; return; }
       list.innerHTML = d.rows.map((r) => {
@@ -994,6 +1006,7 @@ async function refreshNews() {
     } else {
       data = await api('/api/news/main');
     }
+    if (seq !== newsSeq) return;     // 그새 다른 탭/종목으로 갔다
     if (!data.items.length) {
       list.innerHTML = '<li class="news-empty">뉴스가 없어요</li>';
       return;

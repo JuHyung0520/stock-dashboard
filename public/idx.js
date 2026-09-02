@@ -129,10 +129,15 @@ function renderGlobal(d) {
 const IDX_COLOR = (k) => (k === 'KOSPI' ? Chart.series(1) : k === 'KOSDAQ' ? Chart.series(2) : Chart.token('--series-3', '#8b9dff'));
 const IDX_LABEL = { KOSPI: '코스피', KOSDAQ: '코스닥', KPI200: '코스피200' };
 
+/* 탭을 빠르게 바꾸면 느린 옛 응답이 나중에 도착해 새 탭 차트를 덮어썼다 — 요청 번호로 최신만 남긴다 */
+let idxChartSeq = 0, hlChartSeq = 0;
+
 async function renderIdxChart() {
   const box = $('#idxChart');
+  const seq = ++idxChartSeq;
   try {
     const d = await api(`/api/peak?codes=${state.target}&range=${state.range}`);
+    if (seq !== idxChartSeq) return;   // 그새 다른 지수/기간으로 갔다
     const row = d.rows?.[0];
     if (!row?.points?.length) { box.innerHTML = `<div class="inv-empty">차트 데이터 없음</div>`; return; }
 
@@ -164,8 +169,10 @@ async function renderIdxChart() {
 /* ── HL 선물 캔들 ── */
 async function renderHlChart() {
   const box = $('#hlChart');
+  const seq = ++hlChartSeq;
   try {
     const d = await api(`/api/hl/candles?coin=xyz:KR200&interval=${state.interval}`);
+    if (seq !== hlChartSeq) return;    // 그새 다른 간격으로 갔다
     if (!d.candles?.length) { box.innerHTML = `<div class="inv-empty">캔들 없음</div>`; return; }
     Chart.candles(box, {
       candles: d.candles, height: 210,
