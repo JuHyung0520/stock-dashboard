@@ -1,0 +1,12 @@
+{
+  "name": "stock-dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "description": "의존성 제로 개인용 주식 대시보드 — node:http + 바닐라 JS, 빌드 없음",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

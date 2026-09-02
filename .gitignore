@@ -1,0 +1,8 @@
+.env
+node_modules/
+*.log
+.DS_Store
+alerts-state.json
+alerts.json
+wraps/
+.claude/

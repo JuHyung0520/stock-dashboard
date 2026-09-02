@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>세력 좌표</title>
+  <meta name="description" content="투자자별 수급 추적 — 누가, 며칠째, 평소 대비 얼마나">
+  <meta name="theme-color" content="#0b0e14">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗺️</text></svg>">
+  <!-- 테마 깜빡임 방지 — 그리기 전에 저장된 선택을 적용한다.
+       nav.js 는 body 끝에서 돌아 이미 한 번 그려진 뒤라 늦다. -->
+  <script>try{var t=localStorage.getItem('theme-v1');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="chart.css">
+  <link rel="stylesheet" href="flow.css">
+</head>
+<body>
+  <header class="fhead">
+    <div class="fbrand">
+      <h1>세력 좌표</h1>
+      <span class="fsub">누가 · 며칠째 · 평소 대비</span>
+    </div>
+    <!-- 내비게이션은 다른 페이지와 같은 자리(제목 줄 오른쪽)에 둔다 -->
+    <div class="nav-links" data-nav></div>
+    <nav class="fnav">
+      <span class="fstatus"><span class="fdot" id="fDot"></span><span id="fUpdated">불러오는 중…</span></span>
+      <div class="mkt-toggle" id="marketToggle">
+        <button class="mkt active" data-market="KOSPI">코스피</button>
+        <button class="mkt" data-market="KOSDAQ">코스닥</button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- ① 판정 + 기준선 — 첫 화면에 결론과 4주체 오늘값이 같이 오도록 한 그리드 -->
+  <div class="fhero">
+    <section class="verdict" id="verdict">
+      <div class="skel" style="height:26px;width:70%"></div>
+      <div class="skel" style="height:13px;width:45%;margin-top:12px"></div>
+    </section>
+    <section class="stat-row" id="statRow"></section>
+  </div>
+
+  <!-- ⑤ 관심종목 세력 스캐너 -->
+  <section class="fpanel" id="scanPanel">
+    <div class="fpanel-head">
+      <h2>관심종목 세력 스캐너</h2>
+      <span class="fnote">강도 = 순매수 ÷ 20일평균거래량 · 종목 크기와 무관하게 비교됩니다</span>
+    </div>
+    <div class="table-wrap" id="scanWrap"><div class="skel" style="height:130px"></div></div>
+  </section>
+
+  <!-- ② 포지션 타임라인 (본체) -->
+  <section class="fpanel" id="timelinePanel">
+    <div class="fpanel-head">
+      <h2>포지션 타임라인</h2>
+      <div class="head-tools">
+        <label class="tgl"><input type="checkbox" id="showInst"> 기관 세부 7종</label>
+        <label class="tgl"><input type="checkbox" id="streakOnly"> 연속만 강조</label>
+      </div>
+    </div>
+    <div class="matrix-wrap" id="matrixWrap">
+      <div class="skel" style="height:180px"></div>
+    </div>
+    <p class="scrub-hint">격자 위에 마우스를 올리면 그날 전체가 한 줄로 정렬돼요. ← → 키로 하루씩 이동.</p>
+  </section>
+
+  <div class="fgrid">
+    <!-- ③ 기관 내부 대립 -->
+    <section class="fpanel" id="splitPanel">
+      <div class="fpanel-head">
+        <h2>기관 내부 대립</h2>
+        <span class="fnote" id="splitNote"></span>
+      </div>
+      <div id="splitBody"><div class="skel" style="height:110px"></div></div>
+    </section>
+
+    <!-- ④ 배신자 -->
+    <section class="fpanel" id="traitorPanel">
+      <div class="fpanel-head">
+        <h2>방향을 튼 주체</h2>
+        <span class="fnote">4일 이상 한 방향이다 오늘 반전</span>
+      </div>
+      <div id="traitorBody"><div class="skel" style="height:110px"></div></div>
+    </section>
+  </div>
+
+
+  <!-- ⑥ 검사 로그 -->
+  <details class="audit" id="auditPanel">
+    <summary id="auditSummary">검사 로그</summary>
+    <pre id="auditBody"></pre>
+  </details>
+
+  <script src="nav.js"></script>
+  <script src="flow.js"></script>
+</body>
+</html>

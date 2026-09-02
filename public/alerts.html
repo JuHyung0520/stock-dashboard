@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>알림</title>
+  <meta name="description" content="목표가·그리드 라인 도달 시 macOS 알림 — 브라우저를 닫아도 동작">
+  <meta name="theme-color" content="#0b0e14">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔔</text></svg>">
+  <!-- 테마 깜빡임 방지 — 그리기 전에 저장된 선택을 적용한다.
+       nav.js 는 body 끝에서 돌아 이미 한 번 그려진 뒤라 늦다. -->
+  <script>try{var t=localStorage.getItem('theme-v1');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="chart.css">
+  <link rel="stylesheet" href="alerts.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">🔔</span>
+      <h1>알림</h1>
+      <span class="brand-sub">브라우저를 닫아도 울립니다</span>
+    </div>
+    <div class="nav-links" data-nav></div>
+    <div class="status">
+      <span class="status-dot" id="statusDot"></span>
+      <span id="lastUpdated">불러오는 중…</span>
+    </div>
+  </header>
+
+  <section class="panel daemon-panel">
+    <div class="panel-head">
+      <h2>데몬 상태</h2>
+      <label class="sw">
+        <input type="checkbox" id="enabledToggle">
+        <span>알림 켜기</span>
+      </label>
+    </div>
+    <div id="daemonState"><div class="skel" style="height:44px"></div></div>
+  </section>
+
+  <main class="alert-grid">
+    <section class="panel">
+      <div class="panel-head">
+        <h2>🎯 목표가</h2>
+        <button class="ghost-btn" id="addTarget">+ 추가</button>
+      </div>
+      <p class="lead-note">
+        가격이 목표를 <b>통과하는 순간</b>에만 울립니다. 계속 조건을 만족해도 다시 울리지 않고,
+        일정 폭(0.5%) 되돌아와야 재무장합니다.
+      </p>
+      <div id="targetList"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>🪜 그리드 라인</h2>
+        <button class="ghost-btn" id="addGrid">+ 추가</button>
+      </div>
+      <p class="lead-note">
+        구간을 칸으로 나눠 각 경계를 지날 때 알립니다.
+        아래로 통과 = 매수 라인, 위로 통과 = 매도 라인.
+        <a href="/assets" class="ilink">내 자산의 그리드</a>와 같은 계산식입니다.
+      </p>
+      <div id="gridList"></div>
+    </section>
+  </main>
+
+  <section class="panel">
+    <div class="panel-head">
+      <h2>ℹ️ 알아둘 것</h2>
+    </div>
+    <div class="lead-note" id="caveats"></div>
+  </section>
+
+  <div class="save-bar" id="saveBar" hidden>
+    <span id="saveMsg">변경사항이 있습니다</span>
+    <button class="save-btn" id="saveBtn">저장</button>
+  </div>
+
+  <script src="nav.js"></script>
+  <script src="alerts.js"></script>
+</body>
+</html>

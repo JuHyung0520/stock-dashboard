@@ -1,0 +1,257 @@
+/* 공통 디자인 토큰 — 모든 화면의 단일 기준.
+ * 2026-08-19 검토에서 토큰이 두 벌로 갈라져 값이 어긋나던 것을 통합.
+ * 2026-08-24 시스템 테마(라이트/다크) 대응 추가.
+ *
+ * ── 라이트 모드 설계 원칙 ──
+ * 색을 단순히 반전하지 않았다. 대비를 다시 계산해서 골랐다.
+ *   다크: 흰 글씨를 어두운 판 위에 → 밝은 채도색이 잘 보인다
+ *   라이트: 검은 글씨를 흰 판 위에 → 같은 채도색은 대비가 무너진다
+ * 실측: 흰 배경 위 #f04452 = 3.71:1 (작은 글씨 기준 4.5 미달)
+ *       → 라이트 전용 #d32f3f = 4.94:1 로 교체
+ * 이 화면은 10.8px 글씨가 60~70%라 대비를 양보할 여지가 없다.
+ *
+ * 상승=빨강 / 하락=파랑 이라는 국내 관례는 두 모드 모두 유지한다. 채도만 조정.
+ *
+ * 대비는 전부 실측 검증값 (panel 배경 기준):
+ *   다크   --text 15.3 / --text-dim 8.0 / --text-faint 6.0
+ *   라이트 --text 16.9 / --text-dim 6.1 / --text-faint 4.8
+ * 가장 빡빡한 곳은 판이 아니라 그 위에 틴트를 한 겹 더 얹은 표면(호버 행·칩)이다 —
+ * 거기서도 4.5 를 넘도록 --text-faint 를 잡았다 (실측 4.65).
+ * 작은 글씨일수록 대비를 올려야 한다. 이 3단계 위계를 임의로 낮추지 말 것. */
+:root {
+  /* 색 — 다크 (기본)
+   *
+   * 2026-08-29: 카드가 배경에 묻힌다는 지적. 실측해 보니 bg~panel 의 색차가 ΔE 4.7 로
+   * '겨우 구분되는' 수준이었다(ΔE 5 미만은 나란히 놓아야 겨우 보인다).
+   * 판을 밝히면 그 위 10.8px 글씨의 대비가 같이 내려간다 — 이 화면은 작은 글씨가 다수라
+   * 대비를 내줄 여지가 없다. 그래서 판이 아니라 **바닥을 낮췄다**:
+   *   bg #0b0e14 → #05070c  (ΔE 4.7 → 7.2, 판 위 글자 대비는 한 톨도 안 건드림)
+   * 나머지 단차는 테두리와 그림자가 맡는다 — 어두운 화면에서 '떠 있음'을 만드는 건
+   * 사실 채움색이 아니라 가장자리다. */
+  --bg: #05070c;
+  --panel: #12161f;
+  --panel-2: #181d29;   /* 한 단 더 밝히면 그 위 --up/--down 이 4.48 로 4.5 를 못 넘는다 (실측 4.54) */
+  --border: #283142;
+  --border-soft: #222a39;
+  --text: #e8ecf3;
+  --text-dim: #a3adbd;
+  --text-faint: #8b95a7;   /* panel-2 를 한 단 올린 뒤 틴트 위에서 4.46 까지 떨어졌다 → 5.15 로 복구 */
+  --up: #f04452;      /* 상승/순매수 = 빨강 (국내 관례 — 색맹 관점에서도 최적) */
+  --down: #3182f6;    /* 하락/순매도 = 파랑 */
+  --flat: #a3adbd;
+  --accent: #ffd166;
+  --ok: #3fb950;      /* 정상·장중·검증됨 (7개 파일에 하드코딩돼 있던 것을 토큰화) */
+
+  /* 계열색 — 두 종목을 색으로 가를 때 (삼성/하닉, 시총비교 등) */
+  --series-1: #4dd6a8;
+  --series-2: #f0b23f;
+  --series-3: #8b9dff;
+
+  /* 표면에 얹는 톤 — 흰색·검정을 직접 섞으면 라이트에서 반대로 동작한다 */
+  --tint-hover: rgba(255, 255, 255, 0.035);
+  --tint-active: rgba(255, 255, 255, 0.06);
+  --accent-tint: rgba(255, 209, 102, 0.08);
+  --accent-line: rgba(255, 209, 102, 0.35);
+  --up-tint: rgba(240, 68, 82, 0.12);
+  --down-tint: rgba(49, 130, 246, 0.14);
+  --ok-tint: rgba(63, 185, 80, 0.09);
+  --ok-line: rgba(63, 185, 80, 0.4);
+
+  /* 옅은 틴트 배경 위에 얹는 글자색.
+   * 다크는 밝게, 라이트는 진하게 — 방향이 정반대라 토큰으로 갈라야 한다. */
+  --on-up-tint: #ff8a93;
+  --on-down-tint: #7eb3ff;
+  --on-accent: #1a1204;        /* accent 배경 위 글자 — 다크는 밝은 노랑 위라 검정 */
+  --border-strong: #3a4560;    /* hover 등에서 한 단계 밝힌 테두리 */
+
+  /* 형태 */
+  --radius: 12px;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+
+  /* 타입 스케일 — 바닥선 0.72rem(10.8px). 이 아래 크기 금지 */
+  --fs-2xs: 0.72rem;  /* 10.8px 캡션·배지·메타 (최소) */
+  --fs-xs: 0.8rem;    /* 12px   보조 라벨·탭 */
+  --fs-sm: 0.87rem;   /* 13px   표 본문·리스트 */
+  --fs-md: 0.95rem;   /* 14.25px 패널 제목 */
+  --fs-lg: 1.05rem;   /* 15.75px 강조 본문 */
+  --fs-hl: 1.2rem;    /* 18px    섹션 제목·소형 히어로 (1.05 와 1.45 사이가 비어 리터럴이 몰려 있던 자리) */
+  --fs-xl: 1.45rem;   /* 21.75px 카드 큰 숫자 */
+  --fs-2xl: 1.85rem;  /* 27.75px 화면 주인공 숫자 */
+  --fs-3xl: 2.2rem;   /* 33px    페이지 히어로 */
+  --fs-4xl: 2.9rem;   /* 43.5px  최대 히어로 (대시보드 총평가금 등) */
+
+  /* 모션 — duration 2종으로 통일 */
+  --t-fast: 0.12s;    /* hover/focus 색·테두리 */
+  --t-bar: 0.3s;      /* 막대 width/height */
+}
+
+/* hidden 속성은 브라우저 기본 display:none 으로 동작하는데, 그 우선순위가 바닥이라
+ * .card-grid { display: grid } 같은 평범한 규칙 하나에 져 버린다.
+ * 실제로 대시보드 카드↔표 전환에서 카드가 안 사라지는 버그로 나타났다(alerts 저장 바도 같은 지뢰).
+ * JS 의 el.hidden = true 가 항상 이기도록 전역에서 못 박는다. */
+[hidden] { display: none !important; }
+
+/* ── 라이트 모드 — 시스템 설정을 따라간다 ──
+ * 토큰 값만 바꾸고 컴포넌트 CSS 는 건드리지 않는다.
+ * 그래서 각 페이지 CSS 가 var(--…) 를 쓰기만 하면 자동으로 따라온다. */
+/* ── 테마 — 시스템 추종 + 수동 토글 ──
+ * 세 가지 상태를 지원한다:
+ *   1) 아무것도 안 고름  → OS 설정을 따라간다 (@media)
+ *   2) data-theme="light" → OS 가 다크여도 라이트
+ *   3) data-theme="dark"  → OS 가 라이트여도 다크
+ *
+ * 순서가 중요하다. @media 를 :root:not([data-theme="dark"]) 로 가둬야
+ * "OS 는 라이트인데 사용자가 다크를 고른" 경우에 다크가 이긴다.
+ * 그 다음 [data-theme="light"] 를 뒤에 둬서 반대 방향도 이기게 한다. */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #eef0f4;        /* 카드(흰색)와 ΔE 5.7 — 카드가 확실히 뜬다 */
+    --panel: #ffffff;
+    --panel-2: #f5f7fa;
+    --border: #d5dae2;
+    --border-soft: #e6e9ef;
+    /* ⚠️ 대비는 '카드 위'만 보면 안 된다. 내비·브랜드·배지처럼 페이지 배경(--bg,
+     * #eef0f4) 위에 놓이는 작은 글씨가 많아서, 두 표면 모두에서 4.5 를 넘어야 한다.
+     * 처음에 #6b7280 을 골랐다가 배경 위에서 4.24 로 미달인 것을 실측하고 내렸다. */
+    --text: #1a1d23;      /* 카드 16.9 / 배경 14.8 */
+    --text-dim: #565d68;  /* 카드  6.6 / 배경  5.8 */
+    --text-faint: #656c78;/* 카드  5.3 / 배경  4.6 */
+    /* 등락색은 '흰 카드 위' 뿐 아니라 '자기 틴트 배경 위'에서도 4.5 를 넘어야 한다.
+     * ETF 괴리 배지처럼 up-tint 위에 up 글자를 얹는 곳이 있어서, 흰 배경만 보고
+     * 고르면 배지에서 4.26 으로 떨어진다(실측). 한 단계 더 진하게 잡았다. */
+    --up: #c02535;        /* 흰 5.9 · 틴트 위 5.1 (다크의 #f04452 는 흰 배경 3.7) */
+    --down: #1d5fd0;      /*  5.8:1 */
+    --flat: #565d68;
+    --accent: #8a6100;    /*  5.5:1 — #ffd166 은 흰 배경에서 1.4 라 글자색으로 못 쓴다 */
+    --ok: #166b2e;        /* 흰 6.2 · 틴트 위 5.8 */
+
+    --series-1: #0a7a53;  /* 흰 5.4 — #0d8a5f 는 4.36 으로 미달이었다 */
+    --series-2: #a06a00;
+    --series-3: #4a52c9;
+    --on-up-tint: #b02a37;    /* 흰 배경 6.5:1 */
+    --on-down-tint: #1a4fb0;  /* 흰 배경 7.5:1 */
+    --border-strong: #b9c0cb;
+    --on-accent: #ffffff;       /* 라이트: 진한 갈색 위 → 흰색 */
+
+    /* 밝은 판 위에서는 검정을 섞어야 눌린 느낌이 난다 */
+    --tint-hover: rgba(16, 24, 40, 0.04);
+    --tint-active: rgba(16, 24, 40, 0.07);
+    --accent-tint: rgba(138, 97, 0, 0.08);
+    --accent-line: rgba(138, 97, 0, 0.35);
+    --up-tint: rgba(192, 37, 53, 0.1);
+    --down-tint: rgba(29, 95, 208, 0.1);
+    --ok-tint: rgba(22, 107, 46, 0.09);
+    --ok-line: rgba(22, 107, 46, 0.35);
+  }
+}
+:root[data-theme="light"] {
+    --bg: #eef0f4;        /* 카드(흰색)와 ΔE 5.7 — 카드가 확실히 뜬다 */
+    --panel: #ffffff;
+    --panel-2: #f5f7fa;
+    --border: #d5dae2;
+    --border-soft: #e6e9ef;
+    /* ⚠️ 대비는 '카드 위'만 보면 안 된다. 내비·브랜드·배지처럼 페이지 배경(--bg,
+     * #eef0f4) 위에 놓이는 작은 글씨가 많아서, 두 표면 모두에서 4.5 를 넘어야 한다.
+     * 처음에 #6b7280 을 골랐다가 배경 위에서 4.24 로 미달인 것을 실측하고 내렸다. */
+    --text: #1a1d23;      /* 카드 16.9 / 배경 14.8 */
+    --text-dim: #565d68;  /* 카드  6.6 / 배경  5.8 */
+    --text-faint: #656c78;/* 카드  5.3 / 배경  4.6 */
+    /* 등락색은 '흰 카드 위' 뿐 아니라 '자기 틴트 배경 위'에서도 4.5 를 넘어야 한다.
+     * ETF 괴리 배지처럼 up-tint 위에 up 글자를 얹는 곳이 있어서, 흰 배경만 보고
+     * 고르면 배지에서 4.26 으로 떨어진다(실측). 한 단계 더 진하게 잡았다. */
+    --up: #c02535;        /* 흰 5.9 · 틴트 위 5.1 (다크의 #f04452 는 흰 배경 3.7) */
+    --down: #1d5fd0;      /*  5.8:1 */
+    --flat: #565d68;
+    --accent: #8a6100;    /*  5.5:1 — #ffd166 은 흰 배경에서 1.4 라 글자색으로 못 쓴다 */
+    --ok: #166b2e;        /* 흰 6.2 · 틴트 위 5.8 */
+
+    --series-1: #0a7a53;  /* 흰 5.4 — #0d8a5f 는 4.36 으로 미달이었다 */
+    --series-2: #a06a00;
+    --series-3: #4a52c9;
+    --on-up-tint: #b02a37;    /* 흰 배경 6.5:1 */
+    --on-down-tint: #1a4fb0;  /* 흰 배경 7.5:1 */
+    --border-strong: #b9c0cb;
+    --on-accent: #ffffff;       /* 라이트: 진한 갈색 위 → 흰색 */
+
+    /* 밝은 판 위에서는 검정을 섞어야 눌린 느낌이 난다 */
+    --tint-hover: rgba(16, 24, 40, 0.04);
+    --tint-active: rgba(16, 24, 40, 0.07);
+    --accent-tint: rgba(138, 97, 0, 0.08);
+    --accent-line: rgba(138, 97, 0, 0.35);
+    --up-tint: rgba(192, 37, 53, 0.1);
+    --down-tint: rgba(29, 95, 208, 0.1);
+    --ok-tint: rgba(22, 107, 46, 0.09);
+    --ok-line: rgba(22, 107, 46, 0.35);
+}
+
+/* ── 깊이 — 광원은 위쪽 하나: 위 1px 하이라이트 + 아래로 떨어지는 그림자 ── */
+:root {
+  --shadow-panel: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 6px 20px rgba(0, 0, 0, 0.5);
+  --shadow-float: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 14px 36px rgba(0, 0, 0, 0.7);
+  --shadow-lift: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 10px 26px rgba(0, 0, 0, 0.6);
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    /* 밝은 배경에서는 같은 그림자가 시커먼 얼룩이 된다 — 훨씬 옅게 */
+    --shadow-panel: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.04);
+    --shadow-float: 0 4px 12px rgba(16, 24, 40, 0.1), 0 12px 32px rgba(16, 24, 40, 0.08);
+    --shadow-lift: 0 4px 10px rgba(16, 24, 40, 0.1), 0 10px 24px rgba(16, 24, 40, 0.12);
+  }
+}
+:root[data-theme="light"] {
+    /* 밝은 배경에서는 같은 그림자가 시커먼 얼룩이 된다 — 훨씬 옅게 */
+    --shadow-panel: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.04);
+    --shadow-float: 0 4px 12px rgba(16, 24, 40, 0.1), 0 12px 32px rgba(16, 24, 40, 0.08);
+    --shadow-lift: 0 4px 10px rgba(16, 24, 40, 0.1), 0 10px 24px rgba(16, 24, 40, 0.12);
+}
+
+/* ── 눌림 피드백 — hover가 '누를 수 있다'면 active는 '눌렀다' */
+button:not(:disabled):active,
+a.flow-link:active, a.flink:active, a.inv-verdict:active {
+  transform: scale(0.97);
+}
+
+/* ── 스켈레톤 로더 — 텍스트 '불러오는 중…' 대신 레이아웃 모양의 자리 표시 */
+.skel {
+  border-radius: 6px;
+  background: linear-gradient(100deg,
+    var(--panel-2) 35%, rgba(255, 255, 255, 0.045) 48%, var(--panel-2) 61%);
+  background-size: 300% 100%;
+  animation: skel-shimmer 1.5s ease infinite;
+  color: transparent !important;
+  user-select: none;
+}
+@keyframes skel-shimmer { to { background-position: -200% 0; } }
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) .skel {
+    background: linear-gradient(100deg,
+      var(--panel-2) 35%, rgba(16, 24, 40, 0.07) 48%, var(--panel-2) 61%);
+    background-size: 300% 100%;
+  }
+}
+:root[data-theme="light"] .skel {
+  background: linear-gradient(100deg,
+    var(--panel-2) 35%, rgba(16, 24, 40, 0.07) 48%, var(--panel-2) 61%);
+  background-size: 300% 100%;
+}
+
+/* ── 첫 로드 등장 — 패널이 순서대로 떠오른다. 페이지 로드에 한 번만 (폴링 재렌더엔 안 걸림) */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(9px); }
+}
+
+/* ── 은은한 그레인 — 완전 플랫의 디지털 민낯을 걷어낸다 */
+body::after {
+  content: "";
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 999;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+html { scroll-behavior: smooth; }
+
+@media (prefers-reduced-motion: reduce) {
+  .skel { animation: none; }
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}

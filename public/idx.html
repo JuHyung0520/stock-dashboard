@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>지수</title>
+  <meta name="description" content="코스피·코스닥 현물과 코스피200 야간 선물 — 국장이 닫힌 뒤의 지수 추정">
+  <meta name="theme-color" content="#0b0e14">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+  <!-- 테마 깜빡임 방지 — 그리기 전에 저장된 선택을 적용한다.
+       nav.js 는 body 끝에서 돌아 이미 한 번 그려진 뒤라 늦다. -->
+  <script>try{var t=localStorage.getItem('theme-v1');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="chart.css">
+  <link rel="stylesheet" href="idx.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">📊</span>
+      <h1>지수</h1>
+      <span class="brand-sub">KRX 현물 · 야간 선물</span>
+    </div>
+    <div class="nav-links" data-nav></div>
+    <div class="status">
+      <span class="status-dot" id="statusDot"></span>
+      <span id="lastUpdated">불러오는 중…</span>
+    </div>
+  </header>
+
+  <!-- 주인공: 코스피 추정 -->
+  <section class="panel hero" id="heroPanel">
+    <div class="hero-main">
+      <div class="hero-label">
+        <span id="heroTitle">코스피</span>
+        <span class="hero-badge" id="heroBadge">…</span>
+      </div>
+      <div class="hero-value" id="heroValue">—</div>
+      <div class="hero-change" id="heroChange">—</div>
+      <div class="hero-sub" id="heroSub"></div>
+    </div>
+    <div class="hero-side" id="heroSide"></div>
+  </section>
+
+  <main class="idx-grid">
+    <div class="idx-col">
+      <section class="panel">
+        <div class="panel-head">
+          <h2>🇰🇷 KRX 현물</h2>
+          <span class="panel-note">네이버 증권 · 5초 갱신</span>
+        </div>
+        <div class="spot-grid" id="spotGrid">
+          <div class="skel" style="height:96px"></div>
+          <div class="skel" style="height:96px"></div>
+          <div class="skel" style="height:96px"></div>
+        </div>
+      </section>
+
+      <section class="panel chart-panel">
+        <div class="panel-head">
+          <h2 id="chartTitle">지수 추이</h2>
+          <div class="tabs" id="chartTargetTabs">
+            <button class="tab active" data-target="KOSPI">코스피</button>
+            <button class="tab" data-target="KOSDAQ">코스닥</button>
+            <button class="tab" data-target="KPI200">코스피200</button>
+          </div>
+          <div class="tabs" id="chartRangeTabs">
+            <button class="tab" data-range="3M">3M</button>
+            <button class="tab" data-range="1Y">1Y</button>
+            <button class="tab active" data-range="3Y">3Y</button>
+            <button class="tab" data-range="10Y">10Y</button>
+            <button class="tab" data-range="ALL">전체</button>
+          </div>
+        </div>
+        <div class="chart-box" id="idxChart"><div class="skel" style="height:100%"></div></div>
+        <p class="chart-note" id="idxChartNote"></p>
+      </section>
+    </div>
+
+    <aside class="idx-col">
+      <section class="panel">
+        <div class="panel-head">
+          <h2>🌙 야간 선물</h2>
+          <span class="panel-note">Hyperliquid xyz · 24시간</span>
+        </div>
+        <div class="fut-list" id="futList">
+          <div class="skel" style="height:200px"></div>
+        </div>
+      </section>
+
+      <section class="panel chart-panel">
+        <div class="panel-head">
+          <h2>🕯 코스피200 선물 24시간</h2>
+          <div class="tabs" id="hlIntervalTabs">
+            <button class="tab" data-iv="15m">15분</button>
+            <button class="tab active" data-iv="1h">1시간</button>
+            <button class="tab" data-iv="4h">4시간</button>
+            <button class="tab" data-iv="1d">일봉</button>
+          </div>
+        </div>
+        <div class="chart-box short" id="hlChart"><div class="skel" style="height:100%"></div></div>
+        <p class="chart-note">국장 마감 후에도 계속 움직인다 — 다음 날 시초가의 힌트.</p>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>🌐 해외·환율</h2>
+        </div>
+        <div class="glob-list" id="globList"><div class="skel" style="height:120px"></div></div>
+      </section>
+    </aside>
+  </main>
+
+  <script src="nav.js"></script>
+  <script src="chart.js"></script>
+  <script src="idx.js"></script>
+</body>
+</html>

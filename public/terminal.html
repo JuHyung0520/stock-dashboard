@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>터미널</title>
+  <meta name="description" content="삼성전자·SK하이닉스 재무·상대수익률·글로벌 반도체 24시간">
+  <meta name="theme-color" content="#0b0e14">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🖥️</text></svg>">
+  <!-- 테마 깜빡임 방지 — 그리기 전에 저장된 선택을 적용한다.
+       nav.js 는 body 끝에서 돌아 이미 한 번 그려진 뒤라 늦다. -->
+  <script>try{var t=localStorage.getItem('theme-v1');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="chart.css">
+  <link rel="stylesheet" href="terminal.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">🖥️</span>
+      <h1>터미널</h1>
+      <span class="brand-sub">삼성전자 · SK하이닉스 · 반도체 24시간</span>
+    </div>
+    <div class="nav-links" data-nav></div>
+    <div class="status">
+      <span class="status-dot" id="statusDot"></span>
+      <span id="lastUpdated">불러오는 중…</span>
+    </div>
+  </header>
+
+  <main class="term-grid">
+    <!-- 좌: 종목 카드 -->
+    <section class="term-cards" id="termCards">
+      <div class="panel skel" style="height:230px"></div>
+      <div class="panel skel" style="height:230px"></div>
+    </section>
+
+    <!-- 중앙: 상대수익률 차트 -->
+    <section class="panel chart-panel">
+      <div class="panel-head">
+        <h2 id="chartTitle">삼성전자 vs SK하이닉스 상대수익률</h2>
+        <div class="tabs" id="rangeTabs">
+          <button class="tab active" data-range="1D">1D</button>
+          <button class="tab" data-range="1M">1M</button>
+          <button class="tab" data-range="3M">3M</button>
+          <button class="tab" data-range="6M">6M</button>
+          <button class="tab" data-range="1Y">1Y</button>
+        </div>
+      </div>
+      <div class="chart-legend" id="chartLegend"></div>
+      <div class="chart-box" id="relChart"><div class="skel" style="height:100%"></div></div>
+      <p class="chart-note" id="chartNote"></p>
+    </section>
+
+    <!-- 우: 지수·환율 + 글로벌 반도체 -->
+    <aside class="term-rail">
+      <div class="rail-grid" id="railGrid">
+        <!-- 자리표시가 없으면 0px 에서 카드 8장으로 튄다 -->
+        <div class="skel" style="height:58px"></div><div class="skel" style="height:58px"></div>
+        <div class="skel" style="height:58px"></div><div class="skel" style="height:58px"></div>
+      </div>
+      <div class="rail-title">🌐 글로벌 반도체 <span class="rail-sub">바이낸스 토큰화 · 24시간</span></div>
+      <div class="rail-grid" id="semiGrid">
+        <div class="skel" style="height:58px"></div><div class="skel" style="height:58px"></div>
+        <div class="skel" style="height:58px"></div><div class="skel" style="height:58px"></div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- 하단: 바이낸스 24시간 차트 -->
+  <section class="panel">
+    <div class="panel-head">
+      <h2>🕯 바이낸스 24시간 차트</h2>
+      <span class="panel-note">토큰화 주식 perp · 주말·야간 포함 24시간 거래</span>
+      <div class="tabs" id="binIntervals">
+        <button class="tab" data-iv="5m">5분</button>
+        <button class="tab active" data-iv="15m">15분</button>
+        <button class="tab" data-iv="1h">1시간</button>
+        <button class="tab" data-iv="4h">4시간</button>
+        <button class="tab" data-iv="1d">일봉</button>
+      </div>
+    </div>
+    <div class="tabs sym-tabs" id="binSymbols"></div>
+    <div class="bin-head" id="binHead"></div>
+    <div class="chart-box tall" id="binChart"><div class="skel" style="height:100%"></div></div>
+  </section>
+
+  <script src="nav.js"></script>
+  <script src="chart.js"></script>
+  <script src="terminal.js"></script>
+</body>
+</html>

@@ -1,0 +1,781 @@
+/* 토큰은 tokens.css 참조 */
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { font-size: 15px; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Pretendard Variable", "Pretendard", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Segoe UI", "Malgun Gothic", sans-serif;
+  min-height: 100dvh;
+  padding: 0 20px 40px;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+.num { font-variant-numeric: tabular-nums; }
+
+/* ── top bar ─────────────────────────── */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 4px 8px;    /* 매일 보는 화면 — 브랜드에 쓰는 세로 예산 최소화 */
+}
+
+.brand { display: flex; align-items: baseline; gap: 10px; }
+.brand-mark { font-size: var(--fs-lg); }
+.brand h1 { font-size: var(--fs-hl); font-weight: 700; letter-spacing: -0.015em; }
+.brand-sub { font-size: var(--fs-2xs); color: var(--text-faint); }
+
+.status { display: flex; align-items: center; gap: 12px; font-size: var(--fs-xs); color: var(--text-dim); font-variant-numeric: tabular-nums; }
+
+/* .flow-link 는 chart.css(공통 내비게이션)로 이관 */
+.status-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--ok);
+  box-shadow: 0 0 6px var(--ok-line);
+  transition: background var(--t-bar);
+}
+.status-dot.error { background: #f04452; box-shadow: 0 0 6px rgba(240, 68, 82, 0.6); }
+.status-dot.pulse { animation: pulse 0.6s ease; }
+@keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.6); } 100% { transform: scale(1); } }
+
+/* ── index strip ─────────────────────── */
+/* 지수는 컨텍스트지 주인공이 아니다 — 3줄 카드를 1줄 티커로 눕혀
+ * 첫 화면 세로 예산을 호가창에 돌려준다 (79px → ~38px) */
+.indices {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.index-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-panel);
+  padding: 8px 12px;
+  display: flex;
+  align-items: baseline;
+  gap: 4px 8px;
+  min-width: 0;
+  flex-wrap: wrap;   /* 폭락장의 긴 등락 문자열(−381.95 (−5.56%))이 안 들어가면 둘째 줄로 */
+}
+
+.index-card .idx-name { font-size: var(--fs-2xs); color: var(--text-dim); display: flex; align-items: center; gap: 5px; white-space: nowrap; }
+.index-card .idx-value { font-size: var(--fs-lg); font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+.index-card .idx-change { font-size: var(--fs-2xs); margin-left: auto; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.idx-state { font-size: var(--fs-2xs); color: var(--text-faint); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; }
+
+.up { color: var(--up); }
+.down { color: var(--down); }
+.flat { color: var(--flat); }
+
+/* ── layout ──────────────────────────── */
+/* 사이드바를 고정 400px로 두면 창이 좁아질 때 손해를 전부 메인이 본다
+ * (실측: 1100px에서 메인 644px, 1000px에서 544px) — 비율 + 중간 단계로 완화 */
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(300px, 28%, 400px);
+  gap: 16px;
+  align-items: start;
+}
+@media (max-width: 1180px) {
+  .layout { grid-template-columns: minmax(0, 1fr) 320px; }
+}
+
+.col-main, .col-side { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--shadow-panel);
+}
+
+.panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.panel-head h2 { font-size: var(--fs-lg); font-weight: 700; letter-spacing: -0.01em; }
+.panel-note { font-size: var(--fs-2xs); color: var(--text-faint); }
+
+/* ── search ──────────────────────────── */
+.searchbox { position: relative; flex: 1; max-width: 380px; min-width: 220px; }
+
+.searchbox input {
+  width: 100%;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font: inherit;
+  font-size: var(--fs-sm);
+  padding: 8px 12px;
+  outline: none;
+  transition: border-color var(--t-fast);
+}
+.searchbox input:focus-visible {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(255, 209, 102, 0.3);
+}
+.searchbox input::placeholder { color: var(--text-faint); }
+
+.search-results {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0; right: 0;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: var(--shadow-float);
+  z-index: 50;
+  overflow: hidden;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.search-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 9px 12px;
+  background: none;
+  border: none;
+  color: var(--text);
+  font: inherit;
+  font-size: var(--fs-sm);
+  text-align: left;
+  cursor: pointer;
+}
+.search-item:hover, .search-item.active { background: var(--tint-active); }
+.search-item .si-code { color: var(--text-faint); font-size: var(--fs-2xs); font-variant-numeric: tabular-nums; }
+.search-item .si-added { margin-left: auto; font-size: var(--fs-2xs); color: var(--text-faint); }
+.search-empty { padding: 12px; font-size: var(--fs-xs); color: var(--text-faint); }
+
+.badge {
+  font-size: var(--fs-2xs);
+  font-weight: 700;
+  border-radius: 4px;
+  padding: 2px 5px;
+  flex-shrink: 0;
+}
+.badge.kr { background: var(--up-tint); color: var(--on-up-tint); }
+.badge.us { background: var(--down-tint); color: var(--on-down-tint); }
+
+/* ── quotes table ────────────────────── */
+.table-wrap { overflow-x: auto; }
+
+/* 종목이 늘어도 호가창이 fold 아래로 밀리지 않게 표 자체를 묶는다 */
+#watchlistPanel .table-wrap { max-height: 300px; overflow-y: auto; }
+#watchlistPanel .quotes thead th {
+  position: sticky; top: 0;
+  background: var(--panel); z-index: 1;
+}
+#watchlistPanel .card-grid { max-height: 560px; overflow-y: auto; }
+
+table { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); }
+th {
+  font-size: var(--fs-2xs);
+  font-weight: 600;
+  color: var(--text-faint);
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+/* 다크 --border 값을 그대로 박아두면 라이트에서 본문선이 헤더선보다 진해진다 */
+td { padding: 9px 8px; border-bottom: 1px solid var(--border-soft); white-space: nowrap; font-variant-numeric: tabular-nums; }
+tbody tr:last-child td { border-bottom: none; }
+
+.al { text-align: left; } .ar { text-align: right; } .ac { text-align: center; }
+
+.quotes tbody tr { cursor: pointer; transition: background var(--t-fast); }
+.quotes tbody tr:hover { background: var(--tint-hover); }
+/* 선택 틴트가 배경 밝기를 올려 파랑(하락) 대비를 4.42 까지 깎았다(실측).
+ * 왼쪽 3px 막대가 이미 '선택됨'을 충분히 말하므로 틴트는 최소로 둔다. */
+.quotes tbody tr.selected { background: rgba(255, 209, 102, 0.035); box-shadow: inset 3px 0 0 var(--accent); }
+
+.q-name { display: flex; align-items: center; gap: 7px; font-weight: 600; }
+.q-name .q-sub { color: var(--text-faint); font-size: var(--fs-2xs); font-weight: 400; }
+
+/* 프리/애프터마켓 가격 — 현재가 아래 작게 */
+/* opacity 로 흐리게 하면 대비가 계산 없이 깎인다(4.87 → 4.42).
+ * 흐릿함이 필요하면 색으로 표현하고, 대비는 지킨다. */
+.q-ext { display: block; font-size: var(--fs-2xs); margin-top: 2px; }
+
+.remove-btn {
+  background: none; border: none; color: var(--text-faint);
+  cursor: pointer; font-size: var(--fs-xs); padding: 5px 8px; border-radius: 5px;
+  min-width: 26px; min-height: 26px; line-height: 1;
+  opacity: 0; transition: opacity var(--t-fast);
+}
+.quotes tbody tr:hover .remove-btn { opacity: 1; }
+.remove-btn:hover { color: var(--up); background: rgba(240, 68, 82, 0.1); }
+
+.empty-row td, .news-empty, .inv-empty { color: var(--text-faint); text-align: center; padding: 24px 0; font-size: var(--fs-xs); }
+
+/* ── news ────────────────────────────── */
+.tabs { display: flex; gap: 6px; }
+.tab {
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font: inherit;
+  font-size: var(--fs-2xs);
+  padding: 5px 12px;
+  border-radius: 7px;
+  cursor: pointer;
+}
+.tab.active { background: rgba(255, 209, 102, 0.1); border-color: rgba(255, 209, 102, 0.35); color: var(--accent); }
+.tab:disabled { opacity: 0.4; cursor: default; }
+
+/* 가장 많이 누르는 컨트롤에 hover가 없었다 — 반응해야 눌러도 되는 줄 안다 */
+.tab, .vt {
+  transition: background var(--t-fast), color var(--t-fast), border-color var(--t-fast);
+}
+.tab:hover:not(:disabled):not(.active),
+.vt:hover:not(.active) {
+  background: var(--tint-active);
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+/* 키보드 포커스 — 프로젝트의 '선택' 신호색으로 통일 */
+.tab:focus-visible, .vt:focus-visible, .remove-btn:focus-visible,
+.rk-add:focus-visible, .retry-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* 오류 화면의 재시도 버튼 */
+.retry-btn {
+  background: none; border: 1px solid var(--border); color: var(--text-dim);
+  font: inherit; font-size: var(--fs-2xs); padding: 4px 11px; border-radius: 6px;
+  cursor: pointer; margin-left: 8px;
+  transition: border-color var(--t-fast), color var(--t-fast);
+}
+.retry-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+.news-list { list-style: none; }
+.news-list li { border-bottom: 1px solid rgba(35, 42, 56, 0.5); }
+.news-list li:last-child { border-bottom: none; }
+
+.news-link {
+  display: block;
+  padding: 10px 2px;
+  color: var(--text);
+  text-decoration: none;
+  font-size: var(--fs-sm);
+  line-height: 1.45;
+}
+.news-link:hover .news-title { color: var(--accent); }
+.news-title { transition: color var(--t-fast); }
+.news-meta { display: block; margin-top: 3px; font-size: var(--fs-2xs); color: var(--text-faint); }
+
+/* ── 드래그로 순서 바꾸기 ─────────────── */
+.quotes tbody tr[draggable="true"], .scard[draggable="true"] { cursor: grab; }
+
+/* 숨은 기능엔 단서가 필요하다 — 행 hover 시 그립 표시 */
+.quotes tbody tr[draggable="true"] td:first-child::before {
+  content: "⠿"; color: var(--text-faint); opacity: 0;
+  margin-right: 7px; font-size: var(--fs-xs);
+  transition: opacity var(--t-fast);
+}
+.quotes tbody tr[draggable="true"]:hover td:first-child::before { opacity: 0.6; }
+.dragging { opacity: 0.35; cursor: grabbing !important; }
+
+/* 표: 행 위/아래에 삽입선 */
+.quotes tbody tr.drop-before td { box-shadow: inset 0 2px 0 var(--accent); }
+.quotes tbody tr.drop-after td { box-shadow: inset 0 -2px 0 var(--accent); }
+
+/* 카드: 그리드라 좌/우에 삽입선 */
+.scard.drop-before { box-shadow: inset 3px 0 0 var(--accent); }
+.scard.drop-after { box-shadow: inset -3px 0 0 var(--accent); }
+
+/* ── 카드 뷰 ─────────────────────────── */
+.view-toggle { display: flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.vt {
+  background: none; border: none; color: var(--text-dim);
+  font: inherit; font-size: var(--fs-2xs); padding: 5px 13px; cursor: pointer;
+}
+.vt.active { background: rgba(255, 209, 102, 0.1); color: var(--accent); }
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(272px, 1fr));
+  gap: 12px;
+}
+
+.scard {
+  background: linear-gradient(180deg, var(--panel-2), var(--panel));
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-panel);
+  border-radius: 16px;
+  padding: 18px;
+  cursor: pointer;
+  transition: border-color var(--t-fast);
+  position: relative;
+}
+.scard:hover { border-color: var(--border-strong); }
+.scard.selected { border-color: rgba(255, 209, 102, 0.45); }
+
+.c-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.c-logo {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: #fff; object-fit: contain; flex-shrink: 0;
+}
+.c-logo.ph {
+  display: flex; align-items: center; justify-content: center;
+  background: var(--panel-2); border: 1px solid var(--border);
+  color: var(--text-faint); font-size: var(--fs-2xs);
+}
+.c-title { display: flex; flex-direction: column; min-width: 0; }
+.c-name { font-size: var(--fs-lg); font-weight: 700; letter-spacing: -0.02em; }
+.c-code { font-size: var(--fs-2xs); color: var(--text-faint); font-variant-numeric: tabular-nums; }
+.card-rm { margin-left: auto; opacity: 0; }
+.scard:hover .card-rm { opacity: 1; }
+
+.c-state {
+  font-size: var(--fs-2xs); color: var(--text-faint);
+  display: flex; align-items: center; gap: 5px; margin-bottom: 4px;
+}
+.c-state::before {
+  content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--text-faint);
+}
+.c-state.live { color: var(--ok); }
+.c-state.live::before { background: var(--ok); box-shadow: 0 0 5px rgba(63, 185, 80, 0.7); }
+
+/* 거대한 숫자 + 작은 단위 — 이 디자인의 핵심 */
+.c-price {
+  font-size: var(--fs-2xl); font-weight: 800; letter-spacing: -0.035em;
+  font-variant-numeric: tabular-nums; line-height: 1.15;
+}
+.c-unit { font-size: var(--fs-xs); font-weight: 500; margin-left: 3px; opacity: 0.65; }
+.c-change {
+  font-size: var(--fs-sm); font-weight: 600; margin-top: 5px;
+  font-variant-numeric: tabular-nums;
+}
+.c-sep { color: var(--text-faint); font-weight: 400; margin: 0 3px; }
+
+.c-facts { margin-top: 15px; padding-top: 13px; border-top: 1px solid var(--border); display: grid; gap: 6px; }
+.cf-row { display: flex; justify-content: space-between; font-size: var(--fs-2xs); }
+.cf-row span { color: var(--text-faint); }
+.cf-row b { font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* 52주 범위 안 현재가 위치 — 숫자만 나열하는 것보다 위치가 직관적이다 */
+.c-range { margin-top: 13px; }
+.cr-label { font-size: var(--fs-2xs); color: var(--text-faint); margin-bottom: 5px; }
+.cr-track {
+  height: 4px; border-radius: 2px; position: relative;
+  background: linear-gradient(90deg, var(--down), var(--border) 50%, var(--up));
+  opacity: 0.55;
+}
+.cr-dot {
+  position: absolute; top: 50%; width: 9px; height: 9px; border-radius: 50%;
+  background: var(--text); border: 2px solid var(--panel);
+  transform: translate(-50%, -50%);
+}
+.cr-ends {
+  display: flex; justify-content: space-between;
+  margin-top: 5px; font-size: var(--fs-2xs); color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 목표가 비교 */
+.c-target { margin-top: 15px; padding-top: 13px; border-top: 1px solid var(--border); }
+.ct-row { display: grid; grid-template-columns: 60px 1fr 66px; align-items: center; gap: 7px; margin-bottom: 6px; }
+.ct-k { font-size: var(--fs-2xs); color: var(--text-faint); }
+.ct-track { height: 5px; background: var(--tint-active); border-radius: 3px; overflow: hidden; }
+.ct-bar { height: 100%; border-radius: 3px; transition: width var(--t-bar) ease; }
+.ct-bar.now { background: var(--text-faint); }
+/* 목표가는 '오르내림'이 아니라 '전망'이다 — 등락색을 쓰면 바로 아래 상승여력 문장과 정반대로 읽힌다 */
+.ct-bar.goal { background: var(--accent); }
+.ct-bar.goal-high { background: var(--accent); opacity: 0.5; }
+.ct-v { font-size: var(--fs-2xs); text-align: right; font-variant-numeric: tabular-nums; }
+.ct-say { margin-top: 8px; font-size: var(--fs-xs); color: var(--text-dim); line-height: 1.5; }
+.ct-say b { font-weight: 700; }
+
+.empty-card {
+  grid-column: 1 / -1; text-align: center; color: var(--text-faint);
+  font-size: var(--fs-xs); padding: 40px 0;
+}
+
+/* ── 호가창 ──────────────────────────── */
+/* 국내 관례: 매도호가가 위(파랑), 매수호가가 아래(빨강). 막대 길이 = 잔량. */
+.ob { display: flex; flex-direction: column; gap: 1px; }
+
+.ob-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 84px 1fr;
+  align-items: center;
+  height: 21px;
+  font-size: var(--fs-2xs);
+  font-variant-numeric: tabular-nums;
+}
+/* 막대는 가격 열 바깥쪽에서 자라난다 — 매도는 왼쪽, 매수는 오른쪽 */
+.ob-bar {
+  position: absolute; top: 2px; bottom: 2px;
+  border-radius: 2px; z-index: 0; opacity: 0.28;
+  max-width: calc(50% - 42px);
+}
+.ob-bar.ask { right: calc(50% + 42px); background: var(--down); }
+.ob-bar.bid { left: calc(50% + 42px); background: var(--up); }
+
+.ob-vol { color: var(--text-dim); z-index: 1; padding: 0 6px; }
+.ob-row.ask .ob-vol:first-child { text-align: right; }
+.ob-row.bid .ob-vol:last-child { text-align: left; }
+
+.ob-price {
+  text-align: center; font-weight: 600; z-index: 1;
+  background: var(--tint-hover); border-radius: 3px; padding: 2px 0;
+}
+/* 호가는 틴트를 깐 칩 위의 글자다 — 판 색인 --up/--down 을 그대로 쓰면 4.48 로 4.5 를 못 넘는다.
+ * 틴트 위 전용 색이 이미 있다(--on-*-tint). 색상 계열은 같고 대비만 7.4 로 올라간다. */
+.ob-row.ask .ob-price { color: var(--on-down-tint); }
+.ob-row.bid .ob-price { color: var(--on-up-tint); }
+
+.ob-mid {
+  display: flex; justify-content: center; align-items: center;
+  height: 24px; margin: 3px 0;
+  border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+}
+.ob-spread { font-size: var(--fs-2xs); color: var(--text-faint); font-variant-numeric: tabular-nums; }
+
+.ob-totals { margin-top: 12px; }
+.ob-tbar {
+  height: 6px; border-radius: 3px; overflow: hidden;
+  background: var(--down); /* 남는 부분 = 매도 */
+}
+.ob-tfill { height: 100%; background: var(--up); transition: width var(--t-bar) ease; }
+.ob-tnums {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 6px; font-size: var(--fs-2xs); font-variant-numeric: tabular-nums;
+}
+.ob-tratio { color: var(--text-faint); font-size: var(--fs-2xs); }
+
+/* ── 랭킹 ────────────────────────────── */
+/* 사이드바는 뷰포트가 아니라 컨테이너 폭으로 재야 한다 —
+ * 620px 뷰포트 MQ는 400px 사이드바에서 영원히 발동하지 않아 이름 열이 46px로 붕괴했었다 */
+.col-side { container-type: inline-size; }
+
+.rank-row {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr) 72px 56px 60px 48px;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 2px;
+  font-size: var(--fs-xs);
+}
+@container (max-width: 460px) {
+  .rank-row { grid-template-columns: 20px minmax(0, 1fr) 66px 54px 46px; }
+  .rk-amt { display: none; }   /* 좁으면 거래대금부터 버린다 */
+}
+.rk-no { color: var(--text-faint); font-size: var(--fs-2xs); text-align: center; }
+.rk-name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rk-price, .rk-chg, .rk-amt { text-align: right; }
+.rk-amt { color: var(--text-faint); font-size: var(--fs-2xs); }
+.rk-add {
+  background: none; border: 1px solid var(--border); color: var(--text-dim);
+  font: inherit; font-size: var(--fs-2xs); padding: 3px 6px; border-radius: 5px; cursor: pointer;
+}
+.rk-add:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.rk-add:disabled { opacity: 0.35; cursor: default; }
+
+/* (rank-row 좁은 폭 처리는 위 컨테이너 쿼리로 이동) */
+
+/* ── investor panel ──────────────────── */
+/* /flow 판정 헤드라인 — 결론은 여기, 근거는 세력 좌표 */
+.inv-verdict {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 8px;
+  margin-bottom: 12px; padding: 9px 11px;
+  background: var(--panel-2); border: 1px solid var(--border); border-radius: 8px;
+  color: var(--text); text-decoration: none;
+  font-size: var(--fs-sm); font-weight: 600; line-height: 1.4;
+  transition: border-color var(--t-fast);
+}
+.inv-verdict:hover { border-color: rgba(255, 209, 102, 0.4); }
+.inv-verdict .iv-more { font-size: var(--fs-2xs); font-weight: 400; color: var(--text-faint); white-space: nowrap; }
+
+.inv-market { margin-bottom: 18px; }
+.inv-market:last-child { margin-bottom: 0; }
+.inv-market h3 { font-size: var(--fs-xs); color: var(--text-dim); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: baseline; }
+.inv-market h3 .inv-asof { font-size: var(--fs-2xs); color: var(--text-faint); font-weight: 400; }
+
+.inv-row { display: grid; grid-template-columns: 52px 1fr 82px; align-items: center; gap: 10px; padding: 5px 0; }
+.inv-label { font-size: var(--fs-xs); color: var(--text-dim); }
+.inv-amount { font-size: var(--fs-xs); font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
+
+.inv-bar-track { height: 14px; position: relative; background: var(--tint-active); border-radius: 4px; overflow: hidden; }
+.inv-bar-track::after {
+  content: ""; position: absolute; left: 50%; top: 0; bottom: 0;
+  width: 1px; background: var(--border);
+}
+.inv-bar { position: absolute; top: 2px; bottom: 2px; border-radius: 3px; transition: width var(--t-bar) ease, left var(--t-bar) ease; }
+.inv-bar.pos { background: linear-gradient(90deg, rgba(240,68,82,0.55), rgba(240,68,82,0.9)); left: 50%; }
+.inv-bar.neg { background: linear-gradient(270deg, rgba(49,130,246,0.55), rgba(49,130,246,0.9)); right: 50%; }
+
+/* 종목 상세 탭 (호가·수급 = 주력 / 공매도~대차 = 일별 지표) */
+.detail-tabs { flex-wrap: wrap; gap: 4px; margin-bottom: 10px; }
+.detail-tabs .tab { font-size: var(--fs-2xs); padding: 6px 11px; }
+/* 두 그룹 사이 시각적 간격 — 6개 균등 나열이 아니라 2+4 구조임을 보여준다 */
+.detail-tabs .tab[data-dtab="short"] { margin-left: 12px; position: relative; }
+.detail-tabs .tab[data-dtab="short"]::before {
+  content: ""; position: absolute; left: -7px; top: 20%; bottom: 20%;
+  width: 1px; background: var(--border);
+}
+
+/* 기관 세부분류 (토스 전용) */
+.inv-detail { margin-top: 6px; }
+.inv-detail summary {
+  font-size: var(--fs-2xs);
+  color: var(--text-faint);
+  cursor: pointer;
+  padding: 4px 0;
+  list-style: none;
+  user-select: none;
+}
+.inv-detail summary::marker, .inv-detail summary::-webkit-details-marker { display: none; }
+.inv-detail summary::before { content: "▸ "; }
+.inv-detail[open] summary::before { content: "▾ "; }
+.inv-detail summary:hover { color: var(--text-dim); }
+
+.inv-row-sm { padding: 2px 0; opacity: 0.82; }
+.inv-row-sm .inv-label { font-size: var(--fs-2xs); }
+.inv-row-sm .inv-amount { font-size: var(--fs-2xs); }
+.inv-row-sm .inv-bar-track { height: 10px; }
+
+/* ── detail panel ────────────────────── */
+/* 이 화면의 주어 — '내가 고른 종목이 지금 얼마인가'. 지수보다 확실히 커야 한다 */
+.detail-price { font-size: var(--fs-2xl); font-weight: 800; letter-spacing: -0.03em; margin-bottom: 10px; font-variant-numeric: tabular-nums; display: flex; align-items: baseline; gap: 12px; }
+.detail-price .dp-change { font-size: var(--fs-lg); font-weight: 600; letter-spacing: 0; }
+
+.inv-daily { font-size: var(--fs-xs); }
+.inv-daily td { padding: 6px 6px; }
+
+.detail-hint { margin-top: 10px; font-size: var(--fs-xs); color: var(--text-faint); line-height: 1.5; }
+
+.hint-panel { background: transparent; border-style: dashed; }
+.hint-panel p { font-size: var(--fs-xs); color: var(--text-faint); line-height: 1.7; }
+
+/* ── responsive ──────────────────────── */
+@media (max-width: 980px) {
+  .layout { grid-template-columns: 1fr; }
+  .topbar { flex-direction: column; align-items: flex-start; gap: 8px; }
+  /* 스택 모드: 관심종목이 무한정 길면 '종목 선택 → 호가 확인' 동선이 끊긴다 */
+  #watchlistPanel .table-wrap, #watchlistPanel .card-grid { max-height: 60vh; }
+  /* 뉴스는 폭이 두 배가 됐는데 높이를 줄이는 건 거꾸로였다 */
+  .news-list { max-height: 480px; }
+}
+
+/* 터치 화면: hover가 없으므로 삭제 버튼을 항상 보이게 */
+@media (hover: none) {
+  .remove-btn, .card-rm { opacity: 1; }
+}
+
+/* 폰: 표 6열이 375px에 안 들어간다 — 덜 중요한 것부터 버리고 등락률을 끝까지 지킨다.
+ * 실측(375px): 종목148 + 현재가133 + 등락68 + 등락률63 + 버튼45 = 457px 인데 쓸 수 있는 폭은 301px. */
+@media (max-width: 620px) {
+  .quotes th:nth-child(5), .quotes td:nth-child(5) { display: none; }   /* 거래량 */
+  .remove-btn { padding: 8px 10px; }
+}
+@media (max-width: 520px) {
+  /* 등락(원)은 등락률과 같은 이야기를 두 번 한다 — 비율만 남긴다 */
+  .quotes th:nth-child(3), .quotes td:nth-child(3) { display: none; }
+  /* 장 상태 배지는 상단 지수 스트립에도 있다 */
+  .q-name .q-sub { display: none; }
+  /* 삭제 버튼은 폰에서 hover 가 없어 항상 보이지만, 자리는 최소로 */
+  .remove-btn { opacity: 1; padding: 6px 4px; min-width: 20px; }
+  /* 패널 여백을 줄여 표에 폭을 돌려준다 */
+  .panel { padding: 12px 10px; }
+  body { padding: 0 10px 32px; }
+  .quotes th, .quotes td { padding-left: 6px; padding-right: 6px; }
+}
+
+
+/* ── 레이아웃 정리 (2026-08-18) ──
+ * 뉴스가 메인 컬럼 절반을 먹고 종목 상세는 좁은 사이드바에 갇혀 있었다.
+ * 매매에 쓰는 것(관심종목·호가)을 넓은 쪽으로, 참고용(수급·뉴스)을 사이드로 옮겼다. */
+
+/* 뉴스는 길이가 제각각이라 페이지를 늘어뜨린다 — 높이를 묶고 안에서 스크롤 */
+.news-list {
+  max-height: 420px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+.news-list::-webkit-scrollbar { width: 7px; }
+.news-list::-webkit-scrollbar-track { background: transparent; }
+.news-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+/* 뉴스 탭이 5개라 사이드바에서 줄바꿈된다 — 작게 */
+#newsPanel .tabs { flex-wrap: wrap; gap: 4px; }
+#newsPanel .tab { font-size: var(--fs-2xs); padding: 4px 9px; }
+
+/* 종목 상세가 넓어졌으니 호가창도 여유 있게 */
+#detailPanel .ob-row { height: 23px; font-size: var(--fs-2xs); }
+#detailPanel .ob-price { font-size: var(--fs-xs); }
+
+/* 좁은 화면에선 다시 한 줄로 */
+@media (max-width: 980px) {
+  .news-list { max-height: 340px; }
+}
+
+
+/* ── 삭제 실행취소 토스트 ── */
+#undoToast {
+  position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 12px);
+  display: flex; align-items: center; gap: 12px;
+  background: var(--panel-2); border: 1px solid var(--border); border-radius: 10px;
+  padding: 10px 14px; font-size: var(--fs-xs);
+  box-shadow: var(--shadow-float);
+  opacity: 0; pointer-events: none; z-index: 200;
+  transition: opacity var(--t-fast), transform var(--t-fast);
+}
+#undoToast.on { opacity: 1; pointer-events: auto; transform: translate(-50%, 0); }
+#undoToast .undo-btn {
+  background: none; border: 1px solid rgba(255, 209, 102, 0.4); color: var(--accent);
+  font: inherit; font-size: var(--fs-xs); padding: 4px 11px; border-radius: 6px; cursor: pointer;
+  transition: background var(--t-fast);
+}
+#undoToast .undo-btn:hover { background: rgba(255, 209, 102, 0.1); }
+
+
+/* ── 첫 로드 등장 — 위에서부터 차례로 떠오른다 ── */
+.indices, .panel { animation: rise 0.35s ease both; }
+.indices { animation-delay: 0.02s; }
+.col-main .panel:nth-child(1) { animation-delay: 0.06s; }
+.col-main .panel:nth-child(2) { animation-delay: 0.11s; }
+.col-side .panel:nth-child(1) { animation-delay: 0.09s; }
+.col-side .panel:nth-child(2) { animation-delay: 0.14s; }
+
+.skel-li { padding: 11px 2px; }
+
+
+/* ── 해외 선물 환산가 (김프) ─────────── */
+.gap-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 12px;
+  padding: 10px 2px;
+  border-bottom: 1px solid var(--border-soft);
+  align-items: baseline;
+}
+.gap-row:last-of-type { border-bottom: none; }
+.gap-name { font-size: var(--fs-sm); font-weight: 700; }
+.gap-krw { font-size: var(--fs-lg); font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; }
+.gap-sub { font-size: var(--fs-2xs); color: var(--text-faint); font-variant-numeric: tabular-nums; }
+.gap-badge {
+  font-size: var(--fs-2xs); font-weight: 700; font-variant-numeric: tabular-nums;
+  border-radius: 5px; padding: 2px 7px; text-align: right; justify-self: end;
+}
+/* 틴트 배경 위에 같은 계열 글자를 얹으면 대비가 4.1 까지 떨어진다(실측).
+ * 배경 위 전용 색을 따로 둔다 — 다크는 밝게, 라이트는 진하게. */
+/* 김프는 '올랐다/내렸다'가 아니라 '어디가 비싸냐'다 — 등락색을 쓰면 프리미엄이 상승으로 읽힌다.
+ * /adr 이 같은 이유로 이미 중립 강조색을 쓰고 있다. 부호는 숫자에 이미 붙는다. */
+.gap-badge.prem { background: var(--accent-tint); color: var(--accent); }
+.gap-foot { margin-top: 9px; font-size: var(--fs-xs); color: var(--text-faint); line-height: 1.6; }
+
+/* 김프 — 비교 기준 선택 + 메타 줄 */
+.gap-basis { display: flex; gap: 5px; margin-bottom: 8px; flex-wrap: wrap; }
+.gb {
+  background: none; border: 1px solid var(--border); border-radius: 6px;
+  padding: 2px 8px; color: var(--text-faint); font: inherit; font-size: var(--fs-2xs);
+  cursor: pointer; transition: color var(--t-fast), border-color var(--t-fast);
+}
+.gb:hover { color: var(--text-dim); }
+.gb.active { color: var(--accent); border-color: rgba(255, 209, 102, 0.35); background: rgba(255, 209, 102, 0.08); }
+.gap-meta {
+  grid-column: 1 / -1; font-size: var(--fs-2xs); color: var(--text-faint);
+  font-variant-numeric: tabular-nums; margin-top: 2px;
+}
+
+/* ── 낡은 값 표시 ─────────────────────────
+ * 이 대시보드는 장외에 더 자주 열린다. 그때 화면이 "이건 지금 값이 아니다"를
+ * 말하지 않으면 판단이 틀어진다. 두 겹으로 알린다:
+ *   ① 전체를 살짝 가라앉혀 시선을 끌고
+ *   ② 상단 문구로 무엇이 낡았는지 말한다 (흐림만으로는 경고가 안 읽힌다)
+ * flow.css 가 혼자 쓰던 패턴을 전 페이지로 승격한 것이다. */
+body.stale main,
+body.stale .layout,
+body.stale .panel,
+body.stale .indices,
+body.stale .sum-hero { opacity: 0.55; transition: opacity var(--t-fast); }
+
+/* 데이터 시점 배지 — "지금 값인가"를 숫자 옆에서 바로 말한다 */
+.as-of {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: var(--fs-2xs); font-weight: 400;
+  color: var(--text-faint); white-space: nowrap;
+  border: 1px solid var(--border); border-radius: 4px; padding: 0 5px;
+}
+.as-of.live { color: var(--ok); border-color: var(--ok-line); background: var(--ok-tint); }
+.as-of.closed { color: var(--text-faint); }
+.as-of.stale { color: var(--accent); border-color: var(--accent-line); background: var(--accent-tint); }
+
+/* 빈/오류 문구가 차트 상자 맨 위에 붙어 아래가 텅 비던 것 — 6개 페이지가 함께 고쳐진다 */
+.chart-box > .inv-empty {
+  height: 100%; display: flex; align-items: center; justify-content: center; padding: 0;
+}
+
+/* ── 반응 (hover / active) ───────────────────────────────
+ * 규칙 하나: **눌리는 것만 떠오른다.**
+ * 안 눌리는 카드가 손끝을 따라 떠오르면 "여기 클릭하면 뭔가 있다"는 거짓말이 된다.
+ * 그래서 세 등급으로 나눈다.
+ *   ① 카드형 클릭 대상 — 2px 들어올림 + 그림자 + 테두리, 누르면 내려앉는다
+ *   ② 행형 클릭 대상   — 들어올리지 않는다(표에서 행만 뜨면 줄이 어긋나 보인다).
+ *                        대신 배경을 진하게 하고 왼쪽에 세로 막대를 켠다
+ *   ③ 정보 전용        — 테두리만 한 단 밝힌다. 커서도 기본 화살표 그대로
+ * prefers-reduced-motion 이면 이동은 끄고 색 변화만 남긴다. */
+
+/* ① 카드형 */
+.scard, .peak-row {
+  transition: border-color var(--t-fast), background var(--t-fast),
+              transform var(--t-fast), box-shadow var(--t-fast);
+  will-change: transform;
+}
+.scard:hover, .peak-row:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lift);
+  border-color: var(--border-strong);
+}
+.scard:active, .peak-row:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-panel);
+  transition-duration: 0.06s;          /* 누르는 느낌은 빨라야 손에 붙는다 */
+}
+
+/* ② 행형 */
+.quotes tbody tr, .h-row {
+  transition: background var(--t-fast), box-shadow var(--t-fast);
+}
+.quotes tbody tr:hover, .h-row:hover {
+  background: var(--tint-active);
+  box-shadow: inset 3px 0 0 var(--border-strong);
+}
+.quotes tbody tr:active, .h-row:active { background: var(--tint-hover); }
+/* 선택된 행의 표시가 hover 막대에 가려지면 안 된다 */
+.quotes tbody tr.selected:hover { box-shadow: inset 3px 0 0 var(--accent); }
+
+/* ③ 정보 전용 — 커서는 손가락이 되지 않는다 */
+.index-card, .tcard, .rail-card, .mkt-card, .peer-row, .stat-card, .spot-card, .fut-row {
+  transition: border-color var(--t-fast);
+}
+.index-card:hover, .tcard:hover, .rail-card:hover, .mkt-card:hover,
+.peer-row:hover, .stat-card:hover, .spot-card:hover, .fut-row:hover {
+  border-color: var(--border-strong);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scard, .peak-row { transition: border-color var(--t-fast), box-shadow var(--t-fast); }
+  .scard:hover, .peak-row:hover, .scard:active, .peak-row:active { transform: none; }
+}

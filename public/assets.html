@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>내 자산</title>
+  <meta name="description" content="평단 손익계산기 — 차수별 분할매수, 거래세 차감, 실현손익. 데이터는 이 브라우저에만 저장">
+  <meta name="theme-color" content="#0b0e14">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💰</text></svg>">
+  <!-- 테마 깜빡임 방지 — 그리기 전에 저장된 선택을 적용한다.
+       nav.js 는 body 끝에서 돌아 이미 한 번 그려진 뒤라 늦다. -->
+  <script>try{var t=localStorage.getItem('theme-v1');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="chart.css">
+  <link rel="stylesheet" href="assets.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">💰</span>
+      <h1>내 자산</h1>
+      <span class="brand-sub">이 브라우저에만 저장 · 서버 전송 없음</span>
+    </div>
+    <div class="nav-links" data-nav></div>
+    <div class="status">
+      <span class="status-dot" id="statusDot" title="데이터 상태"></span>
+      <span id="lastUpdated">불러오는 중…</span>
+    </div>
+  </header>
+
+  <!-- 총계 히어로 -->
+  <section class="sum-hero" id="sumHero">
+    <div class="sum-main">
+      <div class="sum-label">총 평가금</div>
+      <div class="sum-big" id="sumEval">—</div>
+      <div class="sum-pnl" id="sumPnl"></div>
+    </div>
+    <div class="sum-grid" id="sumGrid"></div>
+  </section>
+
+  <!-- 계좌 스위처 — #holdingsBody 바깥에 둔다.
+       안에 두면 focusout→render()가 DOM을 갈아치우면서 클릭이 유실된다. -->
+  <div class="account-bar" id="accountBar"></div>
+
+  <!-- 보유 | 그리드 탭 -->
+  <div class="view-toggle atab" id="assetTabs">
+    <button class="vt active" data-atab="holdings">보유</button>
+    <button class="vt" data-atab="grid">그리드</button>
+  </div>
+
+  <!-- 보유 종목 -->
+  <main class="panel" id="holdingsPanel">
+    <div class="panel-head">
+      <h2>보유 종목</h2>
+      <div class="tax-pick">
+        <span class="tax-label">매도 거래세</span>
+        <div class="tabs" id="taxTabs">
+          <button class="tab" data-tax="0.2">0.2%</button>
+          <button class="tab" data-tax="0.18">0.18%</button>
+          <button class="tab active" data-tax="0.15">0.15%</button>
+          <button class="tab" data-tax="0">미적용</button>
+        </div>
+      </div>
+      <div class="searchbox">
+        <input type="text" id="searchInput" placeholder="보유 종목 추가 (예: 삼성전자, AAPL)" autocomplete="off" spellcheck="false">
+        <div class="search-results" id="searchResults" hidden></div>
+      </div>
+    </div>
+    <p class="tax-note">거래세는 국내 주식 매도 시 평가손익에서 차감돼요. ETF는 자동 면제, 미국 종목은 미적용.</p>
+    <div id="holdingsBody">
+      <div class="empty-assets">위에서 종목을 검색해 보유 수량과 평단을 입력하세요.<br>
+      데이터는 이 브라우저(localStorage)에만 저장되고 어디로도 전송되지 않아요.</div>
+    </div>
+  </main>
+
+  <!-- 그리드 트래커 -->
+  <main class="panel" id="gridPanel" hidden>
+    <div class="panel-head">
+      <h2>그리드 매매 트래커</h2>
+      <span class="panel-note">수동 그리드 매매 기록 장부 — 자동매매 아님</span>
+    </div>
+    <div id="gridList"></div>
+
+    <details class="grid-new" id="gridNew">
+      <summary>+ 새 그리드 만들기</summary>
+      <div class="gn-form">
+        <div class="searchbox gn-search">
+          <input type="text" id="gridSearch" placeholder="종목 검색" autocomplete="off" spellcheck="false">
+          <div class="search-results" id="gridSearchResults" hidden></div>
+        </div>
+        <div class="gn-grid">
+          <label>하단가 <input type="number" id="gnLower" inputmode="decimal" step="any" min="0" placeholder="예: 240000"></label>
+          <label>상단가 <input type="number" id="gnUpper" inputmode="decimal" step="any" min="0" placeholder="예: 280000"></label>
+          <label>칸 수 <input type="number" id="gnCells" inputmode="numeric" min="2" max="60" value="10"></label>
+          <label>칸당 수량 <input type="number" id="gnQty" inputmode="decimal" step="any" min="0" placeholder="예: 5"></label>
+        </div>
+        <p class="gn-info" id="gnInfo">종목을 고르면 현재가가 시작가가 돼요. 시작가 위 칸은 '보유'로 시작합니다.</p>
+        <button class="tab" id="gnCreate" disabled>그리드 시작</button>
+      </div>
+    </details>
+  </main>
+
+  <!-- 백업 -->
+  <section class="backup-row">
+    <button class="tab" id="exportBtn">JSON 내보내기</button>
+    <button class="tab" id="importBtn">가져오기</button>
+    <input type="file" id="importFile" accept=".json" hidden>
+    <span class="backup-note">동기화 서버 없음 — 백업은 파일로. 실거래 체결가·수수료·환율 미반영, 투자 판단 아님.</span>
+  </section>
+
+  <script src="nav.js"></script>
+  <script src="assets.js"></script>
+</body>
+</html>

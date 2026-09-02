@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>하닉 ADR</title>
+  <meta name="description" content="SK하이닉스 ADR과 한국 주가의 괴리 — 미국이 한국보다 얼마나 비싸게 사고 있나">
+  <meta name="theme-color" content="#0b0e14">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🇺🇸</text></svg>">
+  <!-- 테마 깜빡임 방지 — 그리기 전에 저장된 선택을 적용한다.
+       nav.js 는 body 끝에서 돌아 이미 한 번 그려진 뒤라 늦다. -->
+  <script>try{var t=localStorage.getItem('theme-v1');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="chart.css">
+  <link rel="stylesheet" href="adr.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">🇺🇸</span>
+      <h1>하닉 ADR</h1>
+      <span class="brand-sub">SK하이닉스 한·미 괴리</span>
+    </div>
+    <div class="nav-links" data-nav></div>
+    <div class="status">
+      <span class="status-dot" id="statusDot"></span>
+      <span id="lastUpdated">불러오는 중…</span>
+    </div>
+  </header>
+
+  <section class="panel hero" id="heroPanel">
+    <div class="hero-main">
+      <div class="hero-label">
+        <span>ADR 프리미엄</span>
+        <span class="hero-badge" id="heroBadge">…</span>
+      </div>
+      <div class="hero-value" id="premValue">—</div>
+      <div class="hero-change" id="premWords">—</div>
+      <div class="hero-sub" id="premSub"></div>
+    </div>
+    <div class="hero-side" id="heroSide"></div>
+  </section>
+
+  <section class="panel" id="ratioPanel">
+    <div class="panel-head">
+      <h2>⚖️ ADR 비율</h2>
+      <span class="panel-note">이 숫자가 틀리면 프리미엄 전체가 무의미해집니다</span>
+    </div>
+    <div id="ratioBody"><div class="skel" style="height:52px"></div></div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <h2>💱 세 시장 나란히</h2>
+      <span class="panel-note">모두 보통주 1주 기준 원화로 환산</span>
+    </div>
+    <div class="mkt-grid" id="marketGrid">
+      <div class="skel" style="height:120px"></div>
+      <div class="skel" style="height:120px"></div>
+      <div class="skel" style="height:120px"></div>
+    </div>
+  </section>
+
+  <section class="panel chart-panel">
+    <div class="panel-head">
+      <h2>📉 프리미엄 추이</h2>
+      <span class="panel-note" id="histNote"></span>
+    </div>
+    <div class="chart-box" id="premChart"><div class="skel" style="height:100%"></div></div>
+    <p class="chart-note" id="premFoot"></p>
+  </section>
+
+  <script src="nav.js"></script>
+  <script src="chart.js"></script>
+  <script src="adr.js"></script>
+</body>
+</html>

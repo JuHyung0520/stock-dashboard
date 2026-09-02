@@ -1,0 +1,73 @@
+/* 시총비교 — 대결 카드 + 컨트롤 + 2개 차트 */
+
+body > section.panel { margin-bottom: 14px; }
+
+/* ── 대결 카드 ── */
+.versus { display: flex; align-items: stretch; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+.vs-side { display: flex; align-items: stretch; gap: 16px; flex-wrap: wrap; min-width: 0; }
+.vs-mid { align-self: center; font-size: var(--fs-sm); color: var(--text-faint); font-weight: 700; }
+
+.vs-card { min-width: 0; padding-left: 12px; border-left: 3px solid var(--c); }
+.vs-card.leader .vs-cap { color: var(--c); }
+.vs-name { font-size: var(--fs-sm); font-weight: 700; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.crown { font-size: var(--fs-xs); }
+.vs-pref {
+  font-size: var(--fs-2xs); color: var(--text-faint); font-weight: 400;
+  border: 1px solid var(--border); border-radius: 4px; padding: 0 4px;
+}
+.vs-cap {
+  font-size: var(--fs-3xl); font-weight: 800; letter-spacing: -0.035em;
+  font-variant-numeric: tabular-nums; line-height: 1.15; margin: 1px 0;
+}
+.vs-chg { font-size: var(--fs-sm); font-weight: 700; font-variant-numeric: tabular-nums; }
+.vs-parts { margin-top: 5px; font-size: var(--fs-2xs); color: var(--text-faint); font-variant-numeric: tabular-nums; }
+
+.vs-stats { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-start; }
+.vst {
+  display: flex; flex-direction: column; gap: 1px;
+  border-left: 1px solid var(--border-soft); padding-left: 14px; min-width: 116px;
+}
+.vst .k { font-size: var(--fs-2xs); color: var(--text-faint); }
+.vst .v { font-size: var(--fs-xl); font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -0.025em; }
+.vst .d { font-size: var(--fs-2xs); color: var(--text-dim); font-variant-numeric: tabular-nums; }
+
+/* ── 컨트롤 ── */
+.controls { display: flex; gap: 20px; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+.ctl-group { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.ctl-label { font-size: var(--fs-2xs); color: var(--text-faint); font-weight: 700; }
+
+.picker { display: flex; align-items: center; gap: 8px; }
+.vs-mark { color: var(--text-faint); font-size: var(--fs-sm); }
+.pick-btn {
+  display: flex; align-items: center; gap: 7px;
+  background: var(--panel-2); border: 1px solid var(--border); border-radius: 8px;
+  padding: 6px 11px; color: var(--text); font: inherit; font-size: var(--fs-sm); font-weight: 600;
+  cursor: pointer; transition: border-color var(--t-fast), background var(--t-fast);
+}
+.pick-btn:hover { border-color: var(--c); }
+.pick-btn.active { border-color: var(--c); background: color-mix(in srgb, var(--c) 12%, var(--panel-2)); }
+.pick-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--c); flex: none; }
+.pick-code { font-size: var(--fs-2xs); color: var(--text-faint); font-family: var(--mono); }
+
+.searchbox.compact { max-width: 300px; min-width: 200px; flex: none; }
+.sr-item {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  width: 100%; background: none; border: none; border-bottom: 1px solid var(--border-soft);
+  padding: 8px 11px; color: var(--text); font: inherit; font-size: var(--fs-sm);
+  cursor: pointer; text-align: left;
+}
+.sr-item:last-child { border-bottom: none; }
+.sr-item:hover { background: var(--panel-2); }
+.sr-code { font-size: var(--fs-2xs); color: var(--text-faint); font-family: var(--mono); }
+.sr-empty { padding: 12px; font-size: var(--fs-xs); color: var(--text-faint); text-align: center; }
+
+.pref-toggle { display: flex; align-items: center; gap: 6px; font-size: var(--fs-xs); color: var(--text-dim); cursor: pointer; }
+.pref-toggle input { accent-color: var(--accent); cursor: pointer; }
+
+@media (max-width: 720px) {
+  .vs-cap { font-size: var(--fs-2xl); }
+  .vst { border-left: none; padding-left: 0; flex: 1; }
+  .controls { gap: 12px; }
+}
+
+.warn-note { color: var(--accent); }

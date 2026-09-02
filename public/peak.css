@@ -1,0 +1,99 @@
+/* 전고대비 — 낙폭 막대 목록 + 선택 상세 */
+
+body > section.panel { margin-bottom: 14px; }
+
+.controls { display: flex; gap: 20px; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+.ctl-group { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.ctl-label { font-size: var(--fs-2xs); color: var(--text-faint); font-weight: 700; }
+.searchbox.compact { max-width: 280px; min-width: 190px; flex: none; }
+.ghost-btn {
+  background: none; border: 1px solid var(--border); border-radius: 7px;
+  padding: 5px 11px; color: var(--text-dim); font: inherit; font-size: var(--fs-xs);
+  cursor: pointer; transition: border-color var(--t-fast), color var(--t-fast);
+}
+.ghost-btn:hover { color: var(--accent); border-color: rgba(255, 209, 102, 0.35); }
+
+.sr-item {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  width: 100%; background: none; border: none; border-bottom: 1px solid var(--border-soft);
+  padding: 8px 11px; color: var(--text); font: inherit; font-size: var(--fs-sm);
+  cursor: pointer; text-align: left;
+}
+.sr-item:last-child { border-bottom: none; }
+.sr-item:hover { background: var(--panel-2); }
+.sr-code { font-size: var(--fs-2xs); color: var(--text-faint); font-family: var(--mono); }
+.sr-empty { padding: 12px; font-size: var(--fs-xs); color: var(--text-faint); text-align: center; }
+
+/* ── 목록 행 ── */
+.peak-list { display: flex; flex-direction: column; gap: 7px; }
+.peak-row {
+  display: grid;
+  grid-template-columns: minmax(190px, 1.4fr) minmax(150px, 1.6fr) 100px 100px;
+  gap: 14px; align-items: center;
+  background: var(--panel-2); border: 1px solid var(--border-soft);
+  border-radius: 10px; padding: 11px 14px;
+  cursor: pointer; transition: border-color var(--t-fast), background var(--t-fast);
+}
+.peak-row:hover { border-color: var(--border); }
+.peak-row.selected { border-color: var(--accent-line); background: var(--accent-tint); }
+.peak-row:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.peak-row.newhigh { border-left: 3px solid var(--up); }
+
+.pr-main { min-width: 0; }
+.pr-head { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+.pr-name { font-size: var(--fs-sm); font-weight: 700; }
+.pr-code { font-size: var(--fs-2xs); color: var(--text-faint); font-family: var(--mono); }
+.pr-tag, .pr-badge, .pr-live {
+  font-size: var(--fs-2xs); border-radius: 4px; padding: 0 5px; border: 1px solid var(--border);
+  color: var(--text-faint);
+}
+.pr-badge { color: var(--on-up-tint); border-color: var(--up); background: var(--up-tint); font-weight: 700; }
+.pr-live { color: var(--ok); border-color: var(--ok-line); }
+.pr-del {
+  background: none; border: none; color: var(--text-faint);
+  font-size: var(--fs-sm); line-height: 1; cursor: pointer; padding: 2px 5px; border-radius: 4px;
+  opacity: 0; transition: opacity var(--t-fast), color var(--t-fast);
+}
+.peak-row:hover .pr-del, .pr-del:focus-visible { opacity: 1; }
+.pr-del:hover { color: var(--on-up-tint); background: var(--up-tint); }
+
+.pr-prices {
+  display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;
+  margin-top: 3px; font-variant-numeric: tabular-nums;
+}
+.pr-cur { font-size: var(--fs-sm); font-weight: 700; letter-spacing: -0.01em; color: var(--text-dim); }
+.pr-chg { font-size: var(--fs-2xs); font-weight: 700; }
+.pr-peak { font-size: var(--fs-2xs); color: var(--text-faint); }
+
+/* 낙폭 막대 — 색 농도 대신 길이로 표현한다 (색은 이미 등락에 쓰고 있음).
+ * 트랙(회색 홈)을 깔아야 "전체 중 어디까지 찼는지"가 보인다. */
+.pr-bar-wrap { display: flex; align-items: center; gap: 9px; min-width: 0; }
+.pr-track {
+  flex: 1; min-width: 0; height: 9px; border-radius: 5px;
+  background: var(--border-soft); overflow: hidden;
+}
+.pr-bar {
+  height: 100%; border-radius: 5px;
+  background: linear-gradient(90deg, rgba(49, 130, 246, 0.35), var(--down));
+  transition: width var(--t-bar);
+}
+/* 낙폭이 이 화면의 주인공이다. 정렬도 이 값으로 하는데 현재가보다 작게 두면
+ * 눈이 먼저 가는 곳과 화면이 말하려는 것이 어긋난다. */
+.pr-dd { flex: none; font-size: var(--fs-xl); font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; letter-spacing: -0.02em; }
+
+.pr-recover, .pr-low { display: flex; flex-direction: column; gap: 1px; text-align: right; }
+.pr-recover .k, .pr-low .k { font-size: var(--fs-2xs); color: var(--text-faint); }
+.pr-recover .v, .pr-low .v { font-size: var(--fs-sm); font-weight: 800; font-variant-numeric: tabular-nums; }
+
+#detailFoot b { font-weight: 700; color: var(--text); }
+#detailFoot b.up { color: var(--up); }
+
+@media (max-width: 900px) {
+  .peak-row { grid-template-columns: minmax(0, 1fr) 96px 96px; }
+  .pr-main { grid-column: 1 / -1; }
+  .pr-bar-wrap { grid-column: 1; }
+}
+@media (max-width: 560px) {
+  .peak-row { grid-template-columns: minmax(0, 1fr) 96px; }
+  .pr-bar-wrap { grid-column: 1 / -1; }
+}

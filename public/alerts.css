@@ -1,0 +1,95 @@
+/* 알림 설정 — 조건 편집 */
+
+body > section.panel { margin-bottom: 14px; }
+body { padding-bottom: 90px; }   /* 저장 바에 가리지 않게 */
+
+.alert-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 14px; align-items: start; margin-bottom: 14px; }
+
+.lead-note { font-size: var(--fs-xs); color: var(--text-faint); line-height: 1.7; margin-bottom: 12px; }
+.lead-note b { color: var(--text-dim); font-weight: 700; }
+.lead-note .dim { color: var(--text-faint); }
+.ilink { color: var(--accent); text-decoration: none; border-bottom: 1px dotted rgba(255, 209, 102, 0.4); }
+code {
+  font-family: var(--mono); font-size: var(--fs-xs);   /* em 은 부모에 복리로 곱해져 바닥선 아래로 떨어진다 */
+  background: var(--panel-2); border: 1px solid var(--border-soft);
+  border-radius: 4px; padding: 0 4px; color: var(--text-dim);
+}
+code.cmd { display: inline-block; margin-top: 3px; padding: 4px 8px; color: var(--accent); }
+
+/* ── 데몬 상태 ── */
+.dstate { display: flex; flex-direction: column; gap: 3px; padding: 11px 13px; border-radius: 10px; border: 1px solid var(--border-soft); background: var(--panel-2); }
+.dstate b { font-size: var(--fs-hl); font-weight: 700; letter-spacing: -0.015em; }
+.dstate span { font-size: var(--fs-2xs); color: var(--text-faint); }
+.dstate.ok b { color: var(--ok); }
+.dstate.warn b { color: var(--accent); }
+.dstate.warn { border-color: rgba(255, 209, 102, 0.3); }
+
+.sw { display: flex; align-items: center; gap: 7px; font-size: var(--fs-xs); color: var(--text-dim); cursor: pointer; }
+.sw input { accent-color: var(--accent); cursor: pointer; }
+
+.ghost-btn {
+  background: none; border: 1px solid var(--border); border-radius: 7px;
+  padding: 4px 11px; color: var(--text-dim); font: inherit; font-size: var(--fs-xs);
+  cursor: pointer; transition: border-color var(--t-fast), color var(--t-fast);
+}
+.ghost-btn:hover { color: var(--accent); border-color: rgba(255, 209, 102, 0.35); }
+
+/* ── 조건 행 ── */
+.cond-row {
+  background: var(--panel-2); border: 1px solid var(--border-soft);
+  border-radius: 10px; padding: 10px 12px; margin-bottom: 8px;
+}
+.cr-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.cr-name {
+  background: none; border: none; border-bottom: 1px solid transparent;
+  color: var(--text); font: inherit; font-size: var(--fs-sm); font-weight: 700;
+  padding: 1px 0; min-width: 0; flex: 1;
+}
+.cr-name:focus { outline: none; border-bottom-color: var(--accent); }
+.cr-sym { font-size: var(--fs-2xs); color: var(--text-faint); font-family: var(--mono); }
+.cr-live { font-size: var(--fs-2xs); font-variant-numeric: tabular-nums; color: var(--text-dim); }
+.cr-del {
+  background: none; border: none; color: var(--text-faint);
+  font-size: var(--fs-sm); line-height: 1; cursor: pointer; padding: 2px 5px; border-radius: 4px;
+}
+.cr-del:hover { color: var(--on-up-tint); background: var(--up-tint); }   /* 하드코딩 틴트는 라이트에서 안 따라온다 */
+
+.cr-body { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+.cr-body.grid-body { gap: 5px 7px; }
+.cr-lbl { font-size: var(--fs-2xs); color: var(--text-faint); }
+.cr-in {
+  background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+  padding: 4px 8px; color: var(--text); font: inherit; font-size: var(--fs-2xs);
+  min-width: 0; width: 96px;
+}
+.cr-in.num { font-variant-numeric: tabular-nums; text-align: right; }
+.cr-in.tiny { width: 52px; }
+.cr-in:focus { outline: none; border-color: var(--accent); }
+select.cr-in { width: auto; cursor: pointer; }
+
+.cr-chk { display: flex; align-items: center; gap: 4px; font-size: var(--fs-2xs); color: var(--text-faint); cursor: pointer; }
+.cr-chk input { accent-color: var(--accent); cursor: pointer; }
+.cr-cool { font-size: var(--fs-2xs); color: var(--text-faint); display: flex; align-items: center; gap: 4px; }
+.cr-note { margin-top: 7px; font-size: var(--fs-2xs); color: var(--text-faint); font-variant-numeric: tabular-nums; }
+
+/* ── 저장 바 ── */
+.save-bar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
+  display: flex; align-items: center; justify-content: center; gap: 14px;
+  padding: 12px 20px;
+  background: var(--panel); border-top: 1px solid var(--border);
+  box-shadow: var(--shadow-float);
+  font-size: var(--fs-sm); color: var(--text-dim);
+}
+.save-btn {
+  /* 라이트에서는 --accent 가 진한 갈색(#8a6100)이라 그 위에 어두운 글씨를 얹으면 안 보인다.
+   * 배경 밝기에 따라 글자색이 뒤집히도록 토큰으로 뺀다. */
+  background: var(--accent); border: none; border-radius: 8px;
+  padding: 7px 20px; color: var(--on-accent); font: inherit; font-size: var(--fs-sm); font-weight: 800;
+  cursor: pointer;
+}
+.save-btn:hover { filter: brightness(1.08); }
+
+@media (max-width: 820px) {
+  .alert-grid { grid-template-columns: 1fr; }
+}

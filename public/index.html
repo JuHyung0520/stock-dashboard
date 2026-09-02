@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>내 주식 보드</title>
+  <meta name="description" content="개인용 주식 대시보드 — 관심종목 시세·호가·수급·뉴스를 한 화면에서">
+  <meta name="theme-color" content="#0b0e14">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📈</text></svg>">
+  <!-- 테마 깜빡임 방지 — 그리기 전에 저장된 선택을 적용한다.
+       nav.js 는 body 끝에서 돌아 이미 한 번 그려진 뒤라 늦다. -->
+  <script>try{var t=localStorage.getItem('theme-v1');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="chart.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">📈</span>
+      <h1>내 주식 보드</h1>
+      <span class="brand-sub">개인용 · 네이버 · 토스 · 바이낸스</span>
+    </div>
+    <div class="nav-links" data-nav></div>
+    <div class="status">
+      <span class="status-dot" id="statusDot" title="데이터 상태"></span>
+      <span id="lastUpdated">불러오는 중…</span>
+    </div>
+  </header>
+
+  <section class="indices" id="indexStrip" aria-label="지수/시장 개요">
+    <!-- 첫 데이터가 오면 통째로 대체되는 스켈레톤 -->
+    <div class="index-card skel-card"><div class="skel" style="height:15px;width:100%"></div></div>
+    <div class="index-card skel-card"><div class="skel" style="height:15px;width:100%"></div></div>
+    <div class="index-card skel-card"><div class="skel" style="height:15px;width:100%"></div></div>
+    <div class="index-card skel-card"><div class="skel" style="height:15px;width:100%"></div></div>
+    <div class="index-card skel-card"><div class="skel" style="height:15px;width:100%"></div></div>
+  </section>
+
+  <main class="layout">
+    <div class="col-main">
+      <section class="panel" id="watchlistPanel">
+        <div class="panel-head">
+          <h2>관심종목</h2>
+          <div class="view-toggle" id="viewToggle">
+            <button class="vt active" data-view="table">표</button>
+            <button class="vt" data-view="card">카드</button>
+          </div>
+          <div class="searchbox">
+            <input type="text" id="searchInput" placeholder="종목 검색해서 추가 (예: 삼성전자, 테슬라, AAPL)" autocomplete="off" spellcheck="false">
+            <div class="search-results" id="searchResults" hidden></div>
+          </div>
+        </div>
+        <div class="card-grid" id="cardGrid" hidden></div>
+        <div class="table-wrap" id="tableWrap">
+          <table class="quotes" id="quotesTable">
+            <thead>
+              <tr>
+                <th class="al">종목</th>
+                <th class="ar">현재가</th>
+                <th class="ar">등락</th>
+                <th class="ar">등락률</th>
+                <th class="ar">거래량</th>
+                <th class="ac"></th>
+              </tr>
+            </thead>
+            <tbody id="quotesBody">
+              <tr><td colspan="6"><div class="skel" style="height:17px"></div></td></tr>
+              <tr><td colspan="6"><div class="skel" style="height:17px"></div></td></tr>
+              <tr><td colspan="6"><div class="skel" style="height:17px"></div></td></tr>
+              <tr><td colspan="6"><div class="skel" style="height:17px"></div></td></tr>
+              <tr><td colspan="6"><div class="skel" style="height:17px"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel" id="detailPanel" hidden>
+        <div class="panel-head">
+          <h2 id="detailName">종목</h2>
+        </div>
+        <div class="detail-price" id="detailPrice"></div>
+        <div class="tabs detail-tabs" id="detailTabs">
+          <button class="tab active" data-dtab="orderbook">호가</button>
+          <button class="tab" data-dtab="investor">수급</button>
+          <button class="tab" data-dtab="short">공매도</button>
+          <button class="tab" data-dtab="program">프로그램</button>
+          <button class="tab" data-dtab="credit">신용</button>
+          <button class="tab" data-dtab="lending">대차</button>
+        </div>
+        <div class="table-wrap" id="invDailyWrap"></div>
+        <p class="detail-hint" id="detailHint"></p>
+      </section>
+    </div>
+
+    <div class="col-side">
+      <section class="panel" id="gapPanel">
+        <div class="panel-head">
+          <h2>해외 선물 환산가</h2>
+          <span class="panel-note">Hyperliquid × 업비트 환율 · 24시간</span>
+        </div>
+        <div id="gapBody">
+          <div class="skel" style="height:52px;margin-bottom:8px"></div>
+          <div class="skel" style="height:52px"></div>
+        </div>
+      </section>
+
+      <section class="panel" id="investorPanel">
+        <div class="panel-head">
+          <h2>투자자별 매매동향</h2>
+          <span class="panel-note" id="investorNote">장중 잠정치 · 억원</span>
+        </div>
+        <div id="investorMarket">
+          <div class="skel" style="height:34px;margin-bottom:10px"></div>
+          <div class="skel" style="height:15px;margin-bottom:7px"></div>
+          <div class="skel" style="height:15px;margin-bottom:7px"></div>
+          <div class="skel" style="height:15px;margin-bottom:16px"></div>
+          <div class="skel" style="height:15px;margin-bottom:7px"></div>
+          <div class="skel" style="height:15px;margin-bottom:7px"></div>
+          <div class="skel" style="height:15px"></div>
+        </div>
+      </section>
+
+      <section class="panel" id="newsPanel">
+        <div class="panel-head">
+          <h2>뉴스</h2>
+          <div class="tabs" id="newsTabs">
+            <button class="tab active" data-tab="main">시장 뉴스</button>
+            <button class="tab" data-tab="stock" id="stockNewsTab" disabled>종목 뉴스</button>
+            <button class="tab" data-tab="gainers">급상승</button>
+            <button class="tab" data-tab="losers">급하락</button>
+            <button class="tab" data-tab="amount">거래대금</button>
+          </div>
+        </div>
+        <ul class="news-list" id="newsList">
+          <li class="skel-li"><div class="skel" style="height:13px;width:88%"></div><div class="skel" style="height:10px;width:42%;margin-top:7px"></div></li>
+          <li class="skel-li"><div class="skel" style="height:13px;width:72%"></div><div class="skel" style="height:10px;width:38%;margin-top:7px"></div></li>
+          <li class="skel-li"><div class="skel" style="height:13px;width:81%"></div><div class="skel" style="height:10px;width:45%;margin-top:7px"></div></li>
+          <li class="skel-li"><div class="skel" style="height:13px;width:66%"></div><div class="skel" style="height:10px;width:36%;margin-top:7px"></div></li>
+        </ul>
+      </section>
+      
+    </div>
+  </main>
+
+  <script src="nav.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

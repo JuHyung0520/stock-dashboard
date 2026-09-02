@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ETF 괴리율</title>
+  <meta name="description" content="레버리지·인버스 ETF 현재가 vs NAV 괴리율 — 5초 갱신">
+  <meta name="theme-color" content="#0b0e14">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📐</text></svg>">
+  <!-- 테마 깜빡임 방지 — 그리기 전에 저장된 선택을 적용한다.
+       nav.js 는 body 끝에서 돌아 이미 한 번 그려진 뒤라 늦다. -->
+  <script>try{var t=localStorage.getItem('theme-v1');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="chart.css">
+  <link rel="stylesheet" href="etf.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">📐</span>
+      <h1>ETF 괴리율</h1>
+      <span class="brand-sub">현재가 vs NAV · 시세 5초 · NAV 20초</span>
+    </div>
+    <div class="nav-links" data-nav></div>
+    <div class="status">
+      <span class="status-dot" id="statusDot" title="데이터 상태"></span>
+      <span id="lastUpdated">불러오는 중…</span>
+    </div>
+  </header>
+
+  <!-- 세션 타임라인 — 지금이 어느 장 시간인지 -->
+  <section class="panel session-panel">
+    <div class="sess-bar" id="sessBar"></div>
+    <div class="sess-legend" id="sessLegend"></div>
+  </section>
+
+  <main class="panel">
+    <div class="panel-head">
+      <h2>레버리지·인버스 ETF</h2>
+      <div class="searchbox">
+        <input type="text" id="searchInput" placeholder="ETF 검색해서 추가" autocomplete="off" spellcheck="false">
+        <div class="search-results" id="searchResults" hidden></div>
+      </div>
+    </div>
+    <p class="etf-note">괴리율 = (현재가 − iNAV) ÷ iNAV. 양수(빨강) = NAV보다 비싸게 거래(프리미엄), 음수(파랑) = 싸게 거래(디스카운트).
+      <br><b>iNAV 는 네이버가 값을 주지 않아 괴리율에서 역산합니다</b> — 네이버가 주는 <code>nav</code> 필드는 실시간이 아니라
+      전일 기준값이라(실측 확인) 그걸로 계산하면 그날 많이 움직인 종목에서 괴리가 통째로 틀립니다.
+      전일 NAV 는 맨 오른쪽에 참고로만 둡니다.
+    레버리지 ETF는 괴리가 벌어질 때 비싸게 사는 셈이 되기 쉬워요.</p>
+    <div class="table-wrap">
+      <table id="etfTable">
+        <thead>
+          <tr>
+            <th class="al">ETF</th>
+            <th class="ar">현재가</th>
+            <th class="ar">등락</th>
+            <th class="ar">iNAV</th>
+            <th class="ar">괴리율</th>
+            <th class="ar">전일 NAV</th>
+            <th class="ac"></th>
+          </tr>
+        </thead>
+        <tbody id="etfBody">
+          <tr><td colspan="7"><div class="skel" style="height:17px"></div></td></tr>
+          <tr><td colspan="7"><div class="skel" style="height:17px"></div></td></tr>
+          <tr><td colspan="7"><div class="skel" style="height:17px"></div></td></tr>
+          <tr><td colspan="7"><div class="skel" style="height:17px"></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <script src="nav.js"></script>
+  <script src="etf.js"></script>
+</body>
+</html>

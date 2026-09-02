@@ -1,0 +1,15 @@
+# Render 무료 티어 배포 설정.
+# 무료 티어는 15분 동안 요청이 없으면 잠들고, 다음 방문 때 ~50초 걸려 깨어난다.
+services:
+  - type: web
+    name: stock-dashboard
+    runtime: node
+    plan: free
+    region: singapore        # 무료 티어에서 한국과 가장 가까운 리전
+    buildCommand: ""         # 의존성 제로 — 설치할 것이 없다
+    startCommand: node server.js
+    envVars:
+      - key: TOSS_CLIENT_ID
+        sync: false          # 대시보드에서 직접 입력 (저장소에 안 올라감)
+      - key: TOSS_CLIENT_SECRET
+        sync: false

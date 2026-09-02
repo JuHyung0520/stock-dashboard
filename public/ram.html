@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>램값</title>
+  <meta name="description" content="메모리 반도체 지수(티커 DRAM) 24시간 시세 — 밤사이 메모리 섹터가 어디로 갔나">
+  <meta name="theme-color" content="#0b0e14">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
+  <!-- 테마 깜빡임 방지 — 그리기 전에 저장된 선택을 적용한다.
+       nav.js 는 body 끝에서 돌아 이미 한 번 그려진 뒤라 늦다. -->
+  <script>try{var t=localStorage.getItem('theme-v1');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="chart.css">
+  <link rel="stylesheet" href="ram.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">🧠</span>
+      <h1>램값</h1>
+      <span class="brand-sub">메모리 반도체 지수 · 24시간</span>
+    </div>
+    <div class="nav-links" data-nav></div>
+    <div class="status">
+      <span class="status-dot" id="statusDot"></span>
+      <span id="lastUpdated">불러오는 중…</span>
+    </div>
+  </header>
+
+  <section class="panel hero" id="heroPanel">
+    <div class="hero-main">
+      <div class="hero-label">
+        <span>DRAM · 메모리 반도체 ETF</span>
+        <span class="hero-badge live">24시간 거래</span>
+      </div>
+      <div class="hero-value" id="dramPrice">—</div>
+      <div class="hero-change" id="dramChange">—</div>
+      <div class="hero-sub" id="dramSub"></div>
+    </div>
+    <div class="hero-side" id="dramStats"></div>
+  </section>
+
+  <main class="ram-grid">
+    <div class="ram-col">
+      <section class="panel chart-panel">
+        <div class="panel-head">
+          <h2>🕯 DRAM 차트</h2>
+          <div class="tabs" id="ivTabs">
+            <button class="tab" data-iv="15m">15분</button>
+            <button class="tab active" data-iv="1h">1시간</button>
+            <button class="tab" data-iv="4h">4시간</button>
+            <button class="tab" data-iv="1d">일봉</button>
+          </div>
+        </div>
+        <div class="chart-box tall" id="dramChart"><div class="skel" style="height:100%"></div></div>
+        <p class="chart-note" id="chartNote"></p>
+      </section>
+
+      <section class="panel chart-panel">
+        <div class="panel-head">
+          <h2>📈 상장 이후 추이</h2>
+          <span class="panel-note" id="sinceNote"></span>
+        </div>
+        <div class="chart-box short" id="dailyChart"><div class="skel" style="height:100%"></div></div>
+      </section>
+    </div>
+
+    <aside class="ram-col">
+      <section class="panel">
+        <div class="panel-head">
+          <h2>🔗 메모리주 연동 강도</h2>
+        </div>
+        <p class="lead-note">
+          일간 수익률 기준. <b>상관</b>은 같이 움직이는 정도, <b>베타</b>는 DRAM이 1% 움직일 때 이 종목이 몇 % 움직이는지.
+          <br>DRAM 자체가 메모리주 바스켓이라 메모리주와 높게 나오는 건 당연합니다 —
+          <b>읽을 값은 종목 간 차이</b>입니다 (로직주인 엔비디아가 확연히 낮습니다).
+        </p>
+        <div class="peer-list" id="peerList"><div class="skel" style="height:260px"></div></div>
+      </section>
+
+      <section class="panel note-panel">
+        <div class="panel-head"><h2>⚠️ 이 값의 정체</h2><span class="panel-note">램 칩 가격이 아닙니다</span></div>
+        <p class="lead-note" id="sourceNote"></p>
+      </section>
+    </aside>
+  </main>
+
+  <script src="nav.js"></script>
+  <script src="chart.js"></script>
+  <script src="ram.js"></script>
+</body>
+</html>

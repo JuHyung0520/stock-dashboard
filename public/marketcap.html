@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>시총비교</title>
+  <meta name="description" content="두 종목의 시가총액 추이와 격차 — 언제 역전됐고 지금 얼마나 벌어졌나">
+  <meta name="theme-color" content="#0b0e14">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚖️</text></svg>">
+  <!-- 테마 깜빡임 방지 — 그리기 전에 저장된 선택을 적용한다.
+       nav.js 는 body 끝에서 돌아 이미 한 번 그려진 뒤라 늦다. -->
+  <script>try{var t=localStorage.getItem('theme-v1');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="chart.css">
+  <link rel="stylesheet" href="marketcap.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">⚖️</span>
+      <h1>시총비교</h1>
+      <span class="brand-sub">종가 × 발행주식수 (장중엔 현재가)</span>
+    </div>
+    <div class="nav-links" data-nav></div>
+    <div class="status">
+      <span class="status-dot" id="statusDot"></span>
+      <span id="lastUpdated">불러오는 중…</span>
+    </div>
+  </header>
+
+  <!-- 대결 카드 -->
+  <section class="panel versus" id="versus">
+    <div class="skel" style="height:120px"></div>
+  </section>
+
+  <section class="panel controls">
+    <div class="ctl-group">
+      <span class="ctl-label">종목</span>
+      <div class="picker">
+        <div class="pick-slot" id="slotA"></div>
+        <span class="vs-mark">↔</span>
+        <div class="pick-slot" id="slotB"></div>
+      </div>
+      <div class="searchbox compact">
+        <input type="text" id="searchInput" placeholder="종목 검색해서 교체 (예: 현대차)" autocomplete="off" spellcheck="false">
+        <div class="search-results" id="searchResults" hidden></div>
+      </div>
+    </div>
+    <div class="ctl-group">
+      <span class="ctl-label">기간</span>
+      <div class="tabs" id="rangeTabs">
+        <button class="tab" data-range="3M">3M</button>
+        <button class="tab" data-range="6M">6M</button>
+        <button class="tab active" data-range="1Y">1Y</button>
+        <button class="tab" data-range="3Y">3Y</button>
+        <button class="tab" data-range="5Y">5Y</button>
+        <button class="tab" data-range="10Y">10Y</button>
+      </div>
+      <label class="pref-toggle">
+        <input type="checkbox" id="prefToggle">
+        <span>우선주 합산</span>
+      </label>
+    </div>
+  </section>
+
+  <section class="panel chart-panel">
+    <div class="panel-head">
+      <h2>시가총액 추이</h2>
+      <span class="panel-note">단위: 조 원</span>
+    </div>
+    <div class="chart-legend" id="capLegend"></div>
+    <div class="chart-box" id="capChart"><div class="skel" style="height:100%"></div></div>
+  </section>
+
+  <section class="panel chart-panel">
+    <div class="panel-head">
+      <h2>시총 비율</h2>
+      <span class="panel-note" id="ratioNote">1.00 = 동률</span>
+    </div>
+    <div class="chart-box short" id="ratioChart"><div class="skel" style="height:100%"></div></div>
+    <p class="chart-note" id="mcapNote"></p>
+  </section>
+
+  <script src="nav.js"></script>
+  <script src="chart.js"></script>
+  <script src="marketcap.js"></script>
+</body>
+</html>

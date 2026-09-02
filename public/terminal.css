@@ -1,0 +1,86 @@
+/* 터미널 — 3열 레이아웃 + 인라인 SVG 차트 */
+
+.term-grid {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr) 300px;
+  gap: 14px;
+  align-items: start;
+  margin-bottom: 14px;
+}
+.term-cards { display: flex; flex-direction: column; gap: 14px; }
+
+/* ── 종목 카드 ── */
+.tcard { position: relative; overflow: hidden; }
+/* 카드 왼쪽 띠는 그 종목의 '정체성 색'이라 차트 선·종목명과 반드시 같아야 한다.
+ * 전에는 삼성전자만 --accent(앰버)여서, 앰버 띠를 보고 아래 차트의 앰버 선(하이닉스)을
+ * 짝지어 버리는 오독이 생겼다. terminal.js 의 COLORS 와 값을 맞춘다. */
+.tcard::before {
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  background: var(--series-1); opacity: 0.9;
+}
+.tcard.hynix::before { background: var(--series-2); }
+.tc-name { display: flex; align-items: baseline; gap: 7px; }
+.tc-name b { font-size: var(--fs-lg); font-weight: 800; letter-spacing: -0.02em; }
+.tc-name .code { font-size: var(--fs-2xs); color: var(--text-faint); font-variant-numeric: tabular-nums; }
+.tc-price {
+  font-size: var(--fs-2xl); font-weight: 800; letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums; margin: 4px 0 2px;
+  display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;
+}
+.tc-price .chg { font-size: var(--fs-sm); font-weight: 700; }
+.tc-ext { font-size: var(--fs-2xs); font-variant-numeric: tabular-nums; }   /* 5초마다 갱신 — 폭이 흔들리면 안 된다 */
+
+.tc-facts {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px 10px; margin-top: 12px; padding-top: 11px;
+  border-top: 1px solid var(--border-soft);
+}
+.tc-fact { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.tc-fact .k { font-size: var(--fs-2xs); color: var(--text-faint); }
+.tc-fact .v { font-size: var(--fs-2xs); font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+.tc-target {
+  margin-top: 11px; padding-top: 10px; border-top: 1px solid var(--border-soft);
+  display: flex; align-items: baseline; justify-content: space-between; gap: 8px;
+}
+.tc-target .k { font-size: var(--fs-2xs); color: var(--text-faint); }
+.tc-target .v { font-size: var(--fs-sm); font-weight: 700; font-variant-numeric: tabular-nums; }
+.tc-target .up-pct { font-size: var(--fs-sm); font-weight: 800; }
+.tc-spark { margin-top: 7px; height: 34px; }
+.tc-spark svg { width: 100%; height: 100%; display: block; }
+
+/* ── 차트 ── (공통 스타일은 chart.css) */
+.chart-panel { display: flex; flex-direction: column; }
+
+/* ── 우측 레일 ── */
+.term-rail { display: flex; flex-direction: column; gap: 10px; }
+.rail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.rail-card {
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: 10px; padding: 10px 12px; box-shadow: var(--shadow-panel);
+}
+.rail-card .k { font-size: var(--fs-2xs); color: var(--text-dim); }
+.rail-card .v { font-size: var(--fs-lg); font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; margin-top: 2px; }
+.rail-card .d { font-size: var(--fs-2xs); font-variant-numeric: tabular-nums; margin-top: 1px; }
+.rail-title { font-size: var(--fs-2xs); color: var(--text-dim); font-weight: 700; margin-top: 6px; display: flex; align-items: baseline; gap: 7px; }
+.rail-sub { color: var(--text-faint); font-weight: 400; }
+
+/* ── 바이낸스 ── */
+.sym-tabs { flex-wrap: wrap; margin-bottom: 10px; }
+.bin-head {
+  display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
+  margin-bottom: 8px; font-variant-numeric: tabular-nums;
+}
+.bin-head .price { font-size: var(--fs-xl); font-weight: 800; letter-spacing: -0.03em; }
+.bin-head .meta { font-size: var(--fs-2xs); color: var(--text-faint); }
+
+@media (max-width: 1200px) {
+  .term-grid { grid-template-columns: minmax(0, 1fr) 280px; }
+  .term-cards { flex-direction: row; grid-column: 1 / -1; }
+  .tcard { flex: 1; }
+}
+@media (max-width: 820px) {
+  .term-grid { grid-template-columns: 1fr; }
+  .term-cards { flex-direction: column; }
+  .rail-grid { grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); }
+}
