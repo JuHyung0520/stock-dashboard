@@ -1687,5 +1687,7 @@ const server = http.createServer(async (req, res) => {
 /* 개인용 로컬 도구다. 쓰기 API(/api/alerts)가 생긴 이상 전 인터페이스(*:8787)에
  * 열어둘 이유가 없다 — 같은 네트워크의 다른 기기가 설정을 바꿀 수 있게 된다. */
 server.listen(PORT, HOST, () => {
-  console.log(`📈 내 주식 보드 → http://localhost:${PORT}${HOST !== '127.0.0.1' ? ` (${HOST} 바인딩 — 배포 모드)` : ''}`);
+  // 배포 환경(Render)은 실제 공개 주소를 환경변수로 준다 — localhost 라고 찍으면 헷갈린다
+  const addr = process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
+  console.log(`📈 내 주식 보드 → ${addr}${HOST !== '127.0.0.1' ? ' (배포 모드)' : ''}`);
 });
