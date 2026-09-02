@@ -47,7 +47,9 @@ function loadWatchlist() {
   return defaults;
 }
 function saveWatchlist() {
-  localStorage.setItem('watchlist-v1', JSON.stringify(state.watchlist));
+  // 저장이 실패해도 메모리는 이미 바뀌어 화면엔 반영된다 — 그 불일치를 상태점으로 드러낸다
+  try { localStorage.setItem('watchlist-v1', JSON.stringify(state.watchlist)); markUpdated(true, 'save'); return true; }
+  catch (e) { console.error('관심종목 저장 실패', e); markUpdated(false, 'save'); return false; }
 }
 
 /* ── fetch helper ────────────────────── */
@@ -223,6 +225,8 @@ function showUndoToast(name) {
     document.body.appendChild(t);
     t.addEventListener('click', (e) => {
       if (!e.target.closest('.undo-btn') || !lastRemoved) return;
+      // 그새 검색·랭킹으로 같은 종목을 다시 넣었으면 되돌릴 게 없다 — 안 막으면 두 줄로 저장된다
+      if (state.watchlist.some((w) => w.id === lastRemoved.item.id)) { lastRemoved = null; t.classList.remove('on'); return; }
       state.watchlist.splice(Math.min(lastRemoved.index, state.watchlist.length), 0, lastRemoved.item);
       lastRemoved = null;
       saveWatchlist();
@@ -1058,7 +1062,7 @@ let searchSeq = 0;
 searchInput.addEventListener('input', () => {
   clearTimeout(searchTimer);
   const q = searchInput.value.trim();
-  if (!q) { searchResults.hidden = true; return; }
+  if (!q) { ++searchSeq; searchResults.hidden = true; return; }   // 진행 중 응답은 버린다
   searchTimer = setTimeout(() => runSearch(q), 250);
 });
 
@@ -1071,7 +1075,7 @@ function highlightSearchItem(items) {
 }
 
 searchInput.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') { searchResults.hidden = true; searchInput.blur(); return; }
+  if (e.key === 'Escape') { ++searchSeq; searchResults.hidden = true; searchInput.blur(); return; }
   if (searchResults.hidden) return;
   const items = [...searchResults.querySelectorAll('.search-item:not([disabled])')];
   if (!items.length) return;

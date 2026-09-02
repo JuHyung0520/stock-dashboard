@@ -29,7 +29,10 @@ function loadList() {
   return [...DEFAULT_ETFS];
 }
 let list = loadList();
-const saveList = () => localStorage.setItem('etf-v1', JSON.stringify(list));
+const saveList = () => {
+  try { localStorage.setItem('etf-v1', JSON.stringify(list)); return true; }
+  catch (e) { console.error('ETF 목록 저장 실패', e); markUpdated(false); return false; }
+};
 
 async function api(path) {
   const res = await fetch(path);
@@ -114,7 +117,7 @@ let timer = null, seq = 0;
 searchInput.addEventListener('input', () => {
   clearTimeout(timer);
   const q = searchInput.value.trim();
-  if (!q) { searchResults.hidden = true; return; }
+  if (!q) { ++seq; searchResults.hidden = true; return; }
   timer = setTimeout(async () => {
     const s = ++seq;
     try {

@@ -579,7 +579,7 @@ $('#accountBar').addEventListener('click', (e) => {
       if (dup) {
         // 값이 0인 줄은 '아직 입력 중'일 수 있다 — 병합 과정에서 말없이 지우지 않는다
         const merged = [...dup.lots, ...h.lots];
-        const real = merged.filter((l) => l.price > 0 && l.qty > 0);
+        const real = merged.filter((l) => l.price > 0 || l.qty > 0);   // 완전히 빈 줄만 버린다 — 평단만 적어둔 '입력 중' 줄은 남긴다
         dup.lots = real.length ? real : [{ price: 0, qty: 0 }];
         dup.sells = [...(dup.sells || []), ...(h.sells || [])];
         // 보유 기간(APR 계산 기준)은 더 이른 쪽을 남긴다
@@ -626,7 +626,7 @@ let searchTimer = null, searchSeq = 0, searchIdx = -1;
 searchInput.addEventListener('input', () => {
   clearTimeout(searchTimer);
   const q = searchInput.value.trim();
-  if (!q) { searchResults.hidden = true; return; }
+  if (!q) { ++searchSeq; searchResults.hidden = true; return; }
   searchTimer = setTimeout(async () => {
     const seq = ++searchSeq;
     try {
@@ -648,7 +648,7 @@ searchInput.addEventListener('input', () => {
 });
 
 searchInput.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') { searchResults.hidden = true; searchInput.blur(); return; }
+  if (e.key === 'Escape') { ++searchSeq; searchResults.hidden = true; searchInput.blur(); return; }
   if (searchResults.hidden) return;
   const items = [...searchResults.querySelectorAll('.search-item:not([disabled])')];
   if (!items.length) return;
@@ -771,7 +771,11 @@ function loadGrids() {
   return g.map((x) => ({ ...x, aid: valid.has(x.aid) ? x.aid : first }));
 }
 let grids = loadGrids();
-const saveGrids = () => localStorage.setItem('grids-v1', JSON.stringify(grids));
+const saveGrids = () => {
+  // 던지면 뒤의 renderGrids 가 안 돌아 버튼이 옛 상태로 남고, 다시 누르면 체결이 두 번 기록됐다
+  try { localStorage.setItem('grids-v1', JSON.stringify(grids)); return true; }
+  catch (e) { console.error('그리드 저장 실패', e); saveFailed = true; markUpdated(false); return false; }
+};
 
 /* ── 엔진 ── */
 /* 그리드도 미국 종목을 담을 수 있다(검색이 US를 돌려주고 gridCalc 이 이미 isKR 로 세금을 가른다).
