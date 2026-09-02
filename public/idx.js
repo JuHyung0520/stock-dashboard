@@ -214,9 +214,10 @@ async function refresh() {
   }
 }
 
-refresh();
-renderIdxChart();
-renderHlChart();
+/* '다시 시도' 버튼과 다른 페이지가 같은 이름으로 부를 수 있게 — 이 이름이 없어서 버튼이 무반응이었다 */
+function load() { refresh(); renderIdxChart(); renderHlChart(); }
+
+load();
 setInterval(() => { if (!document.hidden) refresh(); }, 5000);
 setInterval(() => { if (!document.hidden) renderHlChart(); }, 30000);
 /* 지수 추이는 일봉이라 자주 안 바뀌지만, 차트 노트의 '전고점 대비'는 오늘 종가에 딸려 움직인다.

@@ -32,8 +32,13 @@ function loadWatchlist() {
     const raw = localStorage.getItem('watchlist-v1');
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length) return parsed;
-      if (Array.isArray(parsed)) return []; // 사용자가 전부 지운 상태 존중
+      if (Array.isArray(parsed)) {
+        // 구버전은 'KR:005930' 문자열만 저장했다. 항목 형태를 하나로 맞추고 못 쓰는 건 버린다.
+        const norm = parsed.map((x) => (typeof x === 'string' ? { id: x, name: x.replace(/^[A-Z]+:/, '') } : x))
+          .filter((x) => x && typeof x.id === 'string' && /^(KR|US):/.test(x.id))
+          .map((x) => ({ ...x, name: typeof x.name === 'string' && x.name ? x.name : x.id.slice(3) }));
+        return norm; // 빈 배열은 '전부 지운 상태' 존중
+      }
     }
   } catch {}
   // 첫 방문이면 기본 목록을 즉시 저장한다 — /flow 등 다른 화면도 같은 목록을 읽기 때문

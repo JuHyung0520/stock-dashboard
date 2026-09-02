@@ -183,7 +183,9 @@ $('#ivTabs').addEventListener('click', (e) => {
   renderChart();
 });
 
-renderChart();
+function load() { renderChart(); }   // '다시 시도' 버튼이 부르는 이름 — 없어서 무반응이었다
+
+load();
 setInterval(() => { if (!document.hidden) renderChart(); }, 20000);
 
 /* 테마가 바뀌면 다시 그린다 — 차트는 색을 SVG 속성에 박아 그리므로 CSS 변수만 바뀌어선 안 따라온다 */

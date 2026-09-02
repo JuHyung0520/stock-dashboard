@@ -117,7 +117,10 @@ function load() {
     // 원문 그대로 1회 백업 — 재직렬화하지 않는다
     const bk = `assets-v1-backup-${new Date().toISOString().slice(0, 10)}`;
     const raw = localStorage.getItem('assets-v1');
-    if (raw && !localStorage.getItem(bk)) localStorage.setItem(bk, raw);
+    // 백업은 최선이지 전제가 아니다 — 용량 초과로 여기서 던지면 페이지가 매 로드마다 죽어 마이그레이션 자체가 막힌다
+    if (raw && !localStorage.getItem(bk)) {
+      try { localStorage.setItem(bk, raw); } catch (e) { console.warn('v1 백업 실패(용량?) — 마이그레이션은 계속', e.message); }
+    }
     needsSave = true;
     return normalize(migrateV1toV2(v1));
   }

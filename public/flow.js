@@ -360,6 +360,10 @@ async function renderScan() {
   let watchlist = [];
   try {
     watchlist = JSON.parse(localStorage.getItem('watchlist-v1') || '[]');
+    // 구버전 문자열 항목 정규화 — 안 하면 아래 w.id.slice 에서 던진다
+    if (!Array.isArray(watchlist)) watchlist = [];
+    watchlist = watchlist.map((x) => (typeof x === 'string' ? { id: x, name: x.replace(/^[A-Z]+:/, '') } : x))
+      .filter((x) => x && typeof x.id === 'string');
   } catch {}
   if (!watchlist.length) {
     watchlist = [
