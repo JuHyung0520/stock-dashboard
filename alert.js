@@ -191,8 +191,11 @@ function evalTarget(t, q, st, now, win, record) {
   const price = priceOf(q, win);
   if (price == null) return null;
 
-  const prevPrice = st.prev;
+  /* 창(정규/NXT)이 바뀌면 직전값은 다른 시장의 가격이라 교차 판정에 쓸 수 없다.
+   * 안 가르면 20:00 NXT 마지막가 vs 다음날 08:50 KRX 종가 사이에 라인이 있을 때 거래 없이 울린다. */
+  const prevPrice = st.prevWin === win ? st.prev : null;
   st.prev = price;
+  st.prevWin = win;
 
   const cp = q.changePct ?? null;
   const prevPct = st.prevPct;
@@ -208,6 +211,13 @@ function evalTarget(t, q, st, now, win, record) {
     const down = (t.op || '<=') === '<=';
     if (down ? cp > t.changePct + 0.5 : cp < t.changePct - 0.5) st.armed = true;
   }
+
+  /* 조건을 고쳤으면(가격·등락률·방향·1회만) 소진 상태를 푼다. 예전엔 disabled 를 지우는 경로가 '삭제'뿐이라
+   * 한 번 울린 목표가의 가격을 바꿔 저장해도 데몬은 계속 걸러냈다. 기존 상태엔 지문이 없으므로 처음 한 번은 기록만 한다. */
+  const sig = JSON.stringify([t.price ?? null, t.changePct ?? null, t.op ?? null, !!t.once]);
+  if (st.sig === undefined) st.sig = sig;
+  else if (st.sig !== sig) { st.sig = sig; st.disabled = false; st.armed = true; }
+  if (!t.once) st.disabled = false;
 
   if (record) return null;                       // 기준만 기록하는 회차
   if (st.disabled) return null;                  // once 로 소진됨 (설정이 아니라 상태를 본다)
@@ -248,8 +258,11 @@ function evalGrid(g, q, st, now, win, record) {
   const price = priceOf(q, win);
   if (price == null) return null;
 
-  const prevPrice = st.prev;
+  /* 창(정규/NXT)이 바뀌면 직전값은 다른 시장의 가격이라 교차 판정에 쓸 수 없다.
+   * 안 가르면 20:00 NXT 마지막가 vs 다음날 08:50 KRX 종가 사이에 라인이 있을 때 거래 없이 울린다. */
+  const prevPrice = st.prevWin === win ? st.prev : null;
   st.prev = price;
+  st.prevWin = win;
 
   if (record) return null;
   if (st.disabled) return null;

@@ -201,6 +201,8 @@ async function usProfile(reutersCode) {
     } catch { /* 없으면 범위 막대 생략 */ }
   }
 
+  if (price == null && !(basic.stockName || polling.stockName)) throw new Error(`profile empty: ${reutersCode}`);
+
   return {
     code: reutersCode,
     market: 'US',
@@ -246,6 +248,9 @@ async function stockProfile(code) {
   const price = num(legacy.nv);
   const eps = num(legacy.eps), bps = num(legacy.bps);
   const targetMean = num(integration?.consensusInfo?.priceTargetMean);
+
+  // 네이버가 잠깐 죽으면 전부 null 인 프로필이 30분 캐시에 박혔다 — 비었으면 던져서 cached() 가 버리게 한다
+  if (price == null && !tossInfo.stockName) throw new Error(`profile empty: ${code}`);
 
   return {
     code,
@@ -517,6 +522,8 @@ async function adrHistory(ratio = 10) {
         .then((r) => (Array.isArray(r.result) ? r.result : []))
         .catch(() => []),
     ]);
+    // 환율·한국 일봉이 비면 15분 동안 빈 이력이 박힌다 — 이번 응답만 주고 캐시는 비운다
+    if (!krRows?.length || !fxRows.length) cache.delete(`adr:hist:${ratio}`);
 
     // 네이버 일봉은 YYYYMMDD, 토스 캔들은 YYYY-MM-DD — 키를 맞춘다
     const krBy = Object.fromEntries(krRows.map((r) => [
@@ -1261,8 +1268,8 @@ const server = http.createServer(async (req, res) => {
           { sym: 'SAMSUNGUSDT', name: '삼성전자' },
           { sym: 'NVDAUSDT', name: '엔비디아' },
         ];
-        const bk = (sym, iv, limit) =>
-          fetch(`https://fapi.binance.com/fapi/v1/klines?symbol=${sym}&interval=${iv}&limit=${limit}`,
+        const bk = (sym, iv, limit, startTime) =>
+          fetch(`https://fapi.binance.com/fapi/v1/klines?symbol=${sym}&interval=${iv}&limit=${limit}${startTime ? `&startTime=${startTime}` : ''}`,
             { signal: AbortSignal.timeout(9000) })
             .then((r) => r.json())
             .then((r) => (Array.isArray(r) ? r : []))
@@ -1330,8 +1337,6 @@ const server = http.createServer(async (req, res) => {
          * 어디로 갔는지가 다음 날 하이닉스·삼전 시초가의 힌트가 된다.
          * 15분봉으로 마지막 KRX 마감 시각을 찾아 그때 종가와 현재를 비교한다. */
         const overnight = await (async () => {
-          const rows = await bk('DRAMUSDT', '15m', 400);
-          if (!rows.length) return null;
           const now = new Date();
 
           /* 가장 최근에 '지나간' 국장 마감(15:30 KST = 06:30 UTC)을 찾는다.
@@ -1364,6 +1369,11 @@ const server = http.createServer(async (req, res) => {
             }
             target = close.getTime();
           }
+
+          /* 기준 시각부터 받는다. 고정 400개(99.8시간)는 연휴 공백(추석 뒤 월요일 아침 = 112시간)보다 짧아
+           * 기준 봉이 조회 범위 밖으로 밀려 null 이 됐다. */
+          const rows = await bk('DRAMUSDT', '15m', 1500, target - 15 * 60000);
+          if (!rows.length) return null;
 
           /* 15분봉의 openTime 이 t 면 그 봉은 [t, t+15분) 구간이다.
            * `k[0] <= target` 로 마지막 봉을 고르면 15:30을 '포함하는' 봉(15:30~15:45)이 잡혀
@@ -1402,6 +1412,8 @@ const server = http.createServer(async (req, res) => {
               fetch('https://fapi.binance.com/fapi/v1/constituents?symbol=DRAMUSDT', { signal: AbortSignal.timeout(9000) })
                 .then((r) => r.json()).catch(() => null),
             ]);
+            // 한 번 실패한 빈 결과가 24시간 박히면 안 된다 — 비었으면 캐시에서 빼고 이번 응답만 준다
+            if (!ei) cache.delete('ram:underlying');
             return {
               contractType: ei?.contractType ?? null,
               underlyingType: ei?.underlyingType ?? null,
