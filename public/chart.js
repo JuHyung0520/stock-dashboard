@@ -29,6 +29,13 @@ const Chart = (() => {
     }
   }) : null;
 
+  /* 오류·빈 데이터 자리표시를 넣을 땐 추적도 끊는다 — 안 그러면 창 폭이 바뀔 때 옛 cfg 로 옛 차트가 되살아난다 */
+  function clear(el, html) {
+    if (RO) RO.unobserve(el);
+    delete el.__chart;
+    if (html != null) el.innerHTML = html;
+  }
+
   function track(el, draw) {
     el.__chart = { w: Math.round(el.clientWidth || 0), draw };
     if (RO) { RO.unobserve(el); RO.observe(el); }
@@ -321,6 +328,6 @@ const Chart = (() => {
     return `<span class="as-of ${a.cls}">${a.text}</span>`;
   }
 
-  return { line, candles, spark, niceStep, timeAxis, md, token, series,
+  return { line, candles, spark, clear, niceStep, timeAxis, md, token, series,
            asOf, asOfBadge, MARKET_LABEL, PAD };
 })();

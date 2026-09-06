@@ -678,7 +678,7 @@ searchResults.addEventListener('click', (e) => {
 });
 
 document.addEventListener('click', (e) => {
-  if (!e.target.closest('.searchbox')) searchResults.hidden = true;
+  if (!e.target.closest('.searchbox')) { searchResults.hidden = true; gridSearchResults.hidden = true; }
 });
 
 /* ── 백업 ── */
@@ -928,11 +928,14 @@ let gnStock = null;   // { id, name, isEtf }
 const gridSearch = $('#gridSearch');
 const gridSearchResults = $('#gridSearchResults');
 let gnTimer = null, gnSeq = 0;
+gridSearch.addEventListener('keydown', (e) => {   // 보유 탭 검색과 같은 ESC 동작
+  if (e.key === 'Escape') { ++gnSeq; gridSearchResults.hidden = true; gridSearch.blur(); }
+});
 
 gridSearch.addEventListener('input', () => {
   clearTimeout(gnTimer);
   const q = gridSearch.value.trim();
-  if (!q) { gridSearchResults.hidden = true; return; }
+  if (!q) { ++gnSeq; gridSearchResults.hidden = true; return; }   // 진행 중 응답은 버린다
   gnTimer = setTimeout(async () => {
     const seq = ++gnSeq;
     try {

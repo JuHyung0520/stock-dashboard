@@ -159,24 +159,39 @@ function renderPicks() {
   });
 }
 
+const PLACEHOLDER = '종목 검색해서 교체 (예: 현대차)';
+function cancelSlot() {
+  if (state.slot == null) return;
+  state.slot = null; renderPicks(); $('#searchInput').placeholder = PLACEHOLDER;
+}
 document.addEventListener('click', (e) => {
   const btn = e.target.closest('.pick-btn');
   if (btn) {
-    state.slot = Number(btn.dataset.slot);
+    const i = Number(btn.dataset.slot);
+    if (state.slot === i) { cancelSlot(); return; }   // 활성 칩을 다시 누르면 선택 해제
+    state.slot = i;
     renderPicks();
     $('#searchInput').focus();
     $('#searchInput').placeholder = `${state.picks[state.slot].name} 자리를 교체할 종목 검색`;
+    return;
   }
+  // 슬롯을 골라놓고 마음을 바꿔 빈 곳을 누르면 취소 — 예전엔 활성 슬롯이 남아 나중의 검색 결과가 엉뚱한 자리를 바꿨다
+  if (!e.target.closest('.searchbox')) cancelSlot();
 });
 
-let searchTimer;
+let searchTimer, searchSeq = 0;
+$('#searchInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') { ++searchSeq; $('#searchResults').hidden = true; e.target.blur(); cancelSlot(); }
+});
 $('#searchInput').addEventListener('input', (e) => {
   clearTimeout(searchTimer);
   const q = e.target.value.trim();
-  if (!q) { $('#searchResults').hidden = true; return; }
+  if (!q) { ++searchSeq; $('#searchResults').hidden = true; return; }   // 진행 중 응답은 버린다
   searchTimer = setTimeout(async () => {
+    const seq = ++searchSeq;
     try {
       const { results } = await api(`/api/search?q=${encodeURIComponent(q)}`);
+      if (seq !== searchSeq) return;                                    // 느린 옛 응답이 새 결과를 덮지 못하게
       // 시총 계산에 발행주식수가 필요해서 국내 종목만 지원한다
       const kr = results.filter((r) => r.id.startsWith('KR:'));
       const box = $('#searchResults');
@@ -196,7 +211,7 @@ $('#searchResults').addEventListener('click', (e) => {
   state.picks[slot] = { code: it.dataset.code, name: it.dataset.name };
   state.slot = null;
   $('#searchInput').value = '';
-  $('#searchInput').placeholder = '종목 검색해서 교체 (예: 현대차)';
+  $('#searchInput').placeholder = PLACEHOLDER;
   $('#searchResults').hidden = true;
   save(); renderPicks(); load();
 });
@@ -225,7 +240,7 @@ $('#prefToggle').addEventListener('change', (e) => {
  * 화면 대부분을 차지하는 게 차트라서, 작은 오류 문구는 그걸 이기지 못한다. */
 function clearCharts(msg) {
   for (const id of ['#capChart', '#ratioChart']) {
-    const el = $(id); if (el) el.innerHTML = `<div class="inv-empty">${esc(msg)}</div>`;
+    const el = $(id); if (el) Chart.clear(el, `<div class="inv-empty">${esc(msg)}</div>`);   // 추적도 끊는다
   }
   for (const id of ['#capLegend', '#mcapNote', '#ratioNote']) {
     const el = $(id); if (el) el.innerHTML = '';

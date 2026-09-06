@@ -83,6 +83,8 @@ function elapsed(days) {
 }
 
 function renderList(rows, missing = []) {
+  // 재렌더로 포커스가 body 로 빠지지 않게 — 키보드로 고르던 행을 기억했다가 되돌린다 (블록 밖에 선언해야 아래서 보인다)
+  const focusedCode = document.activeElement?.closest?.('.peak-row')?.dataset.code;
   if (!rows.length) {
     $('#peakList').innerHTML = `<div class="inv-empty">표시할 종목이 없습니다. 위에서 검색해 추가하세요.</div>`;
     // 목록이 비었는데 요약이 마지막 집계를 계속 말하면 거짓말이 된다
@@ -130,6 +132,7 @@ function renderList(rows, missing = []) {
       </div>
     </div>`;
   }).join('') + missingNote;
+  if (focusedCode) $(`#peakList .peak-row[data-code="${focusedCode}"]`)?.focus();
 
   const worstRow = rows[0];
   const highs = rows.filter((r) => r.isNewHigh).length;
@@ -179,7 +182,7 @@ $('#peakList').addEventListener('click', (e) => {
   state.selected = state.selected === row.dataset.code ? null : row.dataset.code;
   const found = state.rows.find((r) => r.code === state.selected);
   if (found) renderDetail(found); else $('#detailPanel').hidden = true;
-  renderList(state.rows);
+  renderList(state.rows, state.missing);
 });
 
 $('#peakList').addEventListener('keydown', (e) => {
@@ -205,14 +208,19 @@ $('#resetBtn').addEventListener('click', () => {
   save(); load();
 });
 
-let searchTimer;
+let searchTimer, searchSeq = 0;
+$('#searchInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') { ++searchSeq; $('#searchResults').hidden = true; e.target.blur(); }
+});
 $('#searchInput').addEventListener('input', (e) => {
   clearTimeout(searchTimer);
   const q = e.target.value.trim();
-  if (!q) { $('#searchResults').hidden = true; return; }
+  if (!q) { ++searchSeq; $('#searchResults').hidden = true; return; }   // 진행 중 응답은 버린다
   searchTimer = setTimeout(async () => {
+    const seq = ++searchSeq;
     try {
       const { results } = await api(`/api/search?q=${encodeURIComponent(q)}`);
+      if (seq !== searchSeq) return;                                    // 느린 옛 응답이 새 결과를 덮지 못하게
       const kr = results.filter((r) => r.id.startsWith('KR:') && !state.codes.includes(r.code));
       const box = $('#searchResults');
       box.innerHTML = kr.length
@@ -247,6 +255,7 @@ async function load() {
     const got = new Set(state.rows.map((r) => r.code));
     const missing = state.codes.filter((c) => !got.has(c));
 
+    state.missing = missing;   // 행 클릭 재렌더 때도 안내가 남도록
     renderList(state.rows, missing);
 
     /* 선택한 종목이 이번 응답에서 사라졌는데 상세 차트를 그대로 두면

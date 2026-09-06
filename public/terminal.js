@@ -90,7 +90,7 @@ async function renderRelative() {
   const box = $('#relChart');
   try {
     const d = await api(`/api/relative?range=${state.range}&codes=005930,000660`);
-    if (d.unavailable || !d.series?.length) { box.innerHTML = `<div class="inv-empty">차트 데이터 없음</div>`; return; }
+    if (d.unavailable || !d.series?.length) { Chart.clear(box, `<div class="inv-empty">차트 데이터 없음</div>`); return; }
 
     // 계열마다 종가를 함께 실어 끝점 태그에 "가격 +등락%"을 찍는다
     Chart.line(box, {
@@ -129,7 +129,7 @@ async function renderRelative() {
     markUpdated(true);
   } catch (e) {
     console.warn('relative', e);
-    box.innerHTML = `<div class="inv-empty">차트를 불러오지 못했어요</div>`;
+    Chart.clear(box, `<div class="inv-empty">차트를 불러오지 못했어요</div>`);
     markUpdated(false);
     if (!everLoaded) {
       const el = $('#termCards');
@@ -198,7 +198,7 @@ async function renderBinChart() {
   try {
     const d = await api(`/api/binance/klines?symbol=${state.binSymbol}&interval=${state.binInterval}`);
     const c = d.candles;
-    if (!c?.length) { box.innerHTML = `<div class="inv-empty">캔들 없음</div>`; return; }
+    if (!c?.length) { Chart.clear(box, `<div class="inv-empty">캔들 없음</div>`); return; }
 
     Chart.candles(box, {
       candles: c, height: 340,

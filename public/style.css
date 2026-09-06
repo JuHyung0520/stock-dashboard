@@ -779,3 +779,7 @@ body.stale .sum-hero { opacity: 0.55; transition: opacity var(--t-fast); }
   .scard, .peak-row { transition: border-color var(--t-fast), box-shadow var(--t-fast); }
   .scard:hover, .peak-row:hover, .scard:active, .peak-row:active { transform: none; }
 }
+
+/* 등장 애니메이션은 페이지 로드용이다. hidden 을 토글하는 패널은 display 가 none↔block 을 오갈 때마다
+ * 애니메이션이 처음부터 다시 돌아 매번 떠오르며 등장했다 → 토글 패널은 제외 */
+#detailPanel, #holdingsPanel, #gridPanel { animation: none; }

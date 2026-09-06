@@ -35,6 +35,8 @@ function markUpdated(ok, msg) {
 function setDirty(v) {
   state.dirty = v;
   $('#saveBar').hidden = !v;
+  // 바를 다시 열 때 지난 오류 문구('저장 안 함 — …')가 그대로 보이면 이미 고친 항목을 또 오류로 안내한다
+  if (v) $('#saveMsg').textContent = '변경사항이 있습니다';
 }
 
 /* ── 데몬 상태 ──

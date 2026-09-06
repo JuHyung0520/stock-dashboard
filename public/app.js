@@ -294,7 +294,11 @@ function enableDragReorder(container, itemSelector) {
     const [moved] = state.watchlist.splice(from, 1);
     state.watchlist.splice(to, 0, moved);
     saveWatchlist();
+    /* 정리는 여기서 끝낸다. 아래 재렌더가 드래그 원본을 DOM 에서 떼어내면 dragend 가 그 노드에서 나서
+     * 컨테이너까지 버블링되지 않는다 — 그러면 justDragged 가 영영 true 로 남아 이후 모든 클릭이 무시됐다. */
+    dragId = null;
     justDragged = true;
+    setTimeout(() => { justDragged = false; }, 0);   // 드롭 직후의 click 한 번만 무시
     renderQuotes();
     if (state.view === 'card') renderCards();
   });
@@ -483,6 +487,7 @@ function clearSelection() {
 async function selectStock(id, { scroll = true } = {}) {
   state.selectedId = id;
   renderQuotes();
+  if (state.view === 'card') renderCards();   // 카드 뷰의 선택 테두리 — 표만 다시 그려서 다음 폴링까지 옛 카드에 남아 있었다
   const w = state.watchlist.find((x) => x.id === id);
   const q = state.quotes.get(id);
   const name = (q && q.name) || (w && w.name) || id;
@@ -848,12 +853,14 @@ async function refreshInvestor() {
       return;
     }
     const maxAbs = Math.max(1, ...data.markets.flatMap((m) => [m.individual, m.foreign, m.institution].map((v) => Math.abs(v || 0))));
-    wrap.innerHTML = verdictHtml + data.markets.map((m) => {
+    // 60초 재렌더가 <details> 를 새로 만들며 펼침을 닫아버렸다 — 열림 상태를 읽어 두었다가 복원
+    const wasOpen = [...wrap.querySelectorAll('.inv-detail')].map((d) => d.open);
+    wrap.innerHTML = verdictHtml + data.markets.map((m, mi) => {
       // 토스를 쓸 때만 기관 세부분류가 들어온다
       const bd = (m.breakdown || []).filter((b) => b.value != null);
       const bdMax = Math.max(1, ...bd.map((b) => Math.abs(b.value)));
       const detail = bd.length ? `
-        <details class="inv-detail">
+        <details class="inv-detail"${wasOpen[mi] ? ' open' : ''}>
           <summary>기관 세부 ${bd.length}종</summary>
           ${bd.map((b) => invRow(b.label, b.value, bdMax, true)).join('')}
         </details>` : '';
