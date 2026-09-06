@@ -41,11 +41,12 @@ body {
 
 .fnav { display: flex; align-items: center; gap: 14px; }
 .mkt-toggle { display: flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.mkt:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }   /* 바깥 아웃라인은 overflow 에 잘린다 */
 .mkt {
   background: none; border: none; color: var(--dim); font: inherit; font-size: var(--fs-xs);
   padding: 6px 14px; cursor: pointer;
 }
-.mkt.active { background: rgba(255, 209, 102, 0.1); color: var(--accent); }
+.mkt.active { background: var(--accent-tint); color: var(--accent); }
 .fstatus { display: flex; align-items: center; gap: 7px; font-size: var(--fs-2xs); color: var(--dim); font-variant-numeric: tabular-nums; }
 .fdot {
   width: 8px; height: 8px; border-radius: 50%;
@@ -68,7 +69,7 @@ body.stale .fhero, body.stale .fpanel { opacity: 0.55; }
   padding: 22px 24px;
   margin-bottom: 14px;
 }
-.verdict.exceptional { border-color: rgba(255, 209, 102, 0.4); }
+.verdict.exceptional { border-color: var(--accent-line); }
 
 .v-head {
   font-size: var(--fs-2xl); font-weight: 700; letter-spacing: -0.025em; line-height: 1.25;
@@ -80,7 +81,7 @@ body.stale .fhero, body.stale .fpanel { opacity: 0.55; }
   /* 검정을 직접 섞으면 라이트에서 배경이 어두워져 글자 대비가 3.65 로 떨어진다 */
   border: 1px solid var(--line); color: var(--dim); background: var(--panel-2);
 }
-.v-flag.warn { border-color: rgba(255, 209, 102, 0.4); color: var(--accent); }
+.v-flag.warn { border-color: var(--accent-line); color: var(--accent); }
 .v-loading { color: var(--faint); font-size: var(--fs-sm); }
 
 /* ── ①-b 기준선 카드 ── */
@@ -220,11 +221,11 @@ body.stale .fhero, body.stale .fpanel { opacity: 0.55; }
 .m-bar.dim { opacity: 0.16; }          /* '연속만 강조' 모드에서 고립된 날 */
 
 /* 오늘 열은 잠정치라 다른 날과 구분되어야 한다 */
-.m-cell.today { background-color: rgba(255, 209, 102, 0.07); }
+.m-cell.today { background-color: var(--accent-tint); }
 .m-cell.missing {
   background: repeating-linear-gradient(45deg, transparent, transparent 3px, var(--line) 3px, var(--line) 4px);
 }
-.m-col-hover .m-cell.hl { background-color: rgba(255, 209, 102, 0.14); }
+.m-col-hover .m-cell.hl { background-color: var(--accent-tint); }
 
 /* 날짜 축 — 세로쓰기는 읽기 어려워 가로로. 겹치지 않게 4칸마다만 표기 */
 .m-date {

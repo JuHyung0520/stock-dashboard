@@ -48,9 +48,9 @@
   align-items: center;
   padding: 12px 14px;
   cursor: pointer;
-  transition: background var(--t-fast);
 }
-.h-row:hover { background: var(--tint-hover); }
+/* .h-row 의 hover/transition 은 style.css 의 '행형' 규칙(.quotes tbody tr, .h-row)이 담당한다.
+ * 여기에 같은 특이도로 다시 쓰면 소스 순서로 이겨서 대시보드 표와 다른 밝기로 반응했다. */
 .h-name { display: flex; align-items: center; gap: 7px; font-weight: 700; min-width: 0; }
 .h-name .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .h-cell { text-align: right; font-variant-numeric: tabular-nums; font-size: var(--fs-sm); }
@@ -100,7 +100,7 @@
 }
 .lot-row input:focus-visible, .sell-row input:focus-visible {
   outline: none; border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(255, 209, 102, 0.25);
+  box-shadow: 0 0 0 2px var(--accent-glow);
 }
 .lot-sum { font-size: var(--fs-2xs); color: var(--text-faint); white-space: nowrap; }
 .x-btn {
@@ -144,6 +144,14 @@
   .h-detail { grid-template-columns: 1fr; }
 }
 
+@media (max-width: 480px) {
+  /* 고정 트랙(110+80+28)과 gap 만으로 250px 을 먹어 1fr 두 열이 68px 안에 들어가야 했다 →
+   * .holding 의 overflow:hidden 이 마지막 열(펼침 ▶)을 통째로 잘랐다. 글자를 줄이고 열을 좁힌다. */
+  .h-row, .h-head { grid-template-columns: minmax(84px, 1.3fr) repeat(2, minmax(58px, 1fr)) 62px 22px; gap: 5px; padding-left: 8px; padding-right: 8px; }
+  .h-cell, .h-head span { font-size: var(--fs-2xs); }
+}
+
+
 /* ── 그리드 트래커 ── */
 .atab { margin-bottom: 12px; display: inline-flex; }
 
@@ -185,7 +193,7 @@
 }
 .lad-row.held { background: rgba(240, 68, 82, 0.06); }
 .lad-row.cash { background: var(--tint-hover); }
-.lad-row.at-price { outline: 1px solid rgba(255, 209, 102, 0.5); }
+.lad-row.at-price { outline: 1px solid var(--accent-glow); }
 .lad-range { color: var(--text-dim); white-space: nowrap; }
 .lad-range b { color: var(--text); font-weight: 600; }
 
@@ -234,7 +242,7 @@
   color: var(--text); font: inherit; font-size: var(--fs-sm);
   padding: 7px 10px; text-align: right; font-variant-numeric: tabular-nums;
 }
-.gn-grid input:focus-visible { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px rgba(255,209,102,0.25); }
+.gn-grid input:focus-visible { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-glow); }
 .gn-info { font-size: var(--fs-2xs); color: var(--text-faint); line-height: 1.6; }
 #gnCreate:disabled { opacity: 0.4; cursor: default; }
 
@@ -253,13 +261,15 @@
   transition: border-color var(--t-fast), color var(--t-fast), background var(--t-fast);
 }
 .acc:hover { color: var(--text); }
-.acc.active { color: var(--accent); border-color: rgba(255, 209, 102, 0.4); background: rgba(255, 209, 102, 0.08); }
+.acc.active { color: var(--accent); border-color: var(--accent-line); background: var(--accent-tint); }
 .acc .cnt { font-size: var(--fs-2xs); color: var(--text-faint); font-variant-numeric: tabular-nums; }
+/* 활성 칩은 배경에 틴트가 깔려 옅은 회색이 4.18 로 떨어진다 — 칩 전체가 강조색이니 배지도 따라간다 */
+.acc.active .cnt { color: var(--accent); }
 .acc-add {
   background: none; border: 1px dashed var(--border); border-radius: 8px;
   padding: 5px 10px; color: var(--text-faint); font: inherit; font-size: var(--fs-xs); cursor: pointer;
 }
-.acc-add:hover { color: var(--accent); border-color: rgba(255, 209, 102, 0.35); }
+.acc-add:hover { color: var(--accent); border-color: var(--accent-line); }
 .acc-tools { margin-left: auto; display: flex; gap: 6px; }
 
 /* 계좌 그룹 헤더 (전체 보기일 때) */
@@ -280,8 +290,8 @@
 /* 저장 데이터 손상 경고 — 조용히 넘어가면 복구 시점을 놓친다 */
 .broken-banner {
   position: sticky; top: 0; z-index: 50;
-  background: rgba(255, 209, 102, 0.12);
-  border-bottom: 1px solid rgba(255, 209, 102, 0.4);
+  background: var(--accent-tint);
+  border-bottom: 1px solid var(--accent-line);
   color: var(--text);
   padding: 12px 44px 12px 16px;
   font-size: var(--fs-xs); line-height: 1.6;

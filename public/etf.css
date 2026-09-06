@@ -13,10 +13,12 @@
 
 /* ── 세션 타임라인 바 ── */
 .session-panel { padding: 14px 16px; margin-bottom: 14px; }
+/* 세그먼트는 각자 overflow:hidden 이라 클리핑은 거기서 끝난다. 바 자체를 자르면
+ * '현재 시각' 마커의 의도된 돌출(top/bottom -3px)과 시각 라벨이 잘렸다 —
+ * 마커가 오른쪽 끝에 붙는 저녁엔 라벨이 통째로 사라졌다. */
 .sess-bar {
   position: relative; height: 26px;
   background: var(--panel-2); border-radius: 7px;
-  overflow: hidden;
 }
 .sess-seg {
   position: absolute; top: 0; bottom: 0;
@@ -36,11 +38,12 @@
 .sess-now {
   position: absolute; top: -3px; bottom: -3px; width: 2px;
   background: var(--accent);
-  box-shadow: 0 0 6px rgba(255, 209, 102, 0.7);
+  box-shadow: 0 0 6px var(--accent-glow);
 }
 .sess-now::after {
   content: attr(data-time);
   position: absolute; top: -1px; left: 6px;
+  white-space: nowrap;
   font-size: var(--fs-2xs); color: var(--accent);
   font-variant-numeric: tabular-nums; font-weight: 700;
 }
@@ -51,3 +54,6 @@
   font-variant-numeric: tabular-nums;
 }
 .sess-legend .on { color: var(--text); font-weight: 700; }
+
+/* 마커가 오른쪽 절반에 있으면 라벨을 왼쪽으로 뒤집는다 — 안 그러면 바 밖으로 나가 안 보인다 */
+.sess-now.right::after { left: auto; right: 6px; }

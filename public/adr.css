@@ -13,7 +13,7 @@ body > section.panel { margin-bottom: 14px; }
   font-size: var(--fs-2xs); border: 1px solid var(--border); border-radius: 5px;
   padding: 1px 6px; color: var(--text-faint);
 }
-.hero-badge.est { color: var(--accent); border-color: rgba(255, 209, 102, 0.4); background: rgba(255, 209, 102, 0.08); }
+.hero-badge.est { color: var(--accent); border-color: var(--accent-line); background: var(--accent-tint); }
 .hero-value {
   font-size: var(--fs-4xl); font-weight: 800; letter-spacing: -0.035em;
   font-variant-numeric: tabular-nums; line-height: 1.1; margin: 2px 0;
@@ -43,7 +43,7 @@ body > section.panel { margin-bottom: 14px; }
   border: 1px solid var(--border); font-variant-numeric: tabular-nums;
 }
 .ratio-check.ok { color: var(--ok); border-color: var(--ok-line); background: var(--ok-tint); }
-.ratio-check.warn { color: var(--accent); border-color: rgba(255, 209, 102, 0.45); background: rgba(255, 209, 102, 0.1); }
+.ratio-check.warn { color: var(--accent); border-color: var(--accent-line); background: var(--accent-tint); }
 .warn-text { color: var(--accent); }
 
 .lead-note { font-size: var(--fs-xs); color: var(--text-faint); line-height: 1.7; }

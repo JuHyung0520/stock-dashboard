@@ -56,8 +56,8 @@
 /* 현재 페이지 표시 — 11개 중 어디 있는지 */
 .flow-link.active {
   color: var(--accent);
-  border-color: rgba(255, 209, 102, 0.35);
-  background: rgba(255, 209, 102, 0.08);
+  border-color: var(--accent-line);
+  background: var(--accent-tint);
 }
 
 /* 줄바꿈 대신 가로 스크롤.

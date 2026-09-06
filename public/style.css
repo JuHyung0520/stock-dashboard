@@ -126,7 +126,7 @@ body {
 }
 .searchbox input:focus-visible {
   border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(255, 209, 102, 0.3);
+  box-shadow: 0 0 0 2px var(--accent-glow);
 }
 .searchbox input::placeholder { color: var(--text-faint); }
 
@@ -159,6 +159,9 @@ body {
   cursor: pointer;
 }
 .search-item:hover, .search-item.active { background: var(--tint-active); }
+/* 이미 추가된 종목은 disabled 로 그려지는데 스타일이 없어 살아 있는 것처럼 보였다 (.rk-add:disabled 와 같은 값) */
+.search-item:disabled { opacity: 0.4; cursor: default; }
+.search-item:disabled:hover { background: none; }
 .search-item .si-code { color: var(--text-faint); font-size: var(--fs-2xs); font-variant-numeric: tabular-nums; }
 .search-item .si-added { margin-left: auto; font-size: var(--fs-2xs); color: var(--text-faint); }
 .search-empty { padding: 12px; font-size: var(--fs-xs); color: var(--text-faint); }
@@ -203,7 +206,7 @@ tbody tr:last-child td { border-bottom: none; }
 .quotes tbody tr:hover { background: var(--tint-hover); }
 /* 선택 틴트가 배경 밝기를 올려 파랑(하락) 대비를 4.42 까지 깎았다(실측).
  * 왼쪽 3px 막대가 이미 '선택됨'을 충분히 말하므로 틴트는 최소로 둔다. */
-.quotes tbody tr.selected { background: rgba(255, 209, 102, 0.035); box-shadow: inset 3px 0 0 var(--accent); }
+.quotes tbody tr.selected { background: var(--accent-tint-weak); box-shadow: inset 3px 0 0 var(--accent); }
 
 .q-name { display: flex; align-items: center; gap: 7px; font-weight: 600; }
 .q-name .q-sub { color: var(--text-faint); font-size: var(--fs-2xs); font-weight: 400; }
@@ -219,7 +222,9 @@ tbody tr:last-child td { border-bottom: none; }
   min-width: 26px; min-height: 26px; line-height: 1;
   opacity: 0; transition: opacity var(--t-fast);
 }
-.quotes tbody tr:hover .remove-btn { opacity: 1; }
+/* opacity:0 은 아웃라인까지 지운다 — hover 만 조건이면 키보드로 온 사용자는
+ * 아무 표시 없는 상태에서 Enter 로 종목을 지우게 된다. peak.css:57 과 같은 방식으로 포커스도 조건에 넣는다. */
+.quotes tbody tr:hover .remove-btn, .remove-btn:focus-visible { opacity: 1; }
 .remove-btn:hover { color: var(--up); background: rgba(240, 68, 82, 0.1); }
 
 .empty-row td, .news-empty, .inv-empty { color: var(--text-faint); text-align: center; padding: 24px 0; font-size: var(--fs-xs); }
@@ -236,7 +241,7 @@ tbody tr:last-child td { border-bottom: none; }
   border-radius: 7px;
   cursor: pointer;
 }
-.tab.active { background: rgba(255, 209, 102, 0.1); border-color: rgba(255, 209, 102, 0.35); color: var(--accent); }
+.tab.active { background: var(--accent-tint); border-color: var(--accent-line); color: var(--accent); }
 .tab:disabled { opacity: 0.4; cursor: default; }
 
 /* 가장 많이 누르는 컨트롤에 hover가 없었다 — 반응해야 눌러도 되는 줄 안다 */
@@ -255,6 +260,8 @@ tbody tr:last-child td { border-bottom: none; }
   outline: 2px solid var(--accent);
   outline-offset: 1px;
 }
+/* .view-toggle 은 overflow:hidden 이라 바깥으로 그린 아웃라인이 통째로 잘린다 — 안쪽으로 그린다 */
+.vt:focus-visible { outline-offset: -2px; }
 
 /* 오류 화면의 재시도 버튼 */
 .retry-btn {
@@ -266,7 +273,7 @@ tbody tr:last-child td { border-bottom: none; }
 .retry-btn:hover { border-color: var(--accent); color: var(--accent); }
 
 .news-list { list-style: none; }
-.news-list li { border-bottom: 1px solid rgba(35, 42, 56, 0.5); }
+.news-list li { border-bottom: 1px solid var(--border-soft); }   /* 다크 값 하드코딩이라 라이트에서 혼자 2.5배 진했다 */
 .news-list li:last-child { border-bottom: none; }
 
 .news-link {
@@ -307,7 +314,7 @@ tbody tr:last-child td { border-bottom: none; }
   background: none; border: none; color: var(--text-dim);
   font: inherit; font-size: var(--fs-2xs); padding: 5px 13px; cursor: pointer;
 }
-.vt.active { background: rgba(255, 209, 102, 0.1); color: var(--accent); }
+.vt.active { background: var(--accent-tint); color: var(--accent); }
 
 .card-grid {
   display: grid;
@@ -326,7 +333,7 @@ tbody tr:last-child td { border-bottom: none; }
   position: relative;
 }
 .scard:hover { border-color: var(--border-strong); }
-.scard.selected { border-color: rgba(255, 209, 102, 0.45); }
+.scard.selected { border-color: var(--accent-line); }
 
 .c-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
 .c-logo {
@@ -342,7 +349,7 @@ tbody tr:last-child td { border-bottom: none; }
 .c-name { font-size: var(--fs-lg); font-weight: 700; letter-spacing: -0.02em; }
 .c-code { font-size: var(--fs-2xs); color: var(--text-faint); font-variant-numeric: tabular-nums; }
 .card-rm { margin-left: auto; opacity: 0; }
-.scard:hover .card-rm { opacity: 1; }
+.scard:hover .card-rm, .card-rm:focus-visible { opacity: 1; }
 
 .c-state {
   font-size: var(--fs-2xs); color: var(--text-faint);
@@ -503,7 +510,7 @@ tbody tr:last-child td { border-bottom: none; }
   font-size: var(--fs-sm); font-weight: 600; line-height: 1.4;
   transition: border-color var(--t-fast);
 }
-.inv-verdict:hover { border-color: rgba(255, 209, 102, 0.4); }
+.inv-verdict:hover { border-color: var(--accent-line); }
 .inv-verdict .iv-more { font-size: var(--fs-2xs); font-weight: 400; color: var(--text-faint); white-space: nowrap; }
 
 .inv-market { margin-bottom: 18px; }
@@ -643,11 +650,11 @@ tbody tr:last-child td { border-bottom: none; }
 }
 #undoToast.on { opacity: 1; pointer-events: auto; transform: translate(-50%, 0); }
 #undoToast .undo-btn {
-  background: none; border: 1px solid rgba(255, 209, 102, 0.4); color: var(--accent);
+  background: none; border: 1px solid var(--accent-line); color: var(--accent);
   font: inherit; font-size: var(--fs-xs); padding: 4px 11px; border-radius: 6px; cursor: pointer;
   transition: background var(--t-fast);
 }
-#undoToast .undo-btn:hover { background: rgba(255, 209, 102, 0.1); }
+#undoToast .undo-btn:hover { background: var(--accent-tint); }
 
 
 /* ── 첫 로드 등장 — 위에서부터 차례로 떠오른다 ── */
@@ -693,7 +700,7 @@ tbody tr:last-child td { border-bottom: none; }
   cursor: pointer; transition: color var(--t-fast), border-color var(--t-fast);
 }
 .gb:hover { color: var(--text-dim); }
-.gb.active { color: var(--accent); border-color: rgba(255, 209, 102, 0.35); background: rgba(255, 209, 102, 0.08); }
+.gb.active { color: var(--accent); border-color: var(--accent-line); background: var(--accent-tint); }
 .gap-meta {
   grid-column: 1 / -1; font-size: var(--fs-2xs); color: var(--text-faint);
   font-variant-numeric: tabular-nums; margin-top: 2px;

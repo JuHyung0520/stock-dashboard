@@ -8,7 +8,7 @@ body { padding-bottom: 90px; }   /* 저장 바에 가리지 않게 */
 .lead-note { font-size: var(--fs-xs); color: var(--text-faint); line-height: 1.7; margin-bottom: 12px; }
 .lead-note b { color: var(--text-dim); font-weight: 700; }
 .lead-note .dim { color: var(--text-faint); }
-.ilink { color: var(--accent); text-decoration: none; border-bottom: 1px dotted rgba(255, 209, 102, 0.4); }
+.ilink { color: var(--accent); text-decoration: none; border-bottom: 1px dotted var(--accent-line); }
 code {
   font-family: var(--mono); font-size: var(--fs-xs);   /* em 은 부모에 복리로 곱해져 바닥선 아래로 떨어진다 */
   background: var(--panel-2); border: 1px solid var(--border-soft);
@@ -22,7 +22,7 @@ code.cmd { display: inline-block; margin-top: 3px; padding: 4px 8px; color: var(
 .dstate span { font-size: var(--fs-2xs); color: var(--text-faint); }
 .dstate.ok b { color: var(--ok); }
 .dstate.warn b { color: var(--accent); }
-.dstate.warn { border-color: rgba(255, 209, 102, 0.3); }
+.dstate.warn { border-color: var(--accent-line); }
 
 .sw { display: flex; align-items: center; gap: 7px; font-size: var(--fs-xs); color: var(--text-dim); cursor: pointer; }
 .sw input { accent-color: var(--accent); cursor: pointer; }
@@ -32,7 +32,7 @@ code.cmd { display: inline-block; margin-top: 3px; padding: 4px 8px; color: var(
   padding: 4px 11px; color: var(--text-dim); font: inherit; font-size: var(--fs-xs);
   cursor: pointer; transition: border-color var(--t-fast), color var(--t-fast);
 }
-.ghost-btn:hover { color: var(--accent); border-color: rgba(255, 209, 102, 0.35); }
+.ghost-btn:hover { color: var(--accent); border-color: var(--accent-line); }
 
 /* ── 조건 행 ── */
 .cond-row {

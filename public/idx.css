@@ -13,7 +13,7 @@
   padding: 1px 6px; color: var(--text-faint);
 }
 .hero-badge.live { color: var(--ok); border-color: var(--ok-line); }
-.hero-badge.est { color: var(--accent); border-color: rgba(255, 209, 102, 0.4); background: rgba(255, 209, 102, 0.08); }
+.hero-badge.est { color: var(--accent); border-color: var(--accent-line); background: var(--accent-tint); }
 .hero-value {
   font-size: var(--fs-4xl); font-weight: 800; letter-spacing: -0.035em;
   font-variant-numeric: tabular-nums; line-height: 1.1; margin: 2px 0;

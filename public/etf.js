@@ -212,7 +212,9 @@ function renderSessions() {
   }
 
   const hhmm = new Intl.DateTimeFormat('ko-KR', { timeZone: 'Asia/Seoul', hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date());
-  bar.innerHTML = segs.join('') + `<div class="sess-now" style="left:${(nowH / 24 * 100).toFixed(2)}%" data-time="${hhmm}"></div>`;
+  // 오른쪽 절반이면 라벨을 왼쪽으로 — 저녁엔 시각이 바 밖으로 나가 잘렸다
+  const pos = nowH / 24 * 100;
+  bar.innerHTML = segs.join('') + `<div class="sess-now${pos > 55 ? ' right' : ''}" style="left:${pos.toFixed(2)}%" data-time="${hhmm}"></div>`;
 
   // 왜 꺼져 있는지 말해준다 — 주말인지, 휴장일인지, 그냥 장 시간이 아닌지
   let note = '';
