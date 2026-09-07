@@ -264,3 +264,196 @@ html { scroll-behavior: smooth; }
   .skel { animation: none; }
   * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
+
+/* ══ 색 팔레트 — 기본(미드나잇) 외 3종 ══════════════════════════════
+ * 라이트/다크와는 **다른 축**이다. 팔레트는 '어떤 색조인가', 테마는 '밝은가 어두운가'.
+ * 그래서 팔레트마다 다크 값과 라이트 값을 둘 다 가진다 (4팔레트 × 2모드).
+ *
+ * ── 캐스케이드 규칙 (순서와 특정도가 전부다) ──
+ *   :root[data-palette=X]                                   (0,2,0)  ← 다크 값
+ *   @media light  :root[data-palette=X]:not([data-theme=dark])  (0,3,0)  ← 라이트 값
+ *   :root[data-theme=light][data-palette=X]                 (0,3,0)  ← 라이트 값
+ * 위 다크 블록은 tokens.css 의 기본 라이트 블록(0,2,0)보다 **뒤**에 있어서
+ * 같은 특정도면 이긴다. 그래서 라이트 두 블록이 (0,3,0) 으로 한 단 높다.
+ * ⚠️ 세 블록은 **정확히 같은 토큰 집합**을 정의해야 한다. 다크에만 있는 토큰이
+ * 하나라도 생기면 라이트 모드에서 그 토큰만 다크 값으로 남아 흰 판에 흰 글씨가 된다.
+ *
+ * ── 색 고르는 기준 ──
+ * 절대값 4.5:1 만 보면 안 된다. 기존 미드나잇도 '호버 틴트 위 up/down' 같은
+ * 조합은 4.5 를 못 넘는다(그래서 --on-up-tint 를 따로 둔 것이다).
+ * 그래서 판정은 두 겹으로 했다:
+ *   1) 실제로 쓰는 조합(글자×표면 7×8 + 틴트 위 전용색)은 4.5 이상
+ *   2) 나머지 전 조합은 **미드나잇보다 나빠지지 않을 것**
+ * 4팔레트 × 2모드 × 60여 조합을 실측해 위 두 조건을 모두 통과시킨 값이다.
+ * 조정 이력: 슬레이트/모카는 panel-2 가 밝아 up/down 이 4.44·4.49 로 떨어져 한 단
+ * 낮췄고, 모카는 text-faint 가 활성칩 위에서 4.68 이라 밝혔다.
+ * bg~panel 색차(ΔE)도 6.2 이상 — 미드나잇이 7.2, '겨우 구분' 경계가 5 다.
+ *
+ * 상승=빨강·하락=파랑(--up/--down)과 --ok/--series-* 는 팔레트가 건드리지 않는다.
+ * 국내 관례이자 화면의 의미 축이라, 색조를 바꾼다고 흔들려선 안 된다. */
+
+
+/* ── 슬레이트 — 중성 회색 + 민트 ── */
+:root[data-palette="slate"] {
+  --bg: #050609;
+  --panel: #15171c;
+  --panel-2: #1a1d23;
+  --border: #2b3039;
+  --border-soft: #23262e;
+  --border-strong: #3c4351;
+  --text: #e9ecf1;
+  --text-dim: #a4aab5;
+  --text-faint: #949aa6;
+  --accent: #5eead4;
+  --on-accent: #04241f;
+  --accent-tint: rgba(94, 234, 212, 0.08);
+  --accent-line: rgba(94, 234, 212, 0.35);
+  --accent-glow: rgba(94, 234, 212, 0.3);
+  --accent-tint-weak: rgba(94, 234, 212, 0.035);
+}
+@media (prefers-color-scheme: light) {
+  :root[data-palette="slate"]:not([data-theme="dark"]) {
+  --bg: #ebeef1;
+  --panel: #ffffff;
+  --panel-2: #f3f6f8;
+  --border: #d2d8de;
+  --border-soft: #e4e8ec;
+  --border-strong: #b7bfc8;
+  --text: #1a1d23;
+  --text-dim: #565d68;
+  --text-faint: #656c78;
+  --accent: #0d6b5b;
+  --on-accent: #ffffff;
+  --accent-tint: rgba(13, 107, 91, 0.08);
+  --accent-line: rgba(13, 107, 91, 0.35);
+  --accent-glow: rgba(13, 107, 91, 0.45);
+  --accent-tint-weak: rgba(13, 107, 91, 0.06);
+  }
+}
+:root[data-theme="light"][data-palette="slate"] {
+  --bg: #ebeef1;
+  --panel: #ffffff;
+  --panel-2: #f3f6f8;
+  --border: #d2d8de;
+  --border-soft: #e4e8ec;
+  --border-strong: #b7bfc8;
+  --text: #1a1d23;
+  --text-dim: #565d68;
+  --text-faint: #656c78;
+  --accent: #0d6b5b;
+  --on-accent: #ffffff;
+  --accent-tint: rgba(13, 107, 91, 0.08);
+  --accent-line: rgba(13, 107, 91, 0.35);
+  --accent-glow: rgba(13, 107, 91, 0.45);
+  --accent-tint-weak: rgba(13, 107, 91, 0.06);
+}
+
+/* ── 모카 — 따뜻한 차콜 + 크림 ── */
+:root[data-palette="mocha"] {
+  --bg: #0b0704;
+  --panel: #1c1511;
+  --panel-2: #241b15;
+  --border: #3d322a;
+  --border-soft: #2f2721;
+  --border-strong: #52443a;
+  --text: #f3ece3;
+  --text-dim: #b3a698;
+  --text-faint: #a49585;
+  --accent: #e9d5b0;
+  --on-accent: #241a0e;
+  --accent-tint: rgba(233, 213, 176, 0.08);
+  --accent-line: rgba(233, 213, 176, 0.35);
+  --accent-glow: rgba(233, 213, 176, 0.3);
+  --accent-tint-weak: rgba(233, 213, 176, 0.035);
+}
+@media (prefers-color-scheme: light) {
+  :root[data-palette="mocha"]:not([data-theme="dark"]) {
+  --bg: #f2ebdf;
+  --panel: #fffcf6;
+  --panel-2: #f9f2e6;
+  --border: #e0d4c1;
+  --border-soft: #ede4d5;
+  --border-strong: #c8b9a2;
+  --text: #231e18;
+  --text-dim: #5c554c;
+  --text-faint: #6a6259;
+  --accent: #6d5227;
+  --on-accent: #ffffff;
+  --accent-tint: rgba(109, 82, 39, 0.08);
+  --accent-line: rgba(109, 82, 39, 0.35);
+  --accent-glow: rgba(109, 82, 39, 0.45);
+  --accent-tint-weak: rgba(109, 82, 39, 0.06);
+  }
+}
+:root[data-theme="light"][data-palette="mocha"] {
+  --bg: #f2ebdf;
+  --panel: #fffcf6;
+  --panel-2: #f9f2e6;
+  --border: #e0d4c1;
+  --border-soft: #ede4d5;
+  --border-strong: #c8b9a2;
+  --text: #231e18;
+  --text-dim: #5c554c;
+  --text-faint: #6a6259;
+  --accent: #6d5227;
+  --on-accent: #ffffff;
+  --accent-tint: rgba(109, 82, 39, 0.08);
+  --accent-line: rgba(109, 82, 39, 0.35);
+  --accent-glow: rgba(109, 82, 39, 0.45);
+  --accent-tint-weak: rgba(109, 82, 39, 0.06);
+}
+
+/* ── 바이올렛 — 딥 퍼플 + 라벤더 ── */
+:root[data-palette="violet"] {
+  --bg: #080512;
+  --panel: #171126;
+  --panel-2: #1e1731;
+  --border: #372c52;
+  --border-soft: #2c2342;
+  --border-strong: #4a3e6b;
+  --text: #ebe7f6;
+  --text-dim: #aba3c4;
+  --text-faint: #9d94b8;
+  --accent: #c4b5fd;
+  --on-accent: #17102e;
+  --accent-tint: rgba(196, 181, 253, 0.08);
+  --accent-line: rgba(196, 181, 253, 0.35);
+  --accent-glow: rgba(196, 181, 253, 0.3);
+  --accent-tint-weak: rgba(196, 181, 253, 0.035);
+}
+@media (prefers-color-scheme: light) {
+  :root[data-palette="violet"]:not([data-theme="dark"]) {
+  --bg: #eeeafa;
+  --panel: #ffffff;
+  --panel-2: #f6f3fd;
+  --border: #dcd5f0;
+  --border-soft: #eae5f8;
+  --border-strong: #c0b6de;
+  --text: #1c1a26;
+  --text-dim: #575265;
+  --text-faint: #666075;
+  --accent: #56399f;
+  --on-accent: #ffffff;
+  --accent-tint: rgba(86, 57, 159, 0.08);
+  --accent-line: rgba(86, 57, 159, 0.35);
+  --accent-glow: rgba(86, 57, 159, 0.45);
+  --accent-tint-weak: rgba(86, 57, 159, 0.06);
+  }
+}
+:root[data-theme="light"][data-palette="violet"] {
+  --bg: #eeeafa;
+  --panel: #ffffff;
+  --panel-2: #f6f3fd;
+  --border: #dcd5f0;
+  --border-soft: #eae5f8;
+  --border-strong: #c0b6de;
+  --text: #1c1a26;
+  --text-dim: #575265;
+  --text-faint: #666075;
+  --accent: #56399f;
+  --on-accent: #ffffff;
+  --accent-tint: rgba(86, 57, 159, 0.08);
+  --accent-line: rgba(86, 57, 159, 0.35);
+  --accent-glow: rgba(86, 57, 159, 0.45);
+  --accent-tint-weak: rgba(86, 57, 159, 0.06);
+}
