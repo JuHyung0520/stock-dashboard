@@ -1596,6 +1596,7 @@ const server = http.createServer(async (req, res) => {
          * 로컬 전용이지만 잘못된 값 하나가 데몬을 매분 죽이면 알림이 조용히 멈춘다 —
          * 값 검증은 편집 UI가 아니라 저장 지점에서 해야 한다. */
         const numIn = (v, lo, hi, dflt) => {
+          if (v == null || v === '') return dflt;   // Number(null) 은 0 이라 빈 값이 '0원'으로 조용히 저장됐다
           const n = Number(v);
           return Number.isFinite(n) && n >= lo && n <= hi ? n : dflt;
         };

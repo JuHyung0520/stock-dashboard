@@ -163,6 +163,7 @@ async function renderIdxChart() {
       : `${row.firstDate.slice(0, 4)}년 이후 ${row.tradingDays.toLocaleString('ko-KR')}거래일 · 전고점 ${f2.format(row.peak)} (${row.peakDate.slice(0, 4)}.${row.peakDate.slice(4, 6)}.${row.peakDate.slice(6, 8)}) 대비 ${pct(dd)}`;
     markUpdated(true, 'chart');
   } catch (e) {
+    if (seq !== idxChartSeq) return;   // 늦게 실패한 옛 요청이 최신 차트를 '실패'로 덮지 않게
     console.warn('idxChart', e);
     markUpdated(false, 'chart');
     // 이미 그려진 차트는 남긴다 — 상단 문구가 '아래 값은 이전 것'이라고 말하는데 지우면 앞뒤가 안 맞는다
@@ -184,6 +185,7 @@ async function renderHlChart() {
       xFormat: Chart.timeAxis(d.candles),
     });
   } catch (e) {
+    if (seq !== hlChartSeq) return;
     console.warn('hlChart', e);
     box.innerHTML = `<div class="inv-empty">캔들을 불러오지 못했어요</div>`;
   }

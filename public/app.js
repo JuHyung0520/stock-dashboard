@@ -326,6 +326,8 @@ async function loadProfiles() {
   try {
     const { profiles } = await api(`/api/profiles?ids=${encodeURIComponent(missing.join(','))}`);
     for (const p of profiles) profileCache.set(p.id, { ...p, __at: Date.now() });
+    // 안 돌아온 id 는 '없음'으로 기억한다 — 안 그러면 5초 폴링마다 다시 요청해 업스트림을 계속 때린다
+    for (const id of missing) if (!profiles.some((p) => p.id === id)) profileCache.set(id, { id, __at: Date.now(), __missing: true });
     return true;
   } catch (e) {
     console.warn('profiles', e);
@@ -367,7 +369,8 @@ function renderCards() {
   grid.innerHTML = state.watchlist.map((w) => {
     const q = state.quotes.get(w.id);
     const isKR = w.id.startsWith('KR:');
-    const p = profileCache.get(w.id);
+    const p0 = profileCache.get(w.id);
+    const p = p0 && !p0.__missing ? p0 : null;
     const cls = q ? moveClass(q.change) : 'flat';
     const sel = state.selectedId === w.id ? ' selected' : '';
     const money = (v) => (isKR ? fmtKR.format(Math.round(v)) : `$${fmtUS.format(v)}`);
@@ -1011,6 +1014,7 @@ async function refreshNews() {
         </li>`;
       }).join('');
     } catch (e) {
+      if (seq !== newsSeq) return;   // 옛 요청의 실패로 새 탭을 덮지 않는다
       console.warn('rankings', e);
       list.innerHTML = '<li class="news-empty">랭킹을 불러오지 못했어요</li>';
     }
@@ -1037,6 +1041,7 @@ async function refreshNews() {
         </a>
       </li>`).join('');
   } catch (e) {
+    if (seq !== newsSeq) return;
     console.warn('news', e);
     list.innerHTML = '<li class="news-empty">뉴스를 불러오지 못했어요</li>';
   }

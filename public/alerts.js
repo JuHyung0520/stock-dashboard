@@ -245,12 +245,14 @@ $('#saveBtn').addEventListener('click', async () => {
     for (const t of state.cfg.targets) {
       const nm = t.name || t.symbol || '이름없음';
       if (t.price == null && t.changePct == null) why.push(`${nm}: 값이 비어 있음`);
-      else if (t.price != null && !(t.price >= 0)) why.push(`${nm}: 가격은 0 이상`);
-      else if (t.changePct != null && !(t.changePct >= -100 && t.changePct <= 1000)) why.push(`${nm}: 등락률은 −100~1000%`);
+      else if (t.price != null && !(Number.isFinite(t.price) && t.price >= 0)) why.push(`${nm}: 가격은 0 이상`);
+      else if (t.changePct != null && !(Number.isFinite(t.changePct) && t.changePct >= -100 && t.changePct <= 1000)) why.push(`${nm}: 등락률은 −100~1000%`);
     }
     for (const g of state.cfg.grids) {
       const nm = g.name || g.symbol || '이름없음';
-      if (!(g.lower >= 0) || !(g.upper >= 0) || !(g.upper > g.lower)) why.push(`${nm}: 구간은 0 이상, 상단 > 하단`);
+      // `null >= 0` 은 참이다(null 이 0 으로 바뀜) — 빈 칸을 숫자 검사로 거르려면 먼저 숫자인지 봐야 한다
+      const num = (v) => typeof v === 'number' && Number.isFinite(v);
+      if (!num(g.lower) || !num(g.upper) || g.lower < 0 || g.upper < 0 || !(g.upper > g.lower)) why.push(`${nm}: 하단·상단을 채우고 상단 > 하단`);
       else if (!Number.isInteger(g.cells) || g.cells < 1 || g.cells > 200) why.push(`${nm}: 칸 수는 1~200 정수`);
     }
     if (why.length) {
