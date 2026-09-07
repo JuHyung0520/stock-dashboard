@@ -228,6 +228,20 @@ function paletteButton() {
   return wrap;
 }
 
+/* ── 모바일 주소창 색 ──
+ * <meta name="theme-color"> 를 HTML 에 박아 두면 테마 토글도 팔레트도 안 따라간다
+ * (실제로 #0b0e14 로 굳어 있었는데, 그건 배경을 낮추기 전의 옛 값이었다).
+ * 색을 여기 또 적지 않고 지금 적용된 --bg 를 그대로 읽어 쓴다 — 출처는 tokens.css 하나. */
+function syncThemeColor() {
+  const bg = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim();
+  if (!bg) return;
+  let m = document.querySelector('meta[name="theme-color"]');
+  if (!m) { m = document.createElement('meta'); m.name = 'theme-color'; document.head.append(m); }
+  m.content = bg;
+}
+// 테마 토글·팔레트 변경·OS 설정 변경 모두 이 신호를 쏜다
+addEventListener('themechange', syncThemeColor);
+
 (function renderNav() {
   const box = document.querySelector('[data-nav]');
   if (!box) return;
@@ -265,4 +279,6 @@ function paletteButton() {
   /* 토글은 내비 스크롤 영역 밖에 둔다 — 안에 넣으면 링크가 많을 때 밀려서 안 보인다 */
   const host = document.querySelector('.status') || box.parentElement;
   if (host && !host.querySelector('.theme-btn')) host.prepend(themeButton(), paletteButton());
+
+  syncThemeColor();
 })();
