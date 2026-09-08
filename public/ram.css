@@ -8,7 +8,7 @@
 .hero-main { min-width: 0; }
 .hero-label { display: flex; align-items: center; gap: 8px; font-size: var(--fs-sm); color: var(--text-dim); font-weight: 700; }
 .hero-badge {
-  font-size: var(--fs-2xs); border: 1px solid var(--border); border-radius: 5px;
+  font-size: var(--fs-2xs); border: 1px solid var(--border); border-radius: var(--r-sm);
   padding: 1px 6px; color: var(--text-faint);
 }
 .hero-badge.live { color: var(--ok); border-color: var(--ok-line); }
@@ -39,7 +39,7 @@
 .peer-list { display: flex; flex-direction: column; gap: 9px; }
 .peer-row {
   background: var(--panel-2); border: 1px solid var(--border-soft);
-  border-radius: 10px; padding: 10px 12px;
+  border-radius: var(--r-lg); padding: 10px 12px;
 }
 .pe-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; font-variant-numeric: tabular-nums; }
 .pe-name { font-size: var(--fs-sm); font-weight: 700; }
@@ -49,9 +49,9 @@
 .pe-bars { margin-top: 8px; display: flex; flex-direction: column; gap: 5px; }
 .pe-metric { display: flex; align-items: center; gap: 8px; }
 .pe-metric .k { font-size: var(--fs-2xs); color: var(--text-faint); width: 26px; flex: none; }
-.pe-track { flex: 1; min-width: 0; height: 7px; border-radius: 4px; background: var(--border-soft); overflow: hidden; }
+.pe-track { flex: 1; min-width: 0; height: 7px; border-radius: var(--r-sm); background: var(--border-soft); overflow: hidden; }
 .pe-bar {
-  height: 100%; border-radius: 4px;
+  height: 100%; border-radius: var(--r-sm);
   background: linear-gradient(90deg, rgba(77, 214, 168, 0.3), var(--series-1));
   transition: width var(--t-bar);
 }
@@ -76,5 +76,5 @@
 .lead-note code {
   font-family: var(--mono); font-size: var(--fs-xs);   /* em 은 부모에 복리로 곱해져 바닥선 아래로 떨어진다 */
   background: var(--panel); border: 1px solid var(--border-soft);
-  border-radius: 4px; padding: 0 4px; color: var(--text-dim);
+  border-radius: var(--r-sm); padding: 0 4px; color: var(--text-dim);
 }

@@ -8,7 +8,7 @@
 
 .chart-legend { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 8px; font-size: var(--fs-2xs); font-variant-numeric: tabular-nums; }
 .lg-item { display: flex; align-items: center; gap: 6px; font-weight: 600; }
-.lg-swatch { width: 14px; height: 3px; border-radius: 2px; flex: none; }
+.lg-swatch { width: 14px; height: 3px; border-radius: var(--r-xs); flex: none; }
 .chart-note { margin-top: 8px; font-size: var(--fs-xs); color: var(--text-faint); line-height: 1.5; }
 
 /* SVG 내부 요소 */
@@ -28,7 +28,7 @@
   position: absolute; top: 2px;
   display: flex; flex-direction: column; gap: 1px;
   background: var(--panel-2); border: 1px solid var(--border);
-  border-radius: 8px; padding: 6px 9px;
+  border-radius: var(--r-md); padding: 6px 9px;
   font-size: var(--fs-2xs); font-variant-numeric: tabular-nums;
   box-shadow: var(--shadow-float); pointer-events: none; white-space: nowrap; z-index: 5;
 }
@@ -43,7 +43,7 @@
 .flow-link {
   display: inline-flex; align-items: center; gap: 5px;
   color: var(--text-faint); text-decoration: none; font-size: var(--fs-xs);
-  border: 1px solid transparent; border-radius: 7px; padding: 4px 9px;
+  border: 1px solid transparent; border-radius: var(--r-md); padding: 4px 9px;
   white-space: nowrap; flex: none;
   transition: border-color var(--t-fast), color var(--t-fast), background var(--t-fast);
 }
@@ -92,7 +92,7 @@
  * 상단바 가로 예산이 이미 빠듯해서(내비 11개) 글자를 붙일 자리가 없다. */
 .theme-btn {
   display: inline-flex; align-items: center; justify-content: center;
-  background: none; border: 1px solid var(--border); border-radius: 7px;
+  background: none; border: 1px solid var(--border); border-radius: var(--r-md);
   padding: 4px 8px;
   cursor: pointer; flex: none; color: var(--text-dim);
   transition: border-color var(--t-fast), background var(--t-fast), color var(--t-fast);
@@ -112,12 +112,14 @@
   min-width: 172px; padding: 5px;
   display: flex; flex-direction: column; gap: 2px;
   background: var(--panel); border: 1px solid var(--border);
-  border-radius: 10px; box-shadow: var(--shadow-float);
+  border-radius: var(--r-lg); box-shadow: var(--shadow-float);
+  /* 색 7 + 모양 3 이 되면서 414px 까지 길어졌다 — 창이 낮으면 아래가 잘린다 */
+  max-height: min(72vh, 470px); overflow-y: auto;
 }
 .pal-item {
   display: flex; align-items: center; gap: 9px;
   width: 100%; padding: 6px 8px;
-  background: none; border: 0; border-radius: 7px;
+  background: none; border: 0; border-radius: var(--r-md);
   font: inherit; font-size: var(--fs-xs); text-align: left;
   color: var(--text-dim); cursor: pointer;
   transition: background var(--t-fast), color var(--t-fast);
@@ -128,8 +130,32 @@
 /* 견본 — 배경·판·강조색 세 칸. 색 이름을 글로 읽는 것보다 빠르다 */
 .pal-sw {
   display: inline-flex; flex: none; overflow: hidden;
-  border: 1px solid var(--border); border-radius: 5px;
+  border: 1px solid var(--border); border-radius: var(--r-sm);
 }
 .pal-sw i { width: 9px; height: 18px; }
 .pal-txt { display: flex; flex-direction: column; line-height: 1.25; }
 .pal-txt small { font-size: var(--fs-2xs); color: var(--text-faint); }
+
+/* 팝오버 구역 제목 — 색/모양 두 축을 시각적으로 가른다 */
+.pal-head {
+  margin: 4px 0 3px; padding: 0 8px;
+  font-size: var(--fs-2xs); color: var(--text-faint);
+}
+.pal-head + .pal-item { margin-top: 0; }
+.pal-item + .pal-head { margin-top: 7px; border-top: 1px solid var(--border-soft); padding-top: 7px; }
+.pal-skins { display: flex; gap: 4px; padding: 0 4px 2px; }
+.pal-skin {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 7px 4px; background: none; border: 1px solid var(--border);
+  border-radius: var(--r-md); cursor: pointer;
+  font: inherit; font-size: var(--fs-2xs); color: var(--text-dim);
+  transition: border-color var(--t-fast), background var(--t-fast), color var(--t-fast);
+}
+/* 미리보기 사각형 — 각 모양의 실제 --r-md 를 인라인으로 받는다 */
+.pal-skin i { width: 15px; height: 15px; background: var(--text-faint); }
+.pal-skin:hover { color: var(--text); border-color: var(--border-strong); }
+.pal-skin[aria-checked="true"] {
+  color: var(--accent); border-color: var(--accent-line); background: var(--accent-tint);
+}
+.pal-skin[aria-checked="true"] i { background: var(--accent); }
+.pal-skin:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }

@@ -5,7 +5,7 @@
 /* 괴리율 배지 — 이 화면의 주인공 */
 .gap-cell {
   font-weight: 800; font-variant-numeric: tabular-nums;
-  border-radius: 6px; padding: 3px 9px; display: inline-block;
+  border-radius: var(--r-md); padding: 3px 9px; display: inline-block;
 }
 .gap-cell.up { background: var(--up-tint); color: var(--on-up-tint); }
 .gap-cell.down { background: var(--down-tint); color: var(--on-down-tint); }
@@ -18,7 +18,7 @@
  * 마커가 오른쪽 끝에 붙는 저녁엔 라벨이 통째로 사라졌다. */
 .sess-bar {
   position: relative; height: 26px;
-  background: var(--panel-2); border-radius: 7px;
+  background: var(--panel-2); border-radius: var(--r-md);
 }
 .sess-seg {
   position: absolute; top: 0; bottom: 0;

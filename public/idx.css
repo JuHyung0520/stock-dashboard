@@ -9,7 +9,7 @@
 .hero-main { min-width: 0; }
 .hero-label { display: flex; align-items: center; gap: 8px; font-size: var(--fs-sm); color: var(--text-dim); font-weight: 600; }
 .hero-badge {
-  font-size: var(--fs-2xs); border: 1px solid var(--border); border-radius: 5px;
+  font-size: var(--fs-2xs); border: 1px solid var(--border); border-radius: var(--r-sm);
   padding: 1px 6px; color: var(--text-faint);
 }
 .hero-badge.live { color: var(--ok); border-color: var(--ok-line); }
@@ -37,7 +37,7 @@
 
 /* ── 현물 카드 ── */
 .spot-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
-.spot-card { background: var(--panel-2); border: 1px solid var(--border-soft); border-radius: 10px; padding: 11px 13px; }
+.spot-card { background: var(--panel-2); border: 1px solid var(--border-soft); border-radius: var(--r-lg); padding: 11px 13px; }
 .sc-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .sc-name { font-size: var(--fs-2xs); color: var(--text-dim); font-weight: 700; }
 .sc-value { font-size: var(--fs-xl); font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -0.025em; margin-top: 3px; }
@@ -65,7 +65,7 @@
 .fr-sym { font-size: var(--fs-2xs); color: var(--text-faint); font-family: var(--mono); }
 .fr-warn {
   font-size: var(--fs-2xs); color: var(--text-faint);
-  border: 1px solid var(--border); border-radius: 4px; padding: 0 4px;
+  border: 1px solid var(--border); border-radius: var(--r-sm); padding: 0 4px;
 }
 .fr-price { font-size: var(--fs-sm); font-weight: 700; }
 .fr-chg { font-size: var(--fs-sm); font-weight: 700; }

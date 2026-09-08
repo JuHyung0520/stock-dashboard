@@ -67,8 +67,21 @@
   --on-accent: #1a1204;        /* accent 배경 위 글자 — 다크는 밝은 노랑 위라 검정 */
   --border-strong: #3a4560;    /* hover 등에서 한 단계 밝힌 테두리 */
 
-  /* 형태 */
-  --radius: 12px;
+  /* 형태 — 모서리 반경 척도
+   * 원래는 1·2·3·4·5·6·7·8·10·12·16·20px 열두 가지가 CSS 13개 파일에 리터럴로 흩어져 있었다.
+   * 다섯 단계로 묶었다(±1px 이내라 눈에는 그대로다). 묶고 나니 '각진/둥근' 을
+   * 토큰 한 줄로 바꿀 수 있게 됐다 — 리터럴이면 100곳을 고쳐야 했다.
+   * 50% (점·아바타)는 원이라 척도에 넣지 않는다. */
+  --r-xs: 2px;    /* 미세한 막대·눈금 */
+  --r-sm: 4px;    /* 배지·작은 칩 */
+  --r-md: 7px;    /* 버튼·입력·탭 */
+  --r-lg: 11px;   /* 패널·카드 */
+  --r-xl: 16px;   /* 큰 컨테이너 */
+  --r-pill: 999px;/* 알약 */
+  --radius: var(--r-lg);
+
+  /* 질감 — 그레인 농도 (body::after 가 읽는다) */
+  --grain: 0.025;
   --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
 
   /* 타입 스케일 — 바닥선 0.72rem(10.8px). 이 아래 크기 금지 */
@@ -222,7 +235,7 @@ a.flow-link:active, a.flink:active, a.inv-verdict:active {
 
 /* ── 스켈레톤 로더 — 텍스트 '불러오는 중…' 대신 레이아웃 모양의 자리 표시 */
 .skel {
-  border-radius: 6px;
+  border-radius: var(--r-md);
   background: linear-gradient(100deg,
     var(--panel-2) 35%, rgba(255, 255, 255, 0.045) 48%, var(--panel-2) 61%);
   background-size: 300% 100%;
@@ -254,7 +267,7 @@ body::after {
   content: "";
   position: fixed; inset: 0;
   pointer-events: none; z-index: 999;
-  opacity: 0.025;
+  opacity: var(--grain);
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
@@ -291,6 +304,7 @@ html { scroll-behavior: smooth; }
  *
  * 상승=빨강·하락=파랑(--up/--down)과 --ok/--series-* 는 팔레트가 건드리지 않는다.
  * 국내 관례이자 화면의 의미 축이라, 색조를 바꾼다고 흔들려선 안 된다. */
+
 
 
 /* ── 슬레이트 — 중성 회색 + 민트 ── */
@@ -432,12 +446,12 @@ html { scroll-behavior: smooth; }
   --text: #1c1a26;
   --text-dim: #575265;
   --text-faint: #666075;
-  --accent: #56399f;
+  --accent: #6b2f9e;
   --on-accent: #ffffff;
-  --accent-tint: rgba(86, 57, 159, 0.08);
-  --accent-line: rgba(86, 57, 159, 0.35);
-  --accent-glow: rgba(86, 57, 159, 0.45);
-  --accent-tint-weak: rgba(86, 57, 159, 0.06);
+  --accent-tint: rgba(107, 47, 158, 0.08);
+  --accent-line: rgba(107, 47, 158, 0.35);
+  --accent-glow: rgba(107, 47, 158, 0.45);
+  --accent-tint-weak: rgba(107, 47, 158, 0.06);
   }
 }
 :root[data-theme="light"][data-palette="violet"] {
@@ -450,10 +464,193 @@ html { scroll-behavior: smooth; }
   --text: #1c1a26;
   --text-dim: #575265;
   --text-faint: #666075;
-  --accent: #56399f;
+  --accent: #6b2f9e;
   --on-accent: #ffffff;
-  --accent-tint: rgba(86, 57, 159, 0.08);
-  --accent-line: rgba(86, 57, 159, 0.35);
-  --accent-glow: rgba(86, 57, 159, 0.45);
-  --accent-tint-weak: rgba(86, 57, 159, 0.06);
+  --accent-tint: rgba(107, 47, 158, 0.08);
+  --accent-line: rgba(107, 47, 158, 0.35);
+  --accent-glow: rgba(107, 47, 158, 0.45);
+  --accent-tint-weak: rgba(107, 47, 158, 0.06);
+}
+
+/* ── 오션 — 딥 틸 + 시안 ── */
+:root[data-palette="ocean"] {
+  --bg: #020b0c;
+  --panel: #0b181a;
+  --panel-2: #121f22;
+  --border: #22383a;
+  --border-soft: #1a2c2d;
+  --border-strong: #335049;
+  --text: #e4f0f0;
+  --text-dim: #9fb5b5;
+  --text-faint: #90a7a7;
+  --accent: #67e8f9;
+  --on-accent: #052229;
+  --accent-tint: rgba(103, 232, 249, 0.08);
+  --accent-line: rgba(103, 232, 249, 0.35);
+  --accent-glow: rgba(103, 232, 249, 0.3);
+  --accent-tint-weak: rgba(103, 232, 249, 0.035);
+}
+@media (prefers-color-scheme: light) {
+  :root[data-palette="ocean"]:not([data-theme="dark"]) {
+  --bg: #e7f0f1;
+  --panel: #ffffff;
+  --panel-2: #f1f8f8;
+  --border: #cbdcdc;
+  --border-soft: #e0ebeb;
+  --border-strong: #aec4c4;
+  --text: #10201f;
+  --text-dim: #4d5f5e;
+  --text-faint: #5c6d6c;
+  --accent: #0a6b7d;
+  --on-accent: #ffffff;
+  --accent-tint: rgba(10, 107, 125, 0.08);
+  --accent-line: rgba(10, 107, 125, 0.35);
+  --accent-glow: rgba(10, 107, 125, 0.45);
+  --accent-tint-weak: rgba(10, 107, 125, 0.06);
+  }
+}
+:root[data-theme="light"][data-palette="ocean"] {
+  --bg: #e7f0f1;
+  --panel: #ffffff;
+  --panel-2: #f1f8f8;
+  --border: #cbdcdc;
+  --border-soft: #e0ebeb;
+  --border-strong: #aec4c4;
+  --text: #10201f;
+  --text-dim: #4d5f5e;
+  --text-faint: #5c6d6c;
+  --accent: #0a6b7d;
+  --on-accent: #ffffff;
+  --accent-tint: rgba(10, 107, 125, 0.08);
+  --accent-line: rgba(10, 107, 125, 0.35);
+  --accent-glow: rgba(10, 107, 125, 0.45);
+  --accent-tint-weak: rgba(10, 107, 125, 0.06);
+}
+
+/* ── 포레스트 — 짙은 숲 + 라임 ── */
+:root[data-palette="forest"] {
+  --bg: #060d05;
+  --panel: #10180e;
+  --panel-2: #172012;
+  --border: #2a3724;
+  --border-soft: #212b1c;
+  --border-strong: #3e5132;
+  --text: #eaf0e4;
+  --text-dim: #a9b8a0;
+  --text-faint: #9aaa90;
+  --accent: #cfe86b;
+  --on-accent: #141c05;
+  --accent-tint: rgba(207, 232, 107, 0.08);
+  --accent-line: rgba(207, 232, 107, 0.35);
+  --accent-glow: rgba(207, 232, 107, 0.3);
+  --accent-tint-weak: rgba(207, 232, 107, 0.035);
+}
+@media (prefers-color-scheme: light) {
+  :root[data-palette="forest"]:not([data-theme="dark"]) {
+  --bg: #ecf1e6;
+  --panel: #fdfffb;
+  --panel-2: #f5f8f0;
+  --border: #d6e0cb;
+  --border-soft: #e7edde;
+  --border-strong: #b8c6a8;
+  --text: #161e12;
+  --text-dim: #525a4b;
+  --text-faint: #606856;
+  --accent: #5f6b00;
+  --on-accent: #ffffff;
+  --accent-tint: rgba(95, 107, 0, 0.08);
+  --accent-line: rgba(95, 107, 0, 0.35);
+  --accent-glow: rgba(95, 107, 0, 0.45);
+  --accent-tint-weak: rgba(95, 107, 0, 0.06);
+  }
+}
+:root[data-theme="light"][data-palette="forest"] {
+  --bg: #ecf1e6;
+  --panel: #fdfffb;
+  --panel-2: #f5f8f0;
+  --border: #d6e0cb;
+  --border-soft: #e7edde;
+  --border-strong: #b8c6a8;
+  --text: #161e12;
+  --text-dim: #525a4b;
+  --text-faint: #606856;
+  --accent: #5f6b00;
+  --on-accent: #ffffff;
+  --accent-tint: rgba(95, 107, 0, 0.08);
+  --accent-line: rgba(95, 107, 0, 0.35);
+  --accent-glow: rgba(95, 107, 0, 0.45);
+  --accent-tint-weak: rgba(95, 107, 0, 0.06);
+}
+
+/* ── 로즈 — 플럼 + 로즈핑크 ── */
+:root[data-palette="rose"] {
+  --bg: #0e0509;
+  --panel: #1f1218;
+  --panel-2: #28181f;
+  --border: #3b2530;
+  --border-soft: #2e1c26;
+  --border-strong: #543545;
+  --text: #f4e8ed;
+  --text-dim: #b5a0a8;
+  --text-faint: #a8929b;
+  --accent: #f7a8c4;
+  --on-accent: #2a0d18;
+  --accent-tint: rgba(247, 168, 196, 0.08);
+  --accent-line: rgba(247, 168, 196, 0.35);
+  --accent-glow: rgba(247, 168, 196, 0.3);
+  --accent-tint-weak: rgba(247, 168, 196, 0.035);
+}
+@media (prefers-color-scheme: light) {
+  :root[data-palette="rose"]:not([data-theme="dark"]) {
+  --bg: #f5eaef;
+  --panel: #fffcfd;
+  --panel-2: #faf1f5;
+  --border: #e6d2dc;
+  --border-soft: #f0e2e9;
+  --border-strong: #ccadbe;
+  --text: #221419;
+  --text-dim: #5b4a51;
+  --text-faint: #6a575e;
+  --accent: #8a3560;
+  --on-accent: #ffffff;
+  --accent-tint: rgba(138, 53, 96, 0.08);
+  --accent-line: rgba(138, 53, 96, 0.35);
+  --accent-glow: rgba(138, 53, 96, 0.45);
+  --accent-tint-weak: rgba(138, 53, 96, 0.06);
+  }
+}
+:root[data-theme="light"][data-palette="rose"] {
+  --bg: #f5eaef;
+  --panel: #fffcfd;
+  --panel-2: #faf1f5;
+  --border: #e6d2dc;
+  --border-soft: #f0e2e9;
+  --border-strong: #ccadbe;
+  --text: #221419;
+  --text-dim: #5b4a51;
+  --text-faint: #6a575e;
+  --accent: #8a3560;
+  --on-accent: #ffffff;
+  --accent-tint: rgba(138, 53, 96, 0.08);
+  --accent-line: rgba(138, 53, 96, 0.35);
+  --accent-glow: rgba(138, 53, 96, 0.45);
+  --accent-tint-weak: rgba(138, 53, 96, 0.06);
+}
+
+/* ══ 모양(skin) — 색과 또 다른 축 ═══════════════════════════════════
+ * 팔레트가 '무슨 색인가' 라면, 이건 '얼마나 둥근가·거친가' 다.
+ * 위 --r-* 척도로 묶어 뒀기 때문에 여기서 여섯 줄만 바꾸면 화면 전체가 따라온다.
+ * 테마·팔레트와 독립이라 조합이 6팔레트 × 2테마 × 3모양 = 36가지가 된다.
+ *
+ * --shadow-panel 만 건드리고 float/lift 는 놔둔다: 판 그림자는 모양의 문제지만
+ * 팝오버·호버 그림자는 '떠 있음'을 알리는 기능이라 모양 취향으로 끄면 안 된다.
+ * (그래서 라이트/다크로 또 쪼갤 필요가 없다 — none 은 두 모드에서 같은 뜻이다) */
+:root[data-skin="sharp"] {
+  --r-xs: 0; --r-sm: 1px; --r-md: 2px; --r-lg: 3px; --r-xl: 4px; --r-pill: 3px;
+  --grain: 0;              /* 노이즈를 걷어야 각진 느낌이 산다 */
+  --shadow-panel: none;    /* 판 구분은 테두리가 맡는다 */
+}
+:root[data-skin="round"] {
+  --r-xs: 4px; --r-sm: 8px; --r-md: 12px; --r-lg: 18px; --r-xl: 26px;
+  --grain: 0.018;
 }

@@ -40,7 +40,7 @@ body {
 .fsub { font-size: var(--fs-2xs); color: var(--faint); }
 
 .fnav { display: flex; align-items: center; gap: 14px; }
-.mkt-toggle { display: flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.mkt-toggle { display: flex; border: 1px solid var(--line); border-radius: var(--r-md); overflow: hidden; }
 .mkt:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }   /* 바깥 아웃라인은 overflow 에 잘린다 */
 .mkt {
   background: none; border: none; color: var(--dim); font: inherit; font-size: var(--fs-xs);
@@ -77,7 +77,7 @@ body.stale .fhero, body.stale .fpanel { opacity: 0.55; }
 .v-detail { margin-top: 8px; font-size: var(--fs-sm); color: var(--dim); }
 .v-flags { margin-top: 14px; display: flex; gap: 7px; flex-wrap: wrap; }
 .v-flag {
-  font-size: var(--fs-2xs); padding: 4px 10px; border-radius: 20px;
+  font-size: var(--fs-2xs); padding: 4px 10px; border-radius: var(--r-pill);
   /* 검정을 직접 섞으면 라이트에서 배경이 어두워져 글자 대비가 3.65 로 떨어진다 */
   border: 1px solid var(--line); color: var(--dim); background: var(--panel-2);
 }
@@ -172,7 +172,7 @@ body.stale .fhero, body.stale .fpanel { opacity: 0.55; }
 .matrix-wrap::-webkit-scrollbar { height: 8px; }
 .matrix-wrap::-webkit-scrollbar-track { background: transparent; }
 .matrix-wrap::-webkit-scrollbar-thumb {
-  background: var(--line); border-radius: 4px;
+  background: var(--line); border-radius: var(--r-sm);
 }
 .matrix-wrap::-webkit-scrollbar-thumb:hover { background: var(--border-strong); }
 .matrix-wrap { scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
@@ -213,7 +213,7 @@ body.stale .fhero, body.stale .fpanel { opacity: 0.55; }
 }
 .m-bar {
   position: absolute; left: 1px; right: 1px;
-  border-radius: 1px;
+  border-radius: var(--r-xs);
   transition: height var(--t-bar) ease;
 }
 .m-bar.up { bottom: 50%; background: var(--buy); }
@@ -251,7 +251,7 @@ body.stale .fhero, body.stale .fpanel { opacity: 0.55; }
 /* 스크러버 읽기 패널 */
 .scrub-read {
   margin-top: 14px; padding: 12px 14px;
-  border: 1px solid var(--line); border-radius: 10px;
+  border: 1px solid var(--line); border-radius: var(--r-lg);
   background: var(--panel);
   display: none;
 }
@@ -280,8 +280,8 @@ body.stale .fhero, body.stale .fpanel { opacity: 0.55; }
 .si-val { font-size: var(--fs-xs); font-family: var(--mono); }
 
 /* 양쪽 진영을 같은 척도로 — 크기 차이가 눈에 보이게 */
-.si-track { height: 4px; background: var(--line-soft); border-radius: 2px; overflow: hidden; }
-.si-bar { height: 100%; border-radius: 2px; transition: width var(--t-bar) ease; }
+.si-track { height: 4px; background: var(--line-soft); border-radius: var(--r-xs); overflow: hidden; }
+.si-bar { height: 100%; border-radius: var(--r-xs); transition: width var(--t-bar) ease; }
 .si-bar.buy { background: var(--buy); }
 .si-bar.sell { background: var(--sell); }
 
@@ -309,7 +309,7 @@ tbody tr:last-child td { border-bottom: none; }
 .al { text-align: left; } .ar { text-align: right; } .ac { text-align: center; }
 
 .intensity-bar {
-  display: inline-block; height: 3px; border-radius: 2px; vertical-align: middle;
+  display: inline-block; height: 3px; border-radius: var(--r-xs); vertical-align: middle;
   margin-left: 6px; min-width: 2px;
 }
 
@@ -361,13 +361,13 @@ tbody tr:last-child td { border-bottom: none; }
   /* 내비는 한 줄을 통째로 쓰고 가로 스크롤 (chart.css 와 같은 규칙) */
   .fhead .nav-links { order: 3; width: 100%; margin: 0 -4px; padding: 0 4px; }
 
-  .verdict { padding: 17px 16px; border-radius: 12px; }
+  .verdict { padding: 17px 16px; border-radius: var(--r-lg); }
   .v-head { font-size: var(--fs-hl); }
 
   .stat-card { padding: 12px 13px; }
   .sc-big { font-size: var(--fs-hl); }
 
-  .fpanel { padding: 15px 14px; border-radius: 12px; }
+  .fpanel { padding: 15px 14px; border-radius: var(--r-lg); }
   .fpanel-head { margin-bottom: 12px; }
 
   .split-cols { grid-template-columns: 1fr; gap: 16px; }
@@ -393,7 +393,7 @@ body > .fpanel:nth-of-type(2) { animation-delay: 0.12s; }
  * 토스 일봉 전일종가 기준이라 KRX 공식 등락률과 소수점이 다르다. */
 .th-src {
   display: inline-block; margin-left: 4px; padding: 0 4px;
-  border-radius: 4px; background: var(--tint-active);
+  border-radius: var(--r-sm); background: var(--tint-active);
   font-size: var(--fs-2xs); font-weight: 600; color: var(--text-faint);
   vertical-align: 1px;
 }

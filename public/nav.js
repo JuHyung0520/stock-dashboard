@@ -127,7 +127,34 @@ const PALETTES = [
   { v: 'slate',   label: '슬레이트', desc: '회색 · 민트' },
   { v: 'mocha',   label: '모카',     desc: '차콜 · 크림' },
   { v: 'violet',  label: '바이올렛', desc: '퍼플 · 라벤더' },
+  { v: 'ocean',   label: '오션',     desc: '딥 틸 · 시안' },
+  { v: 'forest',  label: '포레스트', desc: '숲 · 라임' },
+  { v: 'rose',    label: '로즈',     desc: '플럼 · 로즈핑크' },
 ];
+
+/* ── 모양(skin) — 색과 독립된 축 ──
+ * tokens.css 의 --r-* 척도와 --grain 만 갈아끼운다. 저장 키를 따로 두어
+ * 팔레트를 바꿔도 모양은 그대로, 반대도 마찬가지가 되게 한다. */
+const SKIN_KEY = 'skin-v1';
+const SKINS = [
+  { v: 'sharp',   label: '각진' },
+  { v: 'default', label: '기본' },
+  { v: 'round',   label: '둥글게' },
+];
+
+function readSkin() {
+  try {
+    const v = localStorage.getItem(SKIN_KEY);
+    return SKINS.some((s) => s.v === v) ? v : 'default';
+  } catch { return 'default'; }
+}
+
+function applySkin(v) {
+  const root = document.documentElement;
+  if (v === 'default') delete root.dataset.skin;
+  else root.dataset.skin = v;
+  try { localStorage.setItem(SKIN_KEY, v); } catch { /* 기억만 못 한다 */ }
+}
 
 function readPalette() {
   try {
@@ -160,6 +187,16 @@ function swatch(v) {
   return cols;
 }
 
+/* 모양 견본도 색과 똑같이 CSS 에서 실제 값을 읽어 온다 */
+function skinRadius(v) {
+  const root = document.documentElement;
+  const had = 'skin' in root.dataset, prev = root.dataset.skin;
+  if (v === 'default') delete root.dataset.skin; else root.dataset.skin = v;
+  const r = getComputedStyle(root).getPropertyValue('--r-md').trim();
+  if (had) root.dataset.skin = prev; else delete root.dataset.skin;
+  return r;
+}
+
 function paletteButton() {
   const wrap = document.createElement('div');
   wrap.className = 'pal-wrap';
@@ -177,16 +214,23 @@ function paletteButton() {
   pop.setAttribute('role', 'menu');
 
   const paint = () => {
-    const cur = readPalette();
-    btn.title = `색 팔레트: ${PALETTES.find((p) => p.v === cur).label}`;
+    const cur = readPalette(), skin = readSkin();
+    const curLabel = PALETTES.find((p) => p.v === cur).label;
+    const skinLabel = SKINS.find((x) => x.v === skin).label;
+    btn.title = `모양: ${curLabel} · ${skinLabel}`;
     btn.setAttribute('aria-label', btn.title);
-    pop.innerHTML = PALETTES.map((p) => {
+    const colors = PALETTES.map((p) => {
       const [c1, c2, c3] = swatch(p.v);
-      return `<button class="pal-item" type="button" role="menuitemradio" aria-checked="${p.v === cur}" data-v="${p.v}">
+      return `<button class="pal-item" type="button" role="menuitemradio" aria-checked="${p.v === cur}" data-pal="${p.v}">
         <span class="pal-sw" aria-hidden="true"><i style="background:${c1}"></i><i style="background:${c2}"></i><i style="background:${c3}"></i></span>
         <span class="pal-txt">${p.label}<small>${p.desc}</small></span>
       </button>`;
     }).join('');
+    const shapes = SKINS.map((x) => `<button class="pal-skin" type="button" role="menuitemradio"
+        aria-checked="${x.v === skin}" data-skin="${x.v}">
+        <i aria-hidden="true" style="border-radius:${skinRadius(x.v)}"></i>${x.label}
+      </button>`).join('');
+    pop.innerHTML = `<p class="pal-head">색</p>${colors}<p class="pal-head">모양</p><div class="pal-skins">${shapes}</div>`;
   };
 
   const close = () => {
@@ -215,12 +259,17 @@ function paletteButton() {
   });
 
   pop.addEventListener('click', (e) => {
-    const it = e.target.closest('.pal-item');
-    if (!it) return;
-    applyPalette(it.dataset.v);
-    paint();          // 체크 표시를 옮기고
-    close();
-    btn.focus();
+    const col = e.target.closest('.pal-item');
+    if (col) {
+      applyPalette(col.dataset.pal);
+      paint();
+      close();
+      btn.focus();
+      return;
+    }
+    /* 모양은 팝오버를 닫지 않는다 — 각진↔둥근 차이는 연달아 눌러 봐야 보인다 */
+    const sk = e.target.closest('.pal-skin');
+    if (sk) { applySkin(sk.dataset.skin); paint(); }
   });
 
   paint();          // 라벨을 처음부터 채워 둔다 — 클릭해야 이름이 붙으면 스크린리더에 빈 버튼이다

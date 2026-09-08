@@ -7,7 +7,7 @@ body > section.panel { margin-bottom: 14px; }
 .ctl-label { font-size: var(--fs-2xs); color: var(--text-faint); font-weight: 700; }
 .searchbox.compact { max-width: 280px; min-width: 190px; flex: none; }
 .ghost-btn {
-  background: none; border: 1px solid var(--border); border-radius: 7px;
+  background: none; border: 1px solid var(--border); border-radius: var(--r-md);
   padding: 5px 11px; color: var(--text-dim); font: inherit; font-size: var(--fs-xs);
   cursor: pointer; transition: border-color var(--t-fast), color var(--t-fast);
 }
@@ -31,7 +31,7 @@ body > section.panel { margin-bottom: 14px; }
   grid-template-columns: minmax(190px, 1.4fr) minmax(150px, 1.6fr) 100px 100px;
   gap: 14px; align-items: center;
   background: var(--panel-2); border: 1px solid var(--border-soft);
-  border-radius: 10px; padding: 11px 14px;
+  border-radius: var(--r-lg); padding: 11px 14px;
   cursor: pointer; transition: border-color var(--t-fast), background var(--t-fast);
 }
 .peak-row:hover { border-color: var(--border); }
@@ -44,14 +44,14 @@ body > section.panel { margin-bottom: 14px; }
 .pr-name { font-size: var(--fs-sm); font-weight: 700; }
 .pr-code { font-size: var(--fs-2xs); color: var(--text-faint); font-family: var(--mono); }
 .pr-tag, .pr-badge, .pr-live {
-  font-size: var(--fs-2xs); border-radius: 4px; padding: 0 5px; border: 1px solid var(--border);
+  font-size: var(--fs-2xs); border-radius: var(--r-sm); padding: 0 5px; border: 1px solid var(--border);
   color: var(--text-faint);
 }
 .pr-badge { color: var(--on-up-tint); border-color: var(--up); background: var(--up-tint); font-weight: 700; }
 .pr-live { color: var(--ok); border-color: var(--ok-line); }
 .pr-del {
   background: none; border: none; color: var(--text-faint);
-  font-size: var(--fs-sm); line-height: 1; cursor: pointer; padding: 2px 5px; border-radius: 4px;
+  font-size: var(--fs-sm); line-height: 1; cursor: pointer; padding: 2px 5px; border-radius: var(--r-sm);
   opacity: 0; transition: opacity var(--t-fast), color var(--t-fast);
 }
 .peak-row:hover .pr-del, .pr-del:focus-visible { opacity: 1; }
@@ -69,11 +69,11 @@ body > section.panel { margin-bottom: 14px; }
  * 트랙(회색 홈)을 깔아야 "전체 중 어디까지 찼는지"가 보인다. */
 .pr-bar-wrap { display: flex; align-items: center; gap: 9px; min-width: 0; }
 .pr-track {
-  flex: 1; min-width: 0; height: 9px; border-radius: 5px;
+  flex: 1; min-width: 0; height: 9px; border-radius: var(--r-sm);
   background: var(--border-soft); overflow: hidden;
 }
 .pr-bar {
-  height: 100%; border-radius: 5px;
+  height: 100%; border-radius: var(--r-sm);
   background: linear-gradient(90deg, rgba(49, 130, 246, 0.35), var(--down));
   transition: width var(--t-bar);
 }

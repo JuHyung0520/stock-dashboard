@@ -12,7 +12,7 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🇺🇸</text></svg>">
   <!-- 테마 깜빡임 방지 — 그리기 전에 저장된 선택을 적용한다.
        nav.js 는 body 끝에서 돌아 이미 한 번 그려진 뒤라 늦다. -->
-  <script>try{var r=document.documentElement,t=localStorage.getItem('theme-v1');if(t==='light'||t==='dark')r.dataset.theme=t;var p=localStorage.getItem('palette-v1');if(p==='slate'||p==='mocha'||p==='violet')r.dataset.palette=p}catch(e){}</script>
+  <script>try{var r=document.documentElement,t=localStorage.getItem('theme-v1');if(t==='light'||t==='dark')r.dataset.theme=t;var p=localStorage.getItem('palette-v1');if(/^(slate|mocha|violet|ocean|forest|rose)$/.test(p||''))r.dataset.palette=p;var k=localStorage.getItem('skin-v1');if(k==='sharp'||k==='round')r.dataset.skin=k}catch(e){}</script>
   <link rel="stylesheet" href="tokens.css">
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="chart.css">

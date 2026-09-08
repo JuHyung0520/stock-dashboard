@@ -68,7 +68,7 @@ body {
 .index-card .idx-name { font-size: var(--fs-2xs); color: var(--text-dim); display: flex; align-items: center; gap: 5px; white-space: nowrap; }
 .index-card .idx-value { font-size: var(--fs-lg); font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
 .index-card .idx-change { font-size: var(--fs-2xs); margin-left: auto; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.idx-state { font-size: var(--fs-2xs); color: var(--text-faint); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; }
+.idx-state { font-size: var(--fs-2xs); color: var(--text-faint); border: 1px solid var(--border); border-radius: var(--r-sm); padding: 1px 5px; }
 
 .up { color: var(--up); }
 .down { color: var(--down); }
@@ -116,7 +116,7 @@ body {
   width: 100%;
   background: var(--panel-2);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--r-md);
   color: var(--text);
   font: inherit;
   font-size: var(--fs-sm);
@@ -136,7 +136,7 @@ body {
   left: 0; right: 0;
   background: var(--panel-2);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: var(--r-lg);
   box-shadow: var(--shadow-float);
   z-index: 50;
   overflow: hidden;
@@ -169,7 +169,7 @@ body {
 .badge {
   font-size: var(--fs-2xs);
   font-weight: 700;
-  border-radius: 4px;
+  border-radius: var(--r-sm);
   padding: 2px 5px;
   flex-shrink: 0;
 }
@@ -218,7 +218,7 @@ tbody tr:last-child td { border-bottom: none; }
 
 .remove-btn {
   background: none; border: none; color: var(--text-faint);
-  cursor: pointer; font-size: var(--fs-xs); padding: 5px 8px; border-radius: 5px;
+  cursor: pointer; font-size: var(--fs-xs); padding: 5px 8px; border-radius: var(--r-sm);
   min-width: 26px; min-height: 26px; line-height: 1;
   opacity: 0; transition: opacity var(--t-fast);
 }
@@ -238,7 +238,7 @@ tbody tr:last-child td { border-bottom: none; }
   font: inherit;
   font-size: var(--fs-2xs);
   padding: 5px 12px;
-  border-radius: 7px;
+  border-radius: var(--r-md);
   cursor: pointer;
 }
 .tab.active { background: var(--accent-tint); border-color: var(--accent-line); color: var(--accent); }
@@ -266,7 +266,7 @@ tbody tr:last-child td { border-bottom: none; }
 /* 오류 화면의 재시도 버튼 */
 .retry-btn {
   background: none; border: 1px solid var(--border); color: var(--text-dim);
-  font: inherit; font-size: var(--fs-2xs); padding: 4px 11px; border-radius: 6px;
+  font: inherit; font-size: var(--fs-2xs); padding: 4px 11px; border-radius: var(--r-md);
   cursor: pointer; margin-left: 8px;
   transition: border-color var(--t-fast), color var(--t-fast);
 }
@@ -309,7 +309,7 @@ tbody tr:last-child td { border-bottom: none; }
 .scard.drop-after { box-shadow: inset -3px 0 0 var(--accent); }
 
 /* ── 카드 뷰 ─────────────────────────── */
-.view-toggle { display: flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.view-toggle { display: flex; border: 1px solid var(--border); border-radius: var(--r-md); overflow: hidden; }
 .vt {
   background: none; border: none; color: var(--text-dim);
   font: inherit; font-size: var(--fs-2xs); padding: 5px 13px; cursor: pointer;
@@ -326,7 +326,7 @@ tbody tr:last-child td { border-bottom: none; }
   background: linear-gradient(180deg, var(--panel-2), var(--panel));
   border: 1px solid var(--border);
   box-shadow: var(--shadow-panel);
-  border-radius: 16px;
+  border-radius: var(--r-xl);
   padding: 18px;
   cursor: pointer;
   transition: border-color var(--t-fast);
@@ -382,7 +382,7 @@ tbody tr:last-child td { border-bottom: none; }
 .c-range { margin-top: 13px; }
 .cr-label { font-size: var(--fs-2xs); color: var(--text-faint); margin-bottom: 5px; }
 .cr-track {
-  height: 4px; border-radius: 2px; position: relative;
+  height: 4px; border-radius: var(--r-xs); position: relative;
   background: linear-gradient(90deg, var(--down), var(--border) 50%, var(--up));
   opacity: 0.55;
 }
@@ -401,8 +401,8 @@ tbody tr:last-child td { border-bottom: none; }
 .c-target { margin-top: 15px; padding-top: 13px; border-top: 1px solid var(--border); }
 .ct-row { display: grid; grid-template-columns: 60px 1fr 66px; align-items: center; gap: 7px; margin-bottom: 6px; }
 .ct-k { font-size: var(--fs-2xs); color: var(--text-faint); }
-.ct-track { height: 5px; background: var(--tint-active); border-radius: 3px; overflow: hidden; }
-.ct-bar { height: 100%; border-radius: 3px; transition: width var(--t-bar) ease; }
+.ct-track { height: 5px; background: var(--tint-active); border-radius: var(--r-xs); overflow: hidden; }
+.ct-bar { height: 100%; border-radius: var(--r-xs); transition: width var(--t-bar) ease; }
 .ct-bar.now { background: var(--text-faint); }
 /* 목표가는 '오르내림'이 아니라 '전망'이다 — 등락색을 쓰면 바로 아래 상승여력 문장과 정반대로 읽힌다 */
 .ct-bar.goal { background: var(--accent); }
@@ -432,7 +432,7 @@ tbody tr:last-child td { border-bottom: none; }
 /* 막대는 가격 열 바깥쪽에서 자라난다 — 매도는 왼쪽, 매수는 오른쪽 */
 .ob-bar {
   position: absolute; top: 2px; bottom: 2px;
-  border-radius: 2px; z-index: 0; opacity: 0.28;
+  border-radius: var(--r-xs); z-index: 0; opacity: 0.28;
   max-width: calc(50% - 42px);
 }
 .ob-bar.ask { right: calc(50% + 42px); background: var(--down); }
@@ -444,7 +444,7 @@ tbody tr:last-child td { border-bottom: none; }
 
 .ob-price {
   text-align: center; font-weight: 600; z-index: 1;
-  background: var(--tint-hover); border-radius: 3px; padding: 2px 0;
+  background: var(--tint-hover); border-radius: var(--r-xs); padding: 2px 0;
 }
 /* 호가는 틴트를 깐 칩 위의 글자다 — 판 색인 --up/--down 을 그대로 쓰면 4.48 로 4.5 를 못 넘는다.
  * 틴트 위 전용 색이 이미 있다(--on-*-tint). 색상 계열은 같고 대비만 7.4 로 올라간다. */
@@ -460,7 +460,7 @@ tbody tr:last-child td { border-bottom: none; }
 
 .ob-totals { margin-top: 12px; }
 .ob-tbar {
-  height: 6px; border-radius: 3px; overflow: hidden;
+  height: 6px; border-radius: var(--r-xs); overflow: hidden;
   background: var(--down); /* 남는 부분 = 매도 */
 }
 .ob-tfill { height: 100%; background: var(--up); transition: width var(--t-bar) ease; }
@@ -493,7 +493,7 @@ tbody tr:last-child td { border-bottom: none; }
 .rk-amt { color: var(--text-faint); font-size: var(--fs-2xs); }
 .rk-add {
   background: none; border: 1px solid var(--border); color: var(--text-dim);
-  font: inherit; font-size: var(--fs-2xs); padding: 3px 6px; border-radius: 5px; cursor: pointer;
+  font: inherit; font-size: var(--fs-2xs); padding: 3px 6px; border-radius: var(--r-sm); cursor: pointer;
 }
 .rk-add:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
 .rk-add:disabled { opacity: 0.35; cursor: default; }
@@ -505,7 +505,7 @@ tbody tr:last-child td { border-bottom: none; }
 .inv-verdict {
   display: flex; align-items: baseline; justify-content: space-between; gap: 8px;
   margin-bottom: 12px; padding: 9px 11px;
-  background: var(--panel-2); border: 1px solid var(--border); border-radius: 8px;
+  background: var(--panel-2); border: 1px solid var(--border); border-radius: var(--r-md);
   color: var(--text); text-decoration: none;
   font-size: var(--fs-sm); font-weight: 600; line-height: 1.4;
   transition: border-color var(--t-fast);
@@ -522,12 +522,12 @@ tbody tr:last-child td { border-bottom: none; }
 .inv-label { font-size: var(--fs-xs); color: var(--text-dim); }
 .inv-amount { font-size: var(--fs-xs); font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
 
-.inv-bar-track { height: 14px; position: relative; background: var(--tint-active); border-radius: 4px; overflow: hidden; }
+.inv-bar-track { height: 14px; position: relative; background: var(--tint-active); border-radius: var(--r-sm); overflow: hidden; }
 .inv-bar-track::after {
   content: ""; position: absolute; left: 50%; top: 0; bottom: 0;
   width: 1px; background: var(--border);
 }
-.inv-bar { position: absolute; top: 2px; bottom: 2px; border-radius: 3px; transition: width var(--t-bar) ease, left var(--t-bar) ease; }
+.inv-bar { position: absolute; top: 2px; bottom: 2px; border-radius: var(--r-xs); transition: width var(--t-bar) ease, left var(--t-bar) ease; }
 .inv-bar.pos { background: linear-gradient(90deg, rgba(240,68,82,0.55), rgba(240,68,82,0.9)); left: 50%; }
 .inv-bar.neg { background: linear-gradient(270deg, rgba(49,130,246,0.55), rgba(49,130,246,0.9)); right: 50%; }
 
@@ -622,7 +622,7 @@ tbody tr:last-child td { border-bottom: none; }
 }
 .news-list::-webkit-scrollbar { width: 7px; }
 .news-list::-webkit-scrollbar-track { background: transparent; }
-.news-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+.news-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: var(--r-sm); }
 
 /* 뉴스 탭이 5개라 사이드바에서 줄바꿈된다 — 작게 */
 #newsPanel .tabs { flex-wrap: wrap; gap: 4px; }
@@ -642,7 +642,7 @@ tbody tr:last-child td { border-bottom: none; }
 #undoToast {
   position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 12px);
   display: flex; align-items: center; gap: 12px;
-  background: var(--panel-2); border: 1px solid var(--border); border-radius: 10px;
+  background: var(--panel-2); border: 1px solid var(--border); border-radius: var(--r-lg);
   padding: 10px 14px; font-size: var(--fs-xs);
   box-shadow: var(--shadow-float);
   opacity: 0; pointer-events: none; z-index: 200;
@@ -651,7 +651,7 @@ tbody tr:last-child td { border-bottom: none; }
 #undoToast.on { opacity: 1; pointer-events: auto; transform: translate(-50%, 0); }
 #undoToast .undo-btn {
   background: none; border: 1px solid var(--accent-line); color: var(--accent);
-  font: inherit; font-size: var(--fs-xs); padding: 4px 11px; border-radius: 6px; cursor: pointer;
+  font: inherit; font-size: var(--fs-xs); padding: 4px 11px; border-radius: var(--r-md); cursor: pointer;
   transition: background var(--t-fast);
 }
 #undoToast .undo-btn:hover { background: var(--accent-tint); }
@@ -683,7 +683,7 @@ tbody tr:last-child td { border-bottom: none; }
 .gap-sub { font-size: var(--fs-2xs); color: var(--text-faint); font-variant-numeric: tabular-nums; }
 .gap-badge {
   font-size: var(--fs-2xs); font-weight: 700; font-variant-numeric: tabular-nums;
-  border-radius: 5px; padding: 2px 7px; text-align: right; justify-self: end;
+  border-radius: var(--r-sm); padding: 2px 7px; text-align: right; justify-self: end;
 }
 /* 틴트 배경 위에 같은 계열 글자를 얹으면 대비가 4.1 까지 떨어진다(실측).
  * 배경 위 전용 색을 따로 둔다 — 다크는 밝게, 라이트는 진하게. */
@@ -695,7 +695,7 @@ tbody tr:last-child td { border-bottom: none; }
 /* 김프 — 비교 기준 선택 + 메타 줄 */
 .gap-basis { display: flex; gap: 5px; margin-bottom: 8px; flex-wrap: wrap; }
 .gb {
-  background: none; border: 1px solid var(--border); border-radius: 6px;
+  background: none; border: 1px solid var(--border); border-radius: var(--r-md);
   padding: 2px 8px; color: var(--text-faint); font: inherit; font-size: var(--fs-2xs);
   cursor: pointer; transition: color var(--t-fast), border-color var(--t-fast);
 }
@@ -723,7 +723,7 @@ body.stale .sum-hero { opacity: 0.55; transition: opacity var(--t-fast); }
   display: inline-flex; align-items: center; gap: 4px;
   font-size: var(--fs-2xs); font-weight: 400;
   color: var(--text-faint); white-space: nowrap;
-  border: 1px solid var(--border); border-radius: 4px; padding: 0 5px;
+  border: 1px solid var(--border); border-radius: var(--r-sm); padding: 0 5px;
 }
 .as-of.live { color: var(--ok); border-color: var(--ok-line); background: var(--ok-tint); }
 .as-of.closed { color: var(--text-faint); }

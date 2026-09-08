@@ -12,12 +12,12 @@ body { padding-bottom: 90px; }   /* 저장 바에 가리지 않게 */
 code {
   font-family: var(--mono); font-size: var(--fs-xs);   /* em 은 부모에 복리로 곱해져 바닥선 아래로 떨어진다 */
   background: var(--panel-2); border: 1px solid var(--border-soft);
-  border-radius: 4px; padding: 0 4px; color: var(--text-dim);
+  border-radius: var(--r-sm); padding: 0 4px; color: var(--text-dim);
 }
 code.cmd { display: inline-block; margin-top: 3px; padding: 4px 8px; color: var(--accent); }
 
 /* ── 데몬 상태 ── */
-.dstate { display: flex; flex-direction: column; gap: 3px; padding: 11px 13px; border-radius: 10px; border: 1px solid var(--border-soft); background: var(--panel-2); }
+.dstate { display: flex; flex-direction: column; gap: 3px; padding: 11px 13px; border-radius: var(--r-lg); border: 1px solid var(--border-soft); background: var(--panel-2); }
 .dstate b { font-size: var(--fs-hl); font-weight: 700; letter-spacing: -0.015em; }
 .dstate span { font-size: var(--fs-2xs); color: var(--text-faint); }
 .dstate.ok b { color: var(--ok); }
@@ -28,7 +28,7 @@ code.cmd { display: inline-block; margin-top: 3px; padding: 4px 8px; color: var(
 .sw input { accent-color: var(--accent); cursor: pointer; }
 
 .ghost-btn {
-  background: none; border: 1px solid var(--border); border-radius: 7px;
+  background: none; border: 1px solid var(--border); border-radius: var(--r-md);
   padding: 4px 11px; color: var(--text-dim); font: inherit; font-size: var(--fs-xs);
   cursor: pointer; transition: border-color var(--t-fast), color var(--t-fast);
 }
@@ -37,7 +37,7 @@ code.cmd { display: inline-block; margin-top: 3px; padding: 4px 8px; color: var(
 /* ── 조건 행 ── */
 .cond-row {
   background: var(--panel-2); border: 1px solid var(--border-soft);
-  border-radius: 10px; padding: 10px 12px; margin-bottom: 8px;
+  border-radius: var(--r-lg); padding: 10px 12px; margin-bottom: 8px;
 }
 .cr-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
 .cr-name {
@@ -50,7 +50,7 @@ code.cmd { display: inline-block; margin-top: 3px; padding: 4px 8px; color: var(
 .cr-live { font-size: var(--fs-2xs); font-variant-numeric: tabular-nums; color: var(--text-dim); }
 .cr-del {
   background: none; border: none; color: var(--text-faint);
-  font-size: var(--fs-sm); line-height: 1; cursor: pointer; padding: 2px 5px; border-radius: 4px;
+  font-size: var(--fs-sm); line-height: 1; cursor: pointer; padding: 2px 5px; border-radius: var(--r-sm);
 }
 .cr-del:hover { color: var(--on-up-tint); background: var(--up-tint); }   /* 하드코딩 틴트는 라이트에서 안 따라온다 */
 
@@ -58,7 +58,7 @@ code.cmd { display: inline-block; margin-top: 3px; padding: 4px 8px; color: var(
 .cr-body.grid-body { gap: 5px 7px; }
 .cr-lbl { font-size: var(--fs-2xs); color: var(--text-faint); }
 .cr-in {
-  background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+  background: var(--panel); border: 1px solid var(--border); border-radius: var(--r-md);
   padding: 4px 8px; color: var(--text); font: inherit; font-size: var(--fs-2xs);
   min-width: 0; width: 96px;
 }
@@ -84,7 +84,7 @@ select.cr-in { width: auto; cursor: pointer; }
 .save-btn {
   /* 라이트에서는 --accent 가 진한 갈색(#8a6100)이라 그 위에 어두운 글씨를 얹으면 안 보인다.
    * 배경 밝기에 따라 글자색이 뒤집히도록 토큰으로 뺀다. */
-  background: var(--accent); border: none; border-radius: 8px;
+  background: var(--accent); border: none; border-radius: var(--r-md);
   padding: 7px 20px; color: var(--on-accent); font: inherit; font-size: var(--fs-sm); font-weight: 800;
   cursor: pointer;
 }

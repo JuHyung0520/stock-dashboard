@@ -57,7 +57,7 @@
 .rail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .rail-card {
   background: var(--panel); border: 1px solid var(--border);
-  border-radius: 10px; padding: 10px 12px; box-shadow: var(--shadow-panel);
+  border-radius: var(--r-lg); padding: 10px 12px; box-shadow: var(--shadow-panel);
 }
 .rail-card .k { font-size: var(--fs-2xs); color: var(--text-dim); }
 .rail-card .v { font-size: var(--fs-lg); font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; margin-top: 2px; }

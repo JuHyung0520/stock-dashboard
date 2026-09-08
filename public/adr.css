@@ -10,7 +10,7 @@ body > section.panel { margin-bottom: 14px; }
 .hero-main { min-width: 0; }
 .hero-label { display: flex; align-items: center; gap: 8px; font-size: var(--fs-sm); color: var(--text-dim); font-weight: 700; }
 .hero-badge {
-  font-size: var(--fs-2xs); border: 1px solid var(--border); border-radius: 5px;
+  font-size: var(--fs-2xs); border: 1px solid var(--border); border-radius: var(--r-sm);
   padding: 1px 6px; color: var(--text-faint);
 }
 .hero-badge.est { color: var(--accent); border-color: var(--accent-line); background: var(--accent-tint); }
@@ -39,7 +39,7 @@ body > section.panel { margin-bottom: 14px; }
 .ratio-big { font-size: var(--fs-xl); font-weight: 700; font-variant-numeric: tabular-nums; }
 .ratio-big b { font-weight: 800; color: var(--accent); }
 .ratio-check {
-  font-size: var(--fs-2xs); border-radius: 5px; padding: 2px 8px;
+  font-size: var(--fs-2xs); border-radius: var(--r-sm); padding: 2px 8px;
   border: 1px solid var(--border); font-variant-numeric: tabular-nums;
 }
 .ratio-check.ok { color: var(--ok); border-color: var(--ok-line); background: var(--ok-tint); }
@@ -53,7 +53,7 @@ body > section.panel { margin-bottom: 14px; }
 .mkt-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; }
 .mkt-card {
   background: var(--panel-2); border: 1px solid var(--border-soft);
-  border-radius: 10px; padding: 12px 14px;
+  border-radius: var(--r-lg); padding: 12px 14px;
 }
 .mkt-card.base { border-color: var(--border); background: var(--panel); }
 .mk-head { display: flex; align-items: center; gap: 7px; }
@@ -61,7 +61,7 @@ body > section.panel { margin-bottom: 14px; }
 .mk-name { font-size: var(--fs-2xs); font-weight: 700; color: var(--text-dim); }
 .mk-state {
   margin-left: auto; font-size: var(--fs-2xs); color: var(--text-faint);
-  border: 1px solid var(--border); border-radius: 4px; padding: 0 5px;
+  border: 1px solid var(--border); border-radius: var(--r-sm); padding: 0 5px;
 }
 .mk-px { font-size: var(--fs-xl); font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -0.025em; margin-top: 4px; }
 .mk-chg { font-size: var(--fs-2xs); font-weight: 700; font-variant-numeric: tabular-nums; }

@@ -7,7 +7,7 @@
   gap: 16px;
   background: linear-gradient(180deg, var(--panel-2), var(--panel));
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: var(--r-xl);
   box-shadow: var(--shadow-panel);
   padding: 20px 22px;
   margin-bottom: 14px;
@@ -37,7 +37,7 @@
 /* ── 보유 종목 카드(행) ── */
 .holding {
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: var(--r-lg);
   margin-bottom: 10px;
   overflow: hidden;
 }
@@ -93,7 +93,7 @@
 .sell-row { grid-template-columns: 1fr 1fr 1fr auto 28px; }
 .lot-no { font-size: var(--fs-2xs); color: var(--text-faint); }
 .lot-row input, .sell-row input {
-  background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+  background: var(--panel-2); border: 1px solid var(--border); border-radius: var(--r-md);
   color: var(--text); font: inherit; font-size: var(--fs-sm);
   padding: 6px 9px; width: 100%; text-align: right;
   font-variant-numeric: tabular-nums;
@@ -105,13 +105,13 @@
 .lot-sum { font-size: var(--fs-2xs); color: var(--text-faint); white-space: nowrap; }
 .x-btn {
   background: none; border: none; color: var(--text-faint); cursor: pointer;
-  font-size: var(--fs-xs); padding: 4px; border-radius: 5px; min-width: 26px; min-height: 26px;
+  font-size: var(--fs-xs); padding: 4px; border-radius: var(--r-sm); min-width: 26px; min-height: 26px;
 }
 .x-btn:hover { color: var(--up); background: rgba(240, 68, 82, 0.1); }
 
 .add-line {
   background: none; border: 1px dashed var(--border); color: var(--text-dim);
-  font: inherit; font-size: var(--fs-2xs); border-radius: 7px;
+  font: inherit; font-size: var(--fs-2xs); border-radius: var(--r-md);
   padding: 6px 12px; cursor: pointer; margin-top: 2px;
   transition: border-color var(--t-fast), color var(--t-fast);
 }
@@ -157,7 +157,7 @@
 
 .grid-card {
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: var(--r-lg);
   margin-bottom: 12px;
   padding: 14px 16px;
 }
@@ -187,7 +187,7 @@
   gap: 10px;
   align-items: center;
   padding: 5px 8px;
-  border-radius: 7px;
+  border-radius: var(--r-md);
   font-size: var(--fs-2xs);
   font-variant-numeric: tabular-nums;
 }
@@ -198,15 +198,15 @@
 .lad-range b { color: var(--text); font-weight: 600; }
 
 /* 칸 상태 막대 — 보유 칸은 채움 */
-.lad-bar { height: 8px; border-radius: 4px; background: var(--panel-2); position: relative; overflow: hidden; }
-.lad-bar .fill { position: absolute; inset: 0; border-radius: 4px; background: rgba(240, 68, 82, 0.45); }
+.lad-bar { height: 8px; border-radius: var(--r-sm); background: var(--panel-2); position: relative; overflow: hidden; }
+.lad-bar .fill { position: absolute; inset: 0; border-radius: var(--r-sm); background: rgba(240, 68, 82, 0.45); }
 
 .lad-state { text-align: right; white-space: nowrap; }
 .lad-state .entry { color: var(--text-faint); }
 
 .lad-act {
   font: inherit; font-size: var(--fs-2xs); font-weight: 700;
-  border-radius: 6px; padding: 5px 0; cursor: pointer; text-align: center;
+  border-radius: var(--r-md); padding: 5px 0; cursor: pointer; text-align: center;
   border: 1px solid var(--border); background: none; color: var(--text-dim);
   transition: border-color var(--t-fast), color var(--t-fast);
 }
@@ -229,7 +229,7 @@
 .gc-log b { color: var(--text-dim); }
 
 /* 새 그리드 폼 */
-.grid-new { border: 1px dashed var(--border); border-radius: 12px; padding: 12px 16px; }
+.grid-new { border: 1px dashed var(--border); border-radius: var(--r-lg); padding: 12px 16px; }
 .grid-new summary { cursor: pointer; font-size: var(--fs-sm); color: var(--text-dim); list-style: none; user-select: none; }
 .grid-new summary::-webkit-details-marker { display: none; }
 .grid-new[open] summary { margin-bottom: 12px; }
@@ -238,7 +238,7 @@
 .gn-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; }
 .gn-grid label { display: flex; flex-direction: column; gap: 4px; font-size: var(--fs-2xs); color: var(--text-faint); }
 .gn-grid input {
-  background: var(--panel-2); border: 1px solid var(--border); border-radius: 7px;
+  background: var(--panel-2); border: 1px solid var(--border); border-radius: var(--r-md);
   color: var(--text); font: inherit; font-size: var(--fs-sm);
   padding: 7px 10px; text-align: right; font-variant-numeric: tabular-nums;
 }
@@ -255,7 +255,7 @@
  * #holdingsBody 바깥에 둔다 (focusout→render()가 클릭을 삼키는 것을 피하려고). */
 .account-bar { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-bottom: 10px; }
 .acc {
-  background: var(--panel-2); border: 1px solid var(--border); border-radius: 8px;
+  background: var(--panel-2); border: 1px solid var(--border); border-radius: var(--r-md);
   padding: 5px 11px; color: var(--text-dim); font: inherit; font-size: var(--fs-xs);
   cursor: pointer; display: flex; align-items: center; gap: 7px;
   transition: border-color var(--t-fast), color var(--t-fast), background var(--t-fast);
@@ -266,7 +266,7 @@
 /* 활성 칩은 배경에 틴트가 깔려 옅은 회색이 4.18 로 떨어진다 — 칩 전체가 강조색이니 배지도 따라간다 */
 .acc.active .cnt { color: var(--accent); }
 .acc-add {
-  background: none; border: 1px dashed var(--border); border-radius: 8px;
+  background: none; border: 1px dashed var(--border); border-radius: var(--r-md);
   padding: 5px 10px; color: var(--text-faint); font: inherit; font-size: var(--fs-xs); cursor: pointer;
 }
 .acc-add:hover { color: var(--accent); border-color: var(--accent-line); }
@@ -281,7 +281,7 @@
 .acc-group .ag-sub { font-size: var(--fs-2xs); color: var(--text-faint); font-variant-numeric: tabular-nums; }
 .h-acc-badge {
   font-size: var(--fs-2xs); color: var(--text-faint);
-  border: 1px solid var(--border); border-radius: 4px; padding: 0 4px; margin-left: 5px;
+  border: 1px solid var(--border); border-radius: var(--r-sm); padding: 0 4px; margin-left: 5px;
 }
 
 .sub.warn { color: var(--accent); }
@@ -300,7 +300,7 @@
 .broken-banner code {
   font-family: var(--mono); font-size: var(--fs-xs);   /* em 은 부모에 복리로 곱해져 바닥선 아래로 떨어진다 */
   background: var(--panel); border: 1px solid var(--border);
-  border-radius: 3px; padding: 0 4px;
+  border-radius: var(--r-xs); padding: 0 4px;
 }
 .bb-x {
   position: absolute; right: 12px; top: 10px;
