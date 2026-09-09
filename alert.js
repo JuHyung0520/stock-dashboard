@@ -411,12 +411,19 @@ async function main() {
  * 실제로 그런 일이 있었다 — 잘못된 설정 하나로 프로세스가 99% CPU 로 1시간 51분 돌면서
  * 그동안 알림이 완전히 정지했고, 증상은 침묵뿐이라 알아채기 어려웠다.
  * 주기(60초)보다 짧은 시한을 걸어, 무슨 일이 있어도 다음 실행 자리를 비워준다. */
-const watchdog = setTimeout(() => {
-  log('워치독: 45초를 넘겨 스스로 종료합니다 (다음 실행을 막지 않기 위해)');
-  process.exit(1);
-}, 45000);
-watchdog.unref();
+/* require 로 불러오면(테스트) 데몬을 돌리지 않는다 — 워치독 타이머도,
+ * 시세 요청도, 상태파일 쓰기도 일어나면 안 된다. */
+if (require.main === module) {
+  const watchdog = setTimeout(() => {
+    log('워치독: 45초를 넘겨 스스로 종료합니다 (다음 실행을 막지 않기 위해)');
+    process.exit(1);
+  }, 45000);
+  watchdog.unref();
 
-main()
-  .catch((e) => { log('실패:', e.message); process.exitCode = 1; })
-  .finally(() => clearTimeout(watchdog));
+  main()
+    .catch((e) => { log('실패:', e.message); process.exitCode = 1; })
+    .finally(() => clearTimeout(watchdog));
+}
+
+/* 판정 로직만 테스트가 부를 수 있게 연다. 나머지는 그대로 파일 안에 둔다. */
+module.exports = { evalTarget, evalGrid, marketWindow, cooldownMs, priceOf, num, signed };
