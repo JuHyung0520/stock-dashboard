@@ -58,13 +58,16 @@ function markUpdated(ok) {
 }
 
 /* ── 표 ── */
+const etfGuard = Pure.makeGuard();   // 늦게 온 옛 응답이 새 화면을 덮지 않게
 async function refresh() {
+  const __g = etfGuard.start();
   if (!list.length) {
     $('#etfBody').innerHTML = `<tr><td colspan="7" class="ac" style="padding:24px;color:var(--text-faint)">위에서 ETF를 검색해 추가하세요</td></tr>`;
     return;
   }
   try {
     const { rows } = await api(`/api/etf?codes=${list.map((e) => e.code).join(',')}`);
+    if (!etfGuard.current(__g)) return;   // 그새 다른 대상으로 갔다
 
     /* 서버가 준 거래소 기준 장 상태를 세션 타임라인의 진실로 삼는다.
      * 한 종목이라도 OPEN 이면 장중, 전부 CLOSED 면 휴장, 아무도 안 주면 모름. */
@@ -93,6 +96,7 @@ async function refresh() {
     everLoaded = true;
     markUpdated(true);
   } catch (e) {
+    if (!etfGuard.current(__g)) return;   // 늦게 실패한 옛 요청이 최신 화면을 덮지 않게
     console.warn('etf', e);
     markUpdated(false);
     if (!everLoaded) {

@@ -250,10 +250,13 @@ function clearCharts(msg) {
 let everLoaded = false;
 
 /* ── 로드 ── */
+const mcapGuard = Pure.makeGuard();   // 늦게 온 옛 응답이 새 화면을 덮지 않게
 async function load() {
+  const __g = mcapGuard.start();
   try {
     const codes = state.picks.map((p) => p.code).join(',');
     const d = await api(`/api/marketcap?codes=${codes}&range=${state.range}&pref=${state.pref ? 1 : 0}`);
+    if (!mcapGuard.current(__g)) return;   // 그새 다른 대상으로 갔다
     if (d.unavailable) {
       $('#versus').innerHTML = `<div class="inv-empty">${esc(d.reason || '데이터를 가져올 수 없습니다')} `
         + `<button class="retry-btn" onclick="load()">다시 시도</button></div>`;
@@ -275,6 +278,7 @@ async function load() {
     everLoaded = true;
     markUpdated(true);
   } catch (e) {
+    if (!mcapGuard.current(__g)) return;   // 늦게 실패한 옛 요청이 최신 화면을 덮지 않게
     console.warn('marketcap', e);
     markUpdated(false);
     // 첫 로드부터 실패하면 스켈레톤이 영원히 반짝인다 — 재시도 수단을 준다

@@ -86,10 +86,13 @@ async function drawSparklines() {
 }
 
 /* ── 상대수익률 차트 ── */
+const relGuard = Pure.makeGuard();   // 늦게 온 옛 응답이 새 화면을 덮지 않게
 async function renderRelative() {
+  const __g = relGuard.start();
   const box = $('#relChart');
   try {
     const d = await api(`/api/relative?range=${state.range}&codes=005930,000660`);
+    if (!relGuard.current(__g)) return;   // 그새 다른 대상으로 갔다
     if (d.unavailable || !d.series?.length) { Chart.clear(box, `<div class="inv-empty">차트 데이터 없음</div>`); return; }
 
     // 계열마다 종가를 함께 실어 끝점 태그에 "가격 +등락%"을 찍는다
@@ -128,6 +131,7 @@ async function renderRelative() {
     everLoaded = true;
     markUpdated(true);
   } catch (e) {
+    if (!relGuard.current(__g)) return;   // 늦게 실패한 옛 요청이 최신 화면을 덮지 않게
     console.warn('relative', e);
     Chart.clear(box, `<div class="inv-empty">차트를 불러오지 못했어요</div>`);
     markUpdated(false);
@@ -185,7 +189,9 @@ $('#binIntervals').addEventListener('click', (e) => {
   renderBinChart();
 });
 
+const binGuard = Pure.makeGuard();   // 늦게 온 옛 응답이 새 화면을 덮지 않게
 async function renderBinChart() {
+  const __g = binGuard.start();
   const box = $('#binChart');
   const m = state.binMeta?.[state.binSymbol];
   if (m) {
@@ -197,6 +203,7 @@ async function renderBinChart() {
   }
   try {
     const d = await api(`/api/binance/klines?symbol=${state.binSymbol}&interval=${state.binInterval}`);
+    if (!binGuard.current(__g)) return;   // 그새 다른 대상으로 갔다
     const c = d.candles;
     if (!c?.length) { Chart.clear(box, `<div class="inv-empty">캔들 없음</div>`); return; }
 
@@ -206,6 +213,7 @@ async function renderBinChart() {
       xFormat: Chart.timeAxis(c),
     });
   } catch (e) {
+    if (!binGuard.current(__g)) return;   // 늦게 실패한 옛 요청이 최신 화면을 덮지 않게
     console.warn('binance', e);
     box.innerHTML = `<div class="inv-empty">캔들을 불러오지 못했어요</div>`;
   }

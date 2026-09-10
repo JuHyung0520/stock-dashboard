@@ -99,3 +99,27 @@ test('healthSummary — 마지막 실패 경과를 분으로 준다', () => {
   assert.equal(s.lastFailMsg, 'fetch failed');
   assert.equal(Pure.healthSummary({ runs: 3, recent: '111' }, now).lastFailAgoMin, null);
 });
+
+/* ── 세대 가드 ──
+ * 곳곳에 손으로 박다 보니 ram.js 는 통째로 빠져 있었다. 하나로 만들어 빠뜨릴 수 없게 했다. */
+test('makeGuard — 마지막으로 시작한 것만 통과한다', () => {
+  const g = Pure.makeGuard();
+  const a = g.start();
+  assert.ok(g.current(a), '방금 시작한 것은 통과해야 한다');
+  const b = g.start();               // 사용자가 다른 탭으로 갔다
+  assert.ok(!g.current(a), '옛 요청이 통과했다 — 새 화면을 덮는다');
+  assert.ok(g.current(b));
+});
+
+test('makeGuard — 여러 번 겹쳐도 최신 하나만', () => {
+  const g = Pure.makeGuard();
+  const tokens = [g.start(), g.start(), g.start()];
+  assert.deepEqual(tokens.map((t) => g.current(t)), [false, false, true]);
+});
+
+test('makeGuard — 가드끼리 섞이지 않는다', () => {
+  // 한 페이지에 차트가 여럿이면(터미널: 상대강도 + 바이낸스) 각자 세어야 한다
+  const a = Pure.makeGuard(), b = Pure.makeGuard();
+  const ta = a.start(); b.start(); b.start();
+  assert.ok(a.current(ta), '다른 차트의 전환이 내 요청을 무효로 만들었다');
+});

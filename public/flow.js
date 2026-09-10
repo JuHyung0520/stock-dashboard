@@ -448,9 +448,12 @@ function renderAudit(d) {
 }
 
 /* ── 로드 ── */
+const flowGuard = Pure.makeGuard();   // 늦게 온 옛 응답이 새 화면을 덮지 않게
 async function load() {
+  const __g = flowGuard.start();
   try {
     const d = await api(`/api/flow/market?market=${state.market}`);
+    if (!flowGuard.current(__g)) return;   // 그새 다른 대상으로 갔다
     if (d.unavailable) {
       $('#verdict').innerHTML = '<div class="v-loading">토스증권 API 키가 필요해요 (.env 설정)</div>';
       return;
@@ -468,6 +471,7 @@ async function load() {
     const u = $('#fUpdated');
     if (u) u.textContent = `갱신 ${new Date().toLocaleTimeString('en-GB', { hour12: false })}`;
   } catch (e) {
+    if (!flowGuard.current(__g)) return;   // 늦게 실패한 옛 요청이 최신 화면을 덮지 않게
     console.warn('flow', e);
     // 실패 — 5개 섹션이 낡은 값을 그대로 보여주므로 화면 전체에 '오래됨' 표시
     document.body.classList.add('stale');

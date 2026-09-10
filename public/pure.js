@@ -70,5 +70,20 @@
     };
   }
 
-  return { KR_CODE, PEAK_CODE, isKrCode, isPeakCode, liveFacts, brief, healthSummary };
+
+  /* ── 세대 가드 ──
+   * 탭·기간을 빠르게 바꾸면 느린 옛 응답이 나중에 도착해 새 화면을 덮는다.
+   * (탭은 ETH 인데 BTC 캔들이 그려지는 식 — 실제로 idx·ram 에서 났던 버그다.)
+   *
+   * 곳곳에 `let xSeq = 0` 을 손으로 박다 보니 ram.js 는 통째로 빠져 있었다.
+   * 빠뜨릴 수 없게 하나로 만든다: start() 로 번호를 받고, await 뒤에 current() 로 확인한다. */
+  function makeGuard() {
+    let n = 0;
+    return {
+      start() { return ++n; },
+      current(token) { return token === n; },
+    };
+  }
+
+  return { KR_CODE, PEAK_CODE, isKrCode, isPeakCode, liveFacts, brief, healthSummary, makeGuard };
 }));

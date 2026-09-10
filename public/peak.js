@@ -245,9 +245,12 @@ document.addEventListener('click', (e) => {
 });
 
 /* ── 로드 ── */
+const peakGuard = Pure.makeGuard();   // 늦게 온 옛 응답이 새 화면을 덮지 않게
 async function load() {
+  const __g = peakGuard.start();
   try {
     const d = await api(`/api/peak?codes=${state.codes.join(',')}&range=${state.range}`);
+    if (!peakGuard.current(__g)) return;   // 그새 다른 대상으로 갔다
     state.rows = d.rows || [];
 
     /* 서버가 못 찾은 종목을 조용히 빼면 "내가 넣은 종목이 왜 없지"가 된다.
@@ -266,6 +269,7 @@ async function load() {
     everLoaded = true;
     markUpdated(true);
   } catch (e) {
+    if (!peakGuard.current(__g)) return;   // 늦게 실패한 옛 요청이 최신 화면을 덮지 않게
     console.warn('peak', e);
     markUpdated(false);
     if (!everLoaded) {

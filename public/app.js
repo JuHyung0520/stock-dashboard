@@ -918,10 +918,13 @@ function fmtUsdM(v) {
   return v >= 1e9 ? `$${(v / 1e9).toFixed(2)}B` : v >= 1e6 ? `$${(v / 1e6).toFixed(0)}M` : `$${(v / 1e3).toFixed(0)}K`;
 }
 
+const gapGuard = Pure.makeGuard();   // 늦게 온 옛 응답이 새 화면을 덮지 않게
 async function refreshGap() {
+  const __g = gapGuard.start();
   const body = $('#gapBody');
   try {
     const d = await api('/api/gap');
+    if (!gapGuard.current(__g)) return;   // 그새 다른 대상으로 갔다
     if (!d.rows?.length) { body.innerHTML = '<div class="inv-empty">데이터 없음</div>'; return; }
 
     // 어떤 기준이 실제로 존재하는지는 시간대마다 다르다 (NXT는 08~20시만 열린다)
@@ -968,6 +971,7 @@ async function refreshGap() {
       refreshGap();
     });
   } catch (e) {
+    if (!gapGuard.current(__g)) return;   // 늦게 실패한 옛 요청이 최신 화면을 덮지 않게
     console.warn('gap', e);
     body.innerHTML = '<div class="inv-empty">환산가를 불러오지 못했어요 <button class="retry-btn" onclick="refreshGap()">다시 시도</button></div>';
   }
