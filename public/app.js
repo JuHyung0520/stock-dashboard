@@ -142,7 +142,9 @@ async function refreshIndices() {
 
 /* ── watchlist quotes ────────────────── */
 async function refreshQuotes() {
-  if (!state.watchlist.length) { renderQuotes(); return; }
+  // 조기 return 이 okBy.quotes 를 안 건드려서, 한 번 실패한 뒤 목록을 비우면 상태점이 영영 빨간불이었다.
+  // 가져올 것이 없다는 건 실패가 아니다.
+  if (!state.watchlist.length) { renderQuotes(); markUpdated(true, 'quotes'); return; }
   const ids = state.watchlist.map((w) => w.id).join(',');
   try {
     const data = await api(`/api/quotes?ids=${encodeURIComponent(ids)}`);
@@ -318,21 +320,37 @@ function enableDragReorder(container, itemSelector) {
 const profileCache = new Map();
 const PROFILE_TTL = 10 * 60000;   // 페이지를 종일 켜두면 52주 범위·목표가가 어제 값으로 굳는다
 
+/* 첫 로드와 뷰 전환이 겹치면 두 경로가 동시에 들어와 같은 id 를 두 번 요청하고 카드를 두 번 그렸다.
+ * 둘 다 캐시가 채워지기 **전에** missing 을 계산하기 때문이다.
+ * 진행 중인 요청을 id 조합별로 나눠 쓴다 (toss.js 의 토큰 발급과 같은 방식).
+ * 조합이 다르면(관심종목이 그새 늘었다면) 따로 나가야 하므로 키를 ids 로 잡는다. */
+const profileInFlight = new Map();
+
 async function loadProfiles() {
   const now = Date.now();
   const missing = state.watchlist.map((w) => w.id)
     .filter((id) => !profileCache.has(id) || now - profileCache.get(id).__at > PROFILE_TTL);
   if (!missing.length) return false;
-  try {
-    const { profiles } = await api(`/api/profiles?ids=${encodeURIComponent(missing.join(','))}`);
-    for (const p of profiles) profileCache.set(p.id, { ...p, __at: Date.now() });
-    // 안 돌아온 id 는 '없음'으로 기억한다 — 안 그러면 5초 폴링마다 다시 요청해 업스트림을 계속 때린다
-    for (const id of missing) if (!profiles.some((p) => p.id === id)) profileCache.set(id, { id, __at: Date.now(), __missing: true });
-    return true;
-  } catch (e) {
-    console.warn('profiles', e);
-    return false;
-  }
+
+  const key = missing.join(',');
+  if (profileInFlight.has(key)) return profileInFlight.get(key);
+
+  const job = (async () => {
+    try {
+      const { profiles } = await api(`/api/profiles?ids=${encodeURIComponent(key)}`);
+      for (const p of profiles) profileCache.set(p.id, { ...p, __at: Date.now() });
+      // 안 돌아온 id 는 '없음'으로 기억한다 — 안 그러면 5초 폴링마다 다시 요청해 업스트림을 계속 때린다
+      for (const id of missing) if (!profiles.some((p) => p.id === id)) profileCache.set(id, { id, __at: Date.now(), __missing: true });
+      return true;
+    } catch (e) {
+      console.warn('profiles', e);
+      return false;
+    } finally {
+      profileInFlight.delete(key);
+    }
+  })();
+  profileInFlight.set(key, job);
+  return job;
 }
 
 /* 프로필은 30분 캐시라 그 안의 price 는 시세(5초 갱신)보다 낡다.

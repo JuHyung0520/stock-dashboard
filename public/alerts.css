@@ -76,6 +76,7 @@ select.cr-in { width: auto; cursor: pointer; }
 .save-bar {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
   display: flex; align-items: center; justify-content: center; gap: 14px;
+  flex-wrap: wrap; text-align: center;   /* 사유가 길면 가로로 넘치는 대신 줄바꿈 */
   padding: 12px 20px;
   background: var(--panel); border-top: 1px solid var(--border);
   box-shadow: var(--shadow-float);

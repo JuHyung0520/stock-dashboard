@@ -21,7 +21,10 @@ function readPicks() {
   let v = null;
   try { v = JSON.parse(localStorage.getItem('mcap-picks-v1') || 'null'); } catch { /* 깨진 JSON */ }
   if (!Array.isArray(v) || v.length !== 2) return DEFAULT;
-  const ok = v.every((x) => x && typeof x === 'object' && /^\d{6}$/.test(String(x.code)));
+  // 국내 단축코드는 숫자 6자리만이 아니다 — 전환우선주 등은 끝에 영문이 붙는다(00104K = CJ4우(전환)).
+  // \d{6} 로 잡으면 그런 종목을 고른 순간 다음 새로고침에 **두 종목 다** 기본값으로 초기화됐다.
+  // 서버 /api/marketcap 의 필터와 같은 규칙이어야 한다(server.js).
+  const ok = v.every((x) => x && typeof x === 'object' && /^[0-9A-Z]{6}$/i.test(String(x.code)));
   return ok ? v.map((x) => ({ code: String(x.code), name: String(x.name || x.code) })) : DEFAULT;
 }
 

@@ -1149,7 +1149,8 @@ const server = http.createServer(async (req, res) => {
      * 과거 시총의 정확한 값이 아니라 두 회사의 상대 크기 추이를 보는 용도. */
     if (p === '/api/marketcap') {
       const codes = (url.searchParams.get('codes') || '005930,000660')
-        .split(',').map((s) => s.trim()).filter((c) => /^\d{6}$/.test(c)).slice(0, 2);
+        // 영문이 붙는 단축코드(00104K 등)도 국내 종목이다 — public/marketcap.js 와 같은 규칙
+        .split(',').map((s) => s.trim().toUpperCase()).filter((c) => /^[0-9A-Z]{6}$/.test(c)).slice(0, 2);
       if (codes.length < 2) return sendJSON(res, 400, { error: '비교할 두 종목이 필요합니다' });
       const withPref = url.searchParams.get('pref') === '1';
       /* ⚠️ 시총 = 수정주가 × 현재 발행주식수 는 주식수가 안 변한 구간에서만 맞다.

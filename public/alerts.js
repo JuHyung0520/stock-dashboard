@@ -32,6 +32,11 @@ function markUpdated(ok, msg) {
   $('#lastUpdated').textContent = msg
     || (ok ? `갱신 ${new Date().toLocaleTimeString('en-GB', { hour12: false })}` : '갱신 실패 — 아래 값은 이전 것');
 }
+/* 저장 바는 화면 아래 고정이고 본문은 그만큼(90px) 비워 둔다 — 한 줄 기준이다.
+ * 사유를 전부 이으면 바가 두세 줄이 되어 본문을 덮는다. 앞 2건만 보이고 나머지는 개수로 말한다. */
+const brief = (list, n = 2) =>
+  list.slice(0, n).join(' · ') + (list.length > n ? ` 외 ${list.length - n}개` : '');
+
 function setDirty(v) {
   state.dirty = v;
   $('#saveBar').hidden = !v;
@@ -256,7 +261,7 @@ $('#saveBtn').addEventListener('click', async () => {
       else if (!Number.isInteger(g.cells) || g.cells < 1 || g.cells > 200) why.push(`${nm}: 칸 수는 1~200 정수`);
     }
     if (why.length) {
-      $('#saveMsg').textContent = `저장 안 함 — ${why.join(' · ')}`;
+      $('#saveMsg').textContent = `저장 안 함 — ${brief(why)}`;
       return;
     }
     const r = await api('/api/alerts', {
@@ -266,8 +271,12 @@ $('#saveBtn').addEventListener('click', async () => {
     });
     // 서버가 그래도 버린 게 있으면 성공으로 표시하지 않는다 — 편집 내용은 남겨 고칠 수 있게 dirty 유지
     if (r?.dropped?.length) {
-      $('#saveMsg').textContent = `${r.dropped.length}개 조건은 저장되지 않았습니다 — ${r.dropped.join(' · ')}`;
-      markUpdated(false, '일부 저장 안 됨');
+      $('#saveMsg').textContent = `${r.dropped.length}개 조건은 저장되지 않았습니다 — ${brief(r.dropped)}`;
+      /* markUpdated(false) 를 쓰면 body.stale 이 켜져 편집 영역 전체가 흐려진다.
+       * 저장이 일부 거부된 것이지 화면의 시세가 낡은 게 아니다 —
+       * 게다가 사용자는 지금 그 흐려진 영역에서 값을 고쳐야 한다. 상태점만 켠다. */
+      $('#statusDot').classList.add('error');
+      $('#lastUpdated').textContent = '일부 저장 안 됨';
       return;
     }
     setDirty(false);

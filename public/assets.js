@@ -161,8 +161,8 @@ function save() {
     // 저장 실패를 조용히 삼키면 화면은 성공한 척하고 사용자는 입력이 남은 줄 안다
     saveFailed = true;
     console.error('저장 실패', e);
+    // 문구는 markUpdated 가 넣는다(saveFailed 분기). 여기서 덮어쓰면 5초 뒤 폴링 때 다른 문구로 바뀐다
     markUpdated(false);
-    $('#lastUpdated').textContent = '⚠️ 저장 실패 — 저장 공간이 가득 찼을 수 있습니다';
   }
 }
 

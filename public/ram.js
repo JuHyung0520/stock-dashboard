@@ -111,15 +111,22 @@ function renderPeers(d) {
   }).join('');
 }
 
+/* 간격(15m/1h/…)을 빠르게 바꾸면 느린 옛 응답이 나중에 도착해 새 간격 차트를 덮어쓴다.
+ * idx.js 와 같은 방식으로 요청 번호를 매겨 최신만 남긴다. */
+let ramChartSeq = 0;
+
 async function renderChart() {
   const box = $('#dramChart');
+  const seq = ++ramChartSeq;
+  const key = state.interval;   // 지금 그려진 차트가 어느 간격의 것인지
   try {
     const d = await api(`/api/ram?interval=${state.interval}`);
+    if (seq !== ramChartSeq) return;   // 그새 다른 간격으로 갔다
     state.data = d;
     renderHero(d);
     renderPeers(d);
 
-    if (!d.candles?.length) { box.innerHTML = `<div class="inv-empty">캔들 없음</div>`; return; }
+    if (!d.candles?.length) { delete box.dataset.key; box.innerHTML = `<div class="inv-empty">캔들 없음</div>`; return; }
     Chart.candles(box, {
       candles: d.candles, height: 340,
       yFormat: (v) => f2.format(v),
@@ -163,12 +170,18 @@ async function renderChart() {
 
     everLoaded = true;
 
+    box.dataset.key = key;
     markUpdated(true);
   } catch (e) {
+    if (seq !== ramChartSeq) return;   // 늦게 실패한 옛 요청이 최신 차트를 '실패'로 덮지 않게
     console.warn('ram', e);
     markUpdated(false);
-    // 이미 그려진 차트는 남긴다 — 상단이 '아래 값은 이전 것'이라 말하는데 지우면 앞뒤가 안 맞는다
-    if (!box.querySelector('svg')) box.innerHTML = `<div class="inv-empty">불러오지 못했어요</div>`;
+    /* 같은 간격의 갱신 실패면 차트를 남기고, 간격을 바꾸다 실패한 것이면 지운다 —
+     * 안 지우면 탭은 1h 인데 화면엔 15m 차트가 남는다 */
+    if (box.dataset.key !== key || !box.querySelector('svg')) {
+      delete box.dataset.key;
+      box.innerHTML = `<div class="inv-empty">불러오지 못했어요</div>`;
+    }
     if (!everLoaded) {
       const el = $('#dramChart');
       if (el) el.innerHTML = `<div class="inv-empty">데이터를 불러오지 못했어요. 서버가 꺼져 있을 수 있습니다. <button class="retry-btn" onclick="load()">다시 시도</button></div>`;

@@ -138,11 +138,15 @@ let idxChartSeq = 0, hlChartSeq = 0;
 async function renderIdxChart() {
   const box = $('#idxChart');
   const seq = ++idxChartSeq;
+  /* 지금 그려져 있는 차트가 '어느 지수·기간의 것'인지 남긴다.
+   * 실패 시 차트를 보존하는 규칙이 탭 전환에도 걸려서, 탭은 코스닥인데 화면엔 코스피 차트가
+   * 남는 일이 있었다. 대상이 같을 때만 보존이 옳다. */
+  const key = `${state.target}|${state.range}`;
   try {
     const d = await api(`/api/peak?codes=${state.target}&range=${state.range}`);
     if (seq !== idxChartSeq) return;   // 그새 다른 지수/기간으로 갔다
     const row = d.rows?.[0];
-    if (!row?.points?.length) { box.innerHTML = `<div class="inv-empty">차트 데이터 없음</div>`; return; }
+    if (!row?.points?.length) { delete box.dataset.key; box.innerHTML = `<div class="inv-empty">차트 데이터 없음</div>`; return; }
 
     const fmtDate = (s) => `${s.slice(2, 4)}.${s.slice(4, 6)}`;
     Chart.line(box, {
@@ -161,13 +165,18 @@ async function renderIdxChart() {
     $('#idxChartNote').textContent = row.isNewHigh
       ? `${row.firstDate.slice(0, 4)}년 이후 ${row.tradingDays.toLocaleString('ko-KR')}거래일 · 지금이 이 기간 최고점`
       : `${row.firstDate.slice(0, 4)}년 이후 ${row.tradingDays.toLocaleString('ko-KR')}거래일 · 전고점 ${f2.format(row.peak)} (${row.peakDate.slice(0, 4)}.${row.peakDate.slice(4, 6)}.${row.peakDate.slice(6, 8)}) 대비 ${pct(dd)}`;
+    box.dataset.key = key;
     markUpdated(true, 'chart');
   } catch (e) {
     if (seq !== idxChartSeq) return;   // 늦게 실패한 옛 요청이 최신 차트를 '실패'로 덮지 않게
     console.warn('idxChart', e);
     markUpdated(false, 'chart');
-    // 이미 그려진 차트는 남긴다 — 상단 문구가 '아래 값은 이전 것'이라고 말하는데 지우면 앞뒤가 안 맞는다
-    if (!box.querySelector('svg')) box.innerHTML = `<div class="inv-empty">차트를 불러오지 못했어요</div>`;
+    /* 같은 대상의 갱신 실패면 이미 그려진 차트를 남긴다 — 상단 문구가 '아래 값은 이전 것'이라고 말한다.
+     * 다른 대상으로 넘어가다 실패한 것이면 남은 차트는 딴 지수 것이라 반드시 지운다. */
+    if (box.dataset.key !== key || !box.querySelector('svg')) {
+      delete box.dataset.key;
+      box.innerHTML = `<div class="inv-empty">차트를 불러오지 못했어요</div>`;
+    }
   }
 }
 
