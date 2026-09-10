@@ -5,21 +5,15 @@
  * 선물이 먼저 말해준다. 낮에는 현물이, 밤에는 선물이 주인공이 된다.
  */
 
-const $ = (s) => document.querySelector(s);
 const nf = (d = 2) => new Intl.NumberFormat('ko-KR', { minimumFractionDigits: d, maximumFractionDigits: d });
 const f2 = nf(2), f0 = nf(0);
 
 const state = { target: 'KOSPI', range: '3Y', interval: '1h', data: null };
 
-const api = async (p) => {
-  const r = await fetch(p);
-  if (!r.ok) throw new Error(`${p} → ${r.status}`);
-  return r.json();
-};
-const pct = (v) => (v == null || isNaN(v) ? '—' : `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v).toFixed(2)}%`);
-const cls = (v) => (v == null ? 'flat' : v > 0 ? 'up' : v < 0 ? 'down' : 'flat');
-const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const money = (v) => (v == null ? '—' : v >= 1e9 ? `$${(v / 1e9).toFixed(2)}B` : v >= 1e6 ? `$${(v / 1e6).toFixed(1)}M` : `$${(v / 1e3).toFixed(0)}K`);
+const pct = Pure.pct;
+const cls = Pure.cls;
+const esc = Pure.esc;
+const money = Pure.money;
 
 // 첫 로드부터 실패하면 스켈레톤이 영원히 반짝인다 — 재시도 수단을 준다
 let everLoaded = false;

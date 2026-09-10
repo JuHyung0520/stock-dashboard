@@ -5,7 +5,6 @@
  * 이 근사를 화면에 명시하는 게 중요하다 — 숫자가 정밀해 보일수록 오해가 커진다.
  */
 
-const $ = (s) => document.querySelector(s);
 /* 색은 렌더 시점에 읽는다 — 최상위 상수로 잡아두면 테마 전환 후 선 색만 옛 테마로 남는다 */
 const COLORS = (i) => Chart.series(i + 1);
 
@@ -32,14 +31,9 @@ const state = {
   data: null,
 };
 
-const api = async (p) => {
-  const r = await fetch(p);
-  if (!r.ok) throw new Error(`${p} → ${r.status}`);
-  return r.json();
-};
-const pct = (v) => (v == null || isNaN(v) ? '—' : `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v).toFixed(2)}%`);
-const cls = (v) => (v == null ? 'flat' : v > 0 ? 'up' : v < 0 ? 'down' : 'flat');
-const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const pct = Pure.pct;
+const cls = Pure.cls;
+const esc = Pure.esc;
 
 /* 시총은 조 단위가 읽기 좋다. 1조 미만이면 억으로 내려간다. */
 const JO = 1e12;

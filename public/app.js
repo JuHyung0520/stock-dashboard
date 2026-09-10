@@ -14,7 +14,6 @@ const DEFAULT_WATCHLIST = [
   { id: 'US:NVDA.O', name: '엔비디아' },
 ];
 
-const $ = (sel) => document.querySelector(sel);
 
 const state = {
   watchlist: loadWatchlist(),
@@ -53,11 +52,6 @@ function saveWatchlist() {
 }
 
 /* ── fetch helper ────────────────────── */
-async function api(path) {
-  const res = await fetch(path);
-  if (!res.ok) throw new Error(`${path} → HTTP ${res.status}`);
-  return res.json();
-}
 
 /* 출처별 성패를 따로 기억한다. 한 함수를 지수·시세가 번갈아 부르면 마지막 호출이 이겨서,
  * 시세가 계속 실패해도 5초마다 지수 성공이 덮어써 장애가 보이지 않았다(상태점 플래핑). */
@@ -81,8 +75,8 @@ function markUpdated(ok, src = 'main') {
 }
 
 /* ── formatters ──────────────────────── */
-const fmtKR = new Intl.NumberFormat('ko-KR');
-const fmtUS = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fmtKR = Pure.fmtKR;
+const fmtUS = Pure.fmtUS;
 
 function fmtPrice(q) {
   if (q.currency === 'USD') return `$${fmtUS.format(q.price)}`;

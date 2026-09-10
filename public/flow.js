@@ -2,17 +2,11 @@
  * 서버(/api/flow/*)가 분석까지 끝낸 결과를 내려주고, 여기서는 그리기만 한다.
  */
 
-const $ = (s) => document.querySelector(s);
 const DAYS = 20;              // 매트릭스 가로 칸 수
 const REFRESH = 60000;
 
 const state = { market: 'KOSPI', data: null, hoverDay: null };
 
-async function api(path) {
-  const res = await fetch(path);
-  if (!res.ok) throw new Error(`${path} → ${res.status}`);
-  return res.json();
-}
 
 /* ── 포맷 ── */
 const nf = new Intl.NumberFormat('ko-KR');

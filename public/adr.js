@@ -7,19 +7,13 @@
  *    그래서 비율을 하드코딩하지 않고 매번 역산해서, 근거와 함께 화면에 드러낸다.
  */
 
-const $ = (s) => document.querySelector(s);
-const fKR = new Intl.NumberFormat('ko-KR');
-const fUS = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fKR = Pure.fmtKR;
+const fUS = Pure.fmtUS;
 
-const api = async (p) => {
-  const r = await fetch(p);
-  if (!r.ok) throw new Error(`${p} → ${r.status}`);
-  return r.json();
-};
-const pct = (v, d = 2) => (v == null || isNaN(v) ? '—' : `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v).toFixed(d)}%`);
-const cls = (v) => (v == null ? 'flat' : v > 0 ? 'up' : v < 0 ? 'down' : 'flat');
-const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const money = (v) => (v == null ? '—' : v >= 1e9 ? `$${(v / 1e9).toFixed(2)}B` : v >= 1e6 ? `$${(v / 1e6).toFixed(1)}M` : `$${(v / 1e3).toFixed(0)}K`);
+const pct = Pure.pct;
+const cls = Pure.cls;
+const esc = Pure.esc;
+const money = Pure.money;
 
 // 첫 로드부터 실패하면 스켈레톤이 영원히 반짝인다 — 재시도 수단을 준다
 let everLoaded = false;

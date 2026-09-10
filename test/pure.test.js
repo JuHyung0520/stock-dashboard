@@ -123,3 +123,33 @@ test('makeGuard — 가드끼리 섞이지 않는다', () => {
   const ta = a.start(); b.start(); b.start();
   assert.ok(a.current(ta), '다른 차트의 전환이 내 요청을 무효로 만들었다');
 });
+
+/* ── 표시 헬퍼 ──
+ * 11개 페이지가 각자 갖고 있던 것들. pct 는 소수 자릿수가 3종으로 갈라져 있었다. */
+test('esc — HTML 특수문자 다섯 개를 막는다', () => {
+  assert.equal(Pure.esc(`<img src=x onerror="alert('&')">`),
+    '&lt;img src=x onerror=&quot;alert(&#39;&amp;&#39;)&quot;&gt;');
+  assert.equal(Pure.esc(null), 'null');   // 문자열로 바꿔서라도 반드시 이스케이프한다
+});
+
+test('cls — 모르는 값(null)을 하락으로 칠하지 않는다', () => {
+  assert.deepEqual([1, -1, 0, null, undefined].map(Pure.cls), ['up', 'down', 'flat', 'flat', 'flat']);
+});
+
+test('pct — 부호는 하이픈이 아니라 −(U+2212)', () => {
+  // 하이픈은 숫자 옆에서 너무 짧아 마이너스로 안 읽힌다
+  assert.equal(Pure.pct(-1.234), '−1.23%');
+  assert.equal(Pure.pct(1.234), '+1.23%');
+  assert.equal(Pure.pct(0), '0.00%');
+  assert.equal(Pure.pct(null), '—');
+  assert.equal(Pure.pct(NaN), '—');
+});
+
+test('pct — 자릿수를 넘기면 그대로 따른다 (전고대비는 1자리)', () => {
+  assert.equal(Pure.pct(-38.44, 1), '−38.4%');
+  assert.equal(Pure.pct(-38.44), '−38.44%');
+});
+
+test('money — 단위를 넘길 때마다 자릿수가 줄어든다', () => {
+  assert.deepEqual([2.34e9, 1.5e6, 1500, null].map(Pure.money), ['$2.34B', '$1.5M', '$2K', '—']);
+});

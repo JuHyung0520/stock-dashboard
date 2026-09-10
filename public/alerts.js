@@ -7,9 +7,8 @@
  * 값은 state 에만 반영하고, 목록 재구성은 종목 추가·삭제처럼 구조가 바뀔 때만 한다.
  */
 
-const $ = (s) => document.querySelector(s);
-const fKR = new Intl.NumberFormat('ko-KR');
-const fUS = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fKR = Pure.fmtKR;
+const fUS = Pure.fmtUS;
 
 const state = { cfg: null, dirty: false, quotes: {} };
 
@@ -18,12 +17,7 @@ const state = { cfg: null, dirty: false, quotes: {} };
 const isKR = (sym) => String(sym || '').startsWith('KR:');
 const px = (sym, v) => (v == null || isNaN(v) ? '—' : isKR(sym) ? `${fKR.format(Math.round(v))}원` : `$${fUS.format(v)}`);
 
-const api = async (p, opts) => {
-  const r = await fetch(p, opts);
-  if (!r.ok) throw new Error(`${p} → ${r.status}`);
-  return r.json();
-};
-const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const esc = Pure.esc;
 const uid = (p) => `${p}_${Math.random().toString(36).slice(2, 9)}`;
 
 function markUpdated(ok, msg) {

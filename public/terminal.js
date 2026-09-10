@@ -2,9 +2,8 @@
  * 차트는 전부 인라인 SVG (의존성 제로 원칙 유지)
  */
 
-const $ = (s) => document.querySelector(s);
-const fmtKR = new Intl.NumberFormat('ko-KR');
-const fmtUS = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fmtKR = Pure.fmtKR;
+const fmtUS = Pure.fmtUS;
 
 /* 색은 렌더 시점에 읽는다. 모듈 최상위에서 한 번 스냅샷하면 테마를 바꿔도
  * 차트 계열색만 옛 테마에 남아, 범례와 선이 서로 다른 색이 된다. */
@@ -13,15 +12,10 @@ const NAMES = { '005930': '삼성전자', '000660': 'SK하이닉스' };
 
 const state = { range: '1D', binSymbol: 'SKHYNIXUSDT', binInterval: '15m', binMeta: null };
 
-async function api(p) {
-  const r = await fetch(p);
-  if (!r.ok) throw new Error(`${p} → ${r.status}`);
-  return r.json();
-}
-const money = (v) => (v == null ? '—' : v >= 1e9 ? `$${(v / 1e9).toFixed(2)}B` : v >= 1e6 ? `$${(v / 1e6).toFixed(1)}M` : `$${(v / 1e3).toFixed(0)}K`);
-const pct = (v) => (v == null || isNaN(v) ? '—' : `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v).toFixed(2)}%`);
-const cls = (v) => (v > 0 ? 'up' : v < 0 ? 'down' : 'flat');
-const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const money = Pure.money;
+const pct = Pure.pct;
+const cls = Pure.cls;
+const esc = Pure.esc;
 
 // 첫 로드부터 실패하면 스켈레톤이 영원히 반짝인다 — 재시도 수단을 준다
 let everLoaded = false;

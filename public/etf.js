@@ -3,8 +3,7 @@
  * 목록은 localStorage('etf-v1') — 기본값은 단일종목 레버리지 6종 + KODEX 레버리지/인버스.
  */
 
-const $ = (s) => document.querySelector(s);
-const fmtKR = new Intl.NumberFormat('ko-KR');
+const fmtKR = Pure.fmtKR;
 
 const DEFAULT_ETFS = [
   { code: '0193W0', name: 'KODEX 삼성전자단일종목레버리지' },
@@ -34,15 +33,10 @@ const saveList = () => {
   catch (e) { console.error('ETF 목록 저장 실패', e); markUpdated(false); return false; }
 };
 
-async function api(path) {
-  const res = await fetch(path);
-  if (!res.ok) throw new Error(`${path} → ${res.status}`);
-  return res.json();
-}
 
-const pct = (v) => (v == null || isNaN(v) ? '—' : `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v).toFixed(2)}%`);
-const cls = (v) => (v > 0 ? 'up' : v < 0 ? 'down' : 'flat');
-const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const pct = Pure.pct;
+const cls = Pure.cls;
+const esc = Pure.esc;
 
 // 첫 로드부터 실패하면 스켈레톤이 영원히 반짝인다 — 재시도 수단을 준다
 let everLoaded = false;

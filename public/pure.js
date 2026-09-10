@@ -71,6 +71,27 @@
   }
 
 
+
+  /* ── 표시 헬퍼 ──
+   * 11개 페이지 스크립트가 각자 정의하고 있었다($ 11곳, esc 10곳, cls 8곳, pct 8곳).
+   * 같은 것을 여러 번 적으면 갈라진다 — 실제로 pct 는 소수 자릿수가 3종으로 갈라져 있었다.
+   * 여기 것은 전부 DOM 을 안 건드리므로 테스트가 직접 부를 수 있다. */
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+  // 등락 방향 클래스. null 은 'flat' — 모르는 값을 하락으로 칠하면 안 된다
+  const cls = (v) => (v == null ? 'flat' : v > 0 ? 'up' : v < 0 ? 'down' : 'flat');
+
+  // 부호는 −(U+2212). 하이픈은 숫자 옆에서 너무 짧아 마이너스로 안 읽힌다
+  const pct = (v, d = 2) => (v == null || isNaN(v) ? '—' : `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v).toFixed(d)}%`);
+
+  const money = (v) => (v == null ? '—'
+    : v >= 1e9 ? `$${(v / 1e9).toFixed(2)}B`
+    : v >= 1e6 ? `$${(v / 1e6).toFixed(1)}M`
+    : `$${(v / 1e3).toFixed(0)}K`);
+
+  const fmtKR = new Intl.NumberFormat('ko-KR');
+  const fmtUS = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
   /* ── 세대 가드 ──
    * 탭·기간을 빠르게 바꾸면 느린 옛 응답이 나중에 도착해 새 화면을 덮는다.
    * (탭은 ETH 인데 BTC 캔들이 그려지는 식 — 실제로 idx·ram 에서 났던 버그다.)
@@ -85,5 +106,6 @@
     };
   }
 
-  return { KR_CODE, PEAK_CODE, isKrCode, isPeakCode, liveFacts, brief, healthSummary, makeGuard };
+  return { KR_CODE, PEAK_CODE, isKrCode, isPeakCode, liveFacts, brief, healthSummary, makeGuard,
+    esc, cls, pct, money, fmtKR, fmtUS };
 }));

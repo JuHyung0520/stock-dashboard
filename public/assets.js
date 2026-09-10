@@ -21,11 +21,10 @@
  *  - APR = 수익률 ÷ 보유일수 × 365 (매도일 − 첫 매수 기록일이 없으므로 매도 기록의 date 기준 안내만)
  */
 
-const $ = (s) => document.querySelector(s);
 const REFRESH = 5000;
 
-const fmtKR = new Intl.NumberFormat('ko-KR');
-const fmtUS = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fmtKR = Pure.fmtKR;
+const fmtUS = Pure.fmtUS;
 
 /* ── 저장 · 마이그레이션 ──
  * v1을 절대 덮어쓰지 않는다. v2로만 쓰고 v1은 읽기 전용으로 동결한다.
@@ -174,11 +173,6 @@ const inView = (h) => state.activeAid === 'all' || h.aid === state.activeAid;
 const viewHoldings = () => state.holdings.filter(inView);
 
 /* ── 시세 ── */
-async function api(path) {
-  const res = await fetch(path);
-  if (!res.ok) throw new Error(`${path} → ${res.status}`);
-  return res.json();
-}
 
 function markUpdated(ok) {
   // 실패했는데 화면은 그대로면 사용자는 낡은 값을 현재값으로 읽는다.
@@ -277,8 +271,8 @@ function pct(v) {
   if (v == null || isNaN(v)) return '—';
   return `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v).toFixed(2)}%`;
 }
-const cls = (v) => (v > 0 ? 'up' : v < 0 ? 'down' : 'flat');
-const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const cls = Pure.cls;
+const esc = Pure.esc;
 
 /* ── 렌더 ── */
 function render() {

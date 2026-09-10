@@ -5,7 +5,6 @@
  * 그래서 두 숫자를 항상 나란히 놓는다.
  */
 
-const $ = (s) => document.querySelector(s);
 const f2 = new Intl.NumberFormat('ko-KR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const f0 = new Intl.NumberFormat('ko-KR');
 
@@ -37,12 +36,7 @@ const state = {
   rows: [],
 };
 
-const api = async (p) => {
-  const r = await fetch(p);
-  if (!r.ok) throw new Error(`${p} → ${r.status}`);
-  return r.json();
-};
-const pct = (v, d = 1) => (v == null || isNaN(v) ? '—' : `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v).toFixed(d)}%`);
+const pct = (v, d = 1) => Pure.pct(v, d);   // 이 페이지는 기본 1자리
 /* 상장 이후 구간에선 저점 대비가 +71,904% 같은 값이 나온다 (감자 반영 수정주가).
  * 자릿수만 늘어나고 읽히지 않으므로 열 배 이상은 배수로 바꾼다. */
 const gain = (v) => {
@@ -51,8 +45,8 @@ const gain = (v) => {
   const x = v / 100 + 1;                       // 상승률 → 배수
   return `×${x < 100 ? x.toFixed(1) : Math.round(x).toLocaleString('ko-KR')}`;
 };
-const cls = (v) => (v == null ? 'flat' : v > 0 ? 'up' : v < 0 ? 'down' : 'flat');
-const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const cls = Pure.cls;
+const esc = Pure.esc;
 const fmtDate = (s) => `${s.slice(0, 4)}.${s.slice(4, 6)}.${s.slice(6, 8)}`;
 const price = (v, isIndex) => (v == null ? '—' : isIndex ? f2.format(v) : f0.format(Math.round(v)));
 
