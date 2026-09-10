@@ -32,16 +32,27 @@ function markUpdated(ok, msg) {
   $('#lastUpdated').textContent = msg
     || (ok ? `갱신 ${new Date().toLocaleTimeString('en-GB', { hour12: false })}` : '갱신 실패 — 아래 값은 이전 것');
 }
-/* 저장 바는 화면 아래 고정이고 본문은 그만큼(90px) 비워 둔다 — 한 줄 기준이다.
- * 사유를 전부 이으면 바가 두세 줄이 되어 본문을 덮는다. 앞 2건만 보이고 나머지는 개수로 말한다. */
-const brief = (list, n = 2) =>
-  list.slice(0, n).join(' · ') + (list.length > n ? ` 외 ${list.length - n}개` : '');
+const brief = Pure.brief;   // 계산은 pure.js (테스트 가능하게), 문구는 여기
 
 function setDirty(v) {
   state.dirty = v;
   $('#saveBar').hidden = !v;
   // 바를 다시 열 때 지난 오류 문구('저장 안 함 — …')가 그대로 보이면 이미 고친 항목을 또 오류로 안내한다
   if (v) $('#saveMsg').textContent = '변경사항이 있습니다';
+}
+
+/* 실패율 표시 — 계산은 Pure.healthSummary, 문구와 색만 여기서 정한다 */
+function healthLine(h) {
+  const s = Pure.healthSummary(h);
+  if (!s) return '';
+  const cls = s.level === 'bad' ? 'warn-text' : s.level === 'good' ? 'ok-text' : '';
+  const ago = s.lastFailAgoMin == null ? ''
+    : ` · 마지막 실패 ${s.lastFailAgoMin < 60 ? `${s.lastFailAgoMin}분 전` : `${Math.round(s.lastFailAgoMin / 60)}시간 전`}`;
+  return `<span class="dim">
+    시세 조회 <span class="hrate ${cls}">최근 ${s.recentTotal}회 중 ${s.recentFails}회 실패</span> (${s.ratePct.toFixed(0)}%)
+     · 누적 ${s.runs.toLocaleString('ko-KR')}회 중 ${s.fails.toLocaleString('ko-KR')}회${ago}
+    ${s.lastFailMsg ? `<br>사유: ${esc(s.lastFailMsg)}` : ''}
+  </span>`;
 }
 
 /* ── 데몬 상태 ──
@@ -67,6 +78,7 @@ async function renderDaemon() {
         ${st.date ? ` · 기준일 ${st.date}` : ''}
       </span>
       ${stale ? '<span class="dim">장외 시간에는 데몬이 조용히 종료하므로 정상입니다. 장중에도 5분 넘게 멈춰 있으면 launchd를 확인하세요.</span>' : ''}
+      ${healthLine(st.health)}
     </div>`;
   } catch {
     box.innerHTML = '<div class="dstate warn"><b>상태를 읽을 수 없습니다</b><span>서버가 꺼져 있을 수 있습니다</span></div>';

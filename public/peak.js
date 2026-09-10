@@ -27,8 +27,7 @@ function readCodes() {
   let v = null;
   try { v = JSON.parse(localStorage.getItem('peak-codes-v1') || 'null'); } catch { /* 깨진 JSON */ }
   if (!Array.isArray(v)) return null;
-  // 서버 /api/peak 의 필터와 같은 규칙이어야 한다 — 어긋나면 한쪽만 통과한 코드가 조용히 사라진다
-  return [...new Set(v.filter((c) => typeof c === 'string' && /^[A-Z0-9]{3,10}$/i.test(c)))];
+  return [...new Set(v.filter((c) => typeof c === 'string' && Pure.isPeakCode(c)))];
 }
 
 const state = {

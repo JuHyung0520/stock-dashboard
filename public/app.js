@@ -353,20 +353,7 @@ async function loadProfiles() {
   return job;
 }
 
-/* 프로필은 30분 캐시라 그 안의 price 는 시세(5초 갱신)보다 낡다.
- * 시총·PER·PBR·상승여력을 그대로 쓰면 한 카드 안에서 현재가만 최신이고
- * 나머지는 30분 전 가격 기준이 된다 — 주당값(EPS·BPS·주식수)은 장중에 안 변하므로
- * 가격비만 곱해 같은 시점으로 맞춘다. */
-function liveFacts(p, q) {
-  if (!p) return null;
-  const k = p.price && q?.price ? q.price / p.price : 1;
-  return {
-    marketCap: p.marketCap != null ? p.marketCap * k : null,
-    per: p.per != null ? p.per * k : null,
-    pbr: p.pbr != null ? p.pbr * k : null,
-    upside: p.targetMean && q?.price ? (p.targetMean / q.price - 1) * 100 : p.targetUpside,
-  };
-}
+const liveFacts = Pure.liveFacts;   // 계산은 pure.js 로 옮겼다 (테스트 가능하게)
 
 function fmtCap(v) {
   if (!v) return '—';

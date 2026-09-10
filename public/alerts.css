@@ -94,3 +94,13 @@ select.cr-in { width: auto; cursor: pointer; }
 @media (max-width: 820px) {
   .alert-grid { grid-template-columns: 1fr; }
 }
+
+/* 실패율 강조 — --up/--ok 는 모든 팔레트·테마에서 판 위 4.5:1 이상이 테스트로 잠겨 있다.
+ *
+ * ⚠️ <b> 를 쓰면 안 된다. 위의 `.dstate.ok b` 가 상자 안의 모든 굵은 글씨를 초록으로 칠해서
+ * '25% 실패'가 초록으로 나왔고, `.dstate b` 의 18px 까지 먹어 제목처럼 커졌다.
+ * 그래서 전용 클래스를 span 에 얹고, 클래스 3개로 특정도를 (0,3,0) 까지 올려 이긴다
+ * (`.dstate.ok b` 는 (0,2,1)). */
+.dstate .hrate { font-size: var(--fs-2xs); font-weight: 600; }
+.dstate .hrate.warn-text { color: var(--up); }
+.dstate .hrate.ok-text { color: var(--ok); }

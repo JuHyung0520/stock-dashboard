@@ -15,6 +15,8 @@ const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
 const toss = require('./toss');
+// 종목 코드 형식은 화면과 서버가 같은 규칙을 써야 한다 — 갈라져서 종목이 사라진 적이 있다
+const { KR_CODE, PEAK_CODE } = require('./public/pure.js');
 const analysis = require('./analysis');
 const M = require('./metrics');
 
@@ -1149,8 +1151,7 @@ const server = http.createServer(async (req, res) => {
      * 과거 시총의 정확한 값이 아니라 두 회사의 상대 크기 추이를 보는 용도. */
     if (p === '/api/marketcap') {
       const codes = (url.searchParams.get('codes') || '005930,000660')
-        // 영문이 붙는 단축코드(00104K 등)도 국내 종목이다 — public/marketcap.js 와 같은 규칙
-        .split(',').map((s) => s.trim().toUpperCase()).filter((c) => /^[0-9A-Z]{6}$/.test(c)).slice(0, 2);
+        .split(',').map((s) => s.trim().toUpperCase()).filter((c) => KR_CODE.test(c)).slice(0, 2);
       if (codes.length < 2) return sendJSON(res, 400, { error: '비교할 두 종목이 필요합니다' });
       const withPref = url.searchParams.get('pref') === '1';
       /* ⚠️ 시총 = 수정주가 × 현재 발행주식수 는 주식수가 안 변한 구간에서만 맞다.
@@ -1255,7 +1256,7 @@ const server = http.createServer(async (req, res) => {
      * −50%는 +100%가 있어야 돌아온다 — 하락률만 보면 이 비대칭이 안 보인다. */
     if (p === '/api/peak') {
       const syms = (url.searchParams.get('codes') || 'KOSPI,KOSDAQ,005930,000660')
-        .split(',').map((s) => s.trim()).filter((c) => /^[A-Z0-9]{3,10}$/i.test(c)).slice(0, 24);
+        .split(',').map((s) => s.trim()).filter((c) => PEAK_CODE.test(c)).slice(0, 24);
       const range = Object.hasOwn(RANGES, url.searchParams.get('range') ?? '') ? url.searchParams.get('range') : '1Y';
       const from = rangeFrom(range);
 

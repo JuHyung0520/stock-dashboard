@@ -185,6 +185,28 @@ function cooldownMs(v, dflt) {
   return (Number.isFinite(n) && n >= 1 ? n : dflt) * 60000;
 }
 
+/* ── 실행 건강 ──
+ * 로그가 실패와 발화만 남겨서 "20건 실패"가 3천 번 중 20번인지 200번 중 20번인지 알 수 없었다.
+ * 분모가 없으면 실패율이 아니라 실패 '건수'일 뿐이고, 그걸로는 나빠지고 있는지 판단할 수 없다.
+ * 상태파일은 어차피 매 실행 쓰므로 여기에 얹는다 — 새 파일도, 새 로그도 만들지 않는다.
+ *
+ * 장외 실행은 세지 않는다. 시세를 아예 안 부르는 회차라 분모에 넣으면 실패율이 희석된다. */
+const HEALTH_WINDOW = 100;
+
+function noteHealth(state, ok, msg) {
+  const h = (state.health && typeof state.health === 'object') ? state.health : {};
+  h.runs = (Number(h.runs) || 0) + 1;
+  if (!ok) {
+    h.fails = (Number(h.fails) || 0) + 1;
+    h.lastFailAt = Date.now();
+    h.lastFailMsg = String(msg || '').slice(0, 120);
+  }
+  // 최근 회차를 1/0 문자열로 — 배열보다 JSON 이 훨씬 작고, 창 크기를 줄여도 뒤에서 자르면 된다
+  h.recent = (String(h.recent || '') + (ok ? '1' : '0')).slice(-HEALTH_WINDOW);
+  state.health = h;
+  return h;
+}
+
 /* ── 목표가 평가 ──
  * record=true 면 기준만 기록하고 방아쇠(armed·lastFiredAt·disabled)는 절대 건드리지 않는다. */
 function evalTarget(t, q, st, now, win, record) {
@@ -349,13 +371,16 @@ async function main() {
   const record = gapMin == null || gapMin > GAP_MIN;
 
   const ids = [...new Set([...targets, ...grids].map((x) => String(x.symbol)))];
-  let quotes = [], via = 'none';
+  let quotes = [], via = 'none', failMsg = null;
   try {
     ({ quotes, via } = await fetchQuotes(ids));
   } catch (e) {
+    failMsg = e.message;
     log('시세 조회 실패:', e.message);
   }
-  if (!quotes.length) { finish(via); return; }
+  // 시세가 0건이면 던지지 않았어도 판정할 수 있는 게 없다 — 실패로 센다
+  if (!quotes.length) { noteHealth(state, false, failMsg || '시세 0건'); finish(via); return; }
+  noteHealth(state, true);
   const qBy = Object.fromEntries(quotes.map((q) => [q.id, q]));
 
   // 조건 하나가 던져도 나머지는 계속 평가한다
@@ -426,4 +451,4 @@ if (require.main === module) {
 }
 
 /* 판정 로직만 테스트가 부를 수 있게 연다. 나머지는 그대로 파일 안에 둔다. */
-module.exports = { evalTarget, evalGrid, marketWindow, cooldownMs, priceOf, num, signed };
+module.exports = { evalTarget, evalGrid, marketWindow, cooldownMs, priceOf, num, signed, noteHealth, HEALTH_WINDOW };

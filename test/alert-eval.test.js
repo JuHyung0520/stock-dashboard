@@ -139,3 +139,31 @@ test('그리드 — 잘못된 구간은 조용히 건너뛴다', () => {
   assert.equal(evalGrid(grd({ upper: 60000 }), { price: 65500 }, st, T0, 'regular', false), null);
   assert.equal(evalGrid(grd({ cells: 0 }), { price: 65500 }, st, T0, 'regular', false), null);
 });
+
+/* ── 실행 건강 기록 ── */
+const { noteHealth, HEALTH_WINDOW } = require('../alert.js');
+
+test('noteHealth — 성공도 세야 실패율이 나온다', () => {
+  const st = {};
+  noteHealth(st, true); noteHealth(st, true); noteHealth(st, false, '터짐');
+  assert.equal(st.health.runs, 3);
+  assert.equal(st.health.fails, 1);
+  assert.equal(st.health.recent, '110');
+  assert.equal(st.health.lastFailMsg, '터짐');
+  assert.ok(st.health.lastFailAt > 0);
+});
+
+test('noteHealth — 최근 창은 정해진 길이를 넘지 않는다', () => {
+  const st = {};
+  for (let i = 0; i < HEALTH_WINDOW + 40; i++) noteHealth(st, i % 2 === 0);
+  assert.equal(st.health.recent.length, HEALTH_WINDOW);
+  assert.equal(st.health.runs, HEALTH_WINDOW + 40, '누적은 창과 별개로 계속 센다');
+});
+
+test('noteHealth — 깨진 상태에서도 이어 센다', () => {
+  // 상태파일은 손으로 고칠 수 있고 예전 버전이 남아 있을 수도 있다
+  const st = { health: 'nope' };
+  noteHealth(st, true);
+  assert.equal(st.health.runs, 1);
+  assert.equal(st.health.recent, '1');
+});
