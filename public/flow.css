@@ -53,7 +53,7 @@ body {
   background: var(--ok); box-shadow: 0 0 6px var(--ok-line);
   transition: background var(--t-bar);
 }
-.fdot.error { background: var(--buy); box-shadow: 0 0 6px rgba(240, 68, 82, 0.6); }
+.fdot.error { background: var(--buy); box-shadow: 0 0 6px color-mix(in srgb, var(--buy) 60%, transparent); }
 /* 실패 시 낡은 숫자를 현재값으로 읽지 않게 — 전체를 살짝 가라앉힌다 */
 body.stale .fhero, body.stale .fpanel { opacity: 0.55; }
 

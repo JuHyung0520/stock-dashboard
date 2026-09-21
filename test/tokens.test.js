@@ -138,3 +138,26 @@ for (const palette of ['default', ...PALETTES]) {
     });
   }
 }
+
+/* ── 토큰을 안 거치는 색 ──
+ * 다크 모드 색을 숫자로 박으면 라이트 모드를 안 따라간다. 실제로 14곳이 그랬다 —
+ * rgba(240,68,82,…)는 다크의 --up(#f04452)이라, 라이트(#c02535)로 바꿔도 수급 막대·상태점·삭제 hover 가
+ * 다크 빨강으로 남았다. color-mix(in srgb, var(--up) N%, transparent) 로 바꾸면 다크에선 픽셀 단위로 같고
+ * 라이트에선 알아서 따라간다. 색은 tokens.css 에만 숫자로 존재해야 한다. */
+test('tokens.css 밖에는 숫자 색이 없다 (의도된 예외만)', () => {
+  const ALLOWED = [
+    { file: 'chart.css', re: /mask-image: linear-gradient\(90deg, #000/, why: '마스크는 알파만 본다 — 색은 무관' },
+    { file: 'style.css', re: /background: #fff; object-fit: contain/, why: '투명 로고가 어두운 판에 묻히지 않게 흰 바탕' },
+  ];
+  const dir = path.join(__dirname, '..', 'public');
+  const found = [];
+  for (const f of fs.readdirSync(dir).filter((x) => x.endsWith('.css') && x !== 'tokens.css')) {
+    const src = fs.readFileSync(path.join(dir, f), 'utf8').replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, ' '));
+    src.split('\n').forEach((line, i) => {
+      if (!/#[0-9a-fA-F]{3,8}\b|rgba?\(\s*\d/.test(line)) return;
+      if (ALLOWED.some((a) => a.file === f && a.re.test(line))) return;
+      found.push(`${f}:${i + 1}  ${line.trim().slice(0, 80)}`);
+    });
+  }
+  assert.deepEqual(found, [], '토큰을 안 거친 색 — var(--…) 나 color-mix 로 바꿀 것');
+});

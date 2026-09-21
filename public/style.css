@@ -38,7 +38,7 @@ body {
   box-shadow: 0 0 6px var(--ok-line);
   transition: background var(--t-bar);
 }
-.status-dot.error { background: #f04452; box-shadow: 0 0 6px rgba(240, 68, 82, 0.6); }
+.status-dot.error { background: var(--up); box-shadow: 0 0 6px color-mix(in srgb, var(--up) 60%, transparent); }
 .status-dot.pulse { animation: pulse 0.6s ease; }
 @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.6); } 100% { transform: scale(1); } }
 
@@ -225,7 +225,7 @@ tbody tr:last-child td { border-bottom: none; }
 /* opacity:0 은 아웃라인까지 지운다 — hover 만 조건이면 키보드로 온 사용자는
  * 아무 표시 없는 상태에서 Enter 로 종목을 지우게 된다. peak.css:57 과 같은 방식으로 포커스도 조건에 넣는다. */
 .quotes tbody tr:hover .remove-btn, .remove-btn:focus-visible { opacity: 1; }
-.remove-btn:hover { color: var(--up); background: rgba(240, 68, 82, 0.1); }
+.remove-btn:hover { color: var(--up); background: color-mix(in srgb, var(--up) 10%, transparent); }
 
 .empty-row td, .news-empty, .inv-empty { color: var(--text-faint); text-align: center; padding: 24px 0; font-size: var(--fs-xs); }
 
@@ -359,7 +359,7 @@ tbody tr:last-child td { border-bottom: none; }
   content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--text-faint);
 }
 .c-state.live { color: var(--ok); }
-.c-state.live::before { background: var(--ok); box-shadow: 0 0 5px rgba(63, 185, 80, 0.7); }
+.c-state.live::before { background: var(--ok); box-shadow: 0 0 5px color-mix(in srgb, var(--ok) 70%, transparent); }
 
 /* 거대한 숫자 + 작은 단위 — 이 디자인의 핵심 */
 .c-price {
@@ -528,8 +528,8 @@ tbody tr:last-child td { border-bottom: none; }
   width: 1px; background: var(--border);
 }
 .inv-bar { position: absolute; top: 2px; bottom: 2px; border-radius: var(--r-xs); transition: width var(--t-bar) ease, left var(--t-bar) ease; }
-.inv-bar.pos { background: linear-gradient(90deg, rgba(240,68,82,0.55), rgba(240,68,82,0.9)); left: 50%; }
-.inv-bar.neg { background: linear-gradient(270deg, rgba(49,130,246,0.55), rgba(49,130,246,0.9)); right: 50%; }
+.inv-bar.pos { background: linear-gradient(90deg, color-mix(in srgb, var(--up) 55%, transparent), color-mix(in srgb, var(--up) 90%, transparent)); left: 50%; }
+.inv-bar.neg { background: linear-gradient(270deg, color-mix(in srgb, var(--down) 55%, transparent), color-mix(in srgb, var(--down) 90%, transparent)); right: 50%; }
 
 /* 종목 상세 탭 (호가·수급 = 주력 / 공매도~대차 = 일별 지표) */
 .detail-tabs { flex-wrap: wrap; gap: 4px; margin-bottom: 10px; }

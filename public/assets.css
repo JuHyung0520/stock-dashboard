@@ -107,7 +107,7 @@
   background: none; border: none; color: var(--text-faint); cursor: pointer;
   font-size: var(--fs-xs); padding: 4px; border-radius: var(--r-sm); min-width: 26px; min-height: 26px;
 }
-.x-btn:hover { color: var(--up); background: rgba(240, 68, 82, 0.1); }
+.x-btn:hover { color: var(--up); background: color-mix(in srgb, var(--up) 10%, transparent); }
 
 .add-line {
   background: none; border: 1px dashed var(--border); color: var(--text-dim);
@@ -191,7 +191,7 @@
   font-size: var(--fs-2xs);
   font-variant-numeric: tabular-nums;
 }
-.lad-row.held { background: rgba(240, 68, 82, 0.06); }
+.lad-row.held { background: color-mix(in srgb, var(--up) 6%, transparent); }
 .lad-row.cash { background: var(--tint-hover); }
 .lad-row.at-price { outline: 1px solid var(--accent-glow); }
 .lad-range { color: var(--text-dim); white-space: nowrap; }
@@ -199,7 +199,7 @@
 
 /* 칸 상태 막대 — 보유 칸은 채움 */
 .lad-bar { height: 8px; border-radius: var(--r-sm); background: var(--panel-2); position: relative; overflow: hidden; }
-.lad-bar .fill { position: absolute; inset: 0; border-radius: var(--r-sm); background: rgba(240, 68, 82, 0.45); }
+.lad-bar .fill { position: absolute; inset: 0; border-radius: var(--r-sm); background: color-mix(in srgb, var(--up) 45%, transparent); }
 
 .lad-state { text-align: right; white-space: nowrap; }
 .lad-state .entry { color: var(--text-faint); }

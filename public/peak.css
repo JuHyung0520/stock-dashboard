@@ -74,7 +74,7 @@ body > section.panel { margin-bottom: 14px; }
 }
 .pr-bar {
   height: 100%; border-radius: var(--r-sm);
-  background: linear-gradient(90deg, rgba(49, 130, 246, 0.35), var(--down));
+  background: linear-gradient(90deg, color-mix(in srgb, var(--down) 35%, transparent), var(--down));
   transition: width var(--t-bar);
 }
 /* 낙폭이 이 화면의 주인공이다. 정렬도 이 값으로 하는데 현재가보다 작게 두면

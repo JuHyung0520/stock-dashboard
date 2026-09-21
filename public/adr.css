@@ -2,37 +2,18 @@
 
 body > section.panel { margin-bottom: 14px; }
 
-.hero {
-  display: flex; align-items: stretch; justify-content: space-between;
-  gap: 24px; flex-wrap: wrap;
-  background: linear-gradient(135deg, var(--panel) 0%, var(--panel-2) 100%);
-}
-.hero-main { min-width: 0; }
-.hero-label { display: flex; align-items: center; gap: 8px; font-size: var(--fs-sm); color: var(--text-dim); font-weight: 700; }
-.hero-badge {
-  font-size: var(--fs-2xs); border: 1px solid var(--border); border-radius: var(--r-sm);
-  padding: 1px 6px; color: var(--text-faint);
-}
+.hero-label { font-weight: 700; }
+
 .hero-badge.est { color: var(--accent); border-color: var(--accent-line); background: var(--accent-tint); }
-.hero-value {
-  font-size: var(--fs-4xl); font-weight: 800; letter-spacing: -0.035em;
-  font-variant-numeric: tabular-nums; line-height: 1.1; margin: 2px 0;
-}
+
 /* 프리미엄은 등락이 아니다 — 상승=빨강 관례를 쓰면 "올랐다"로 오독된다 */
 .hero-value.accent, .accent { color: var(--accent); }
-.hero-change { font-size: var(--fs-lg); font-weight: 500; }
+.hero-change { font-weight: 500; }
 .hero-change b { font-weight: 800; }
-.hero-sub { margin-top: 8px; font-size: var(--fs-xs); color: var(--text-faint); line-height: 1.6; }
+.hero-sub { line-height: 1.6; }
 .hero-sub b { color: var(--text-dim); font-weight: 700; }
 
-.hero-side { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-start; }
-.hs-item {
-  display: flex; flex-direction: column; gap: 1px;
-  border-left: 1px solid var(--border-soft); padding-left: 14px; min-width: 116px;
-}
-.hs-item .k { font-size: var(--fs-2xs); color: var(--text-faint); }
-.hs-item .v { font-size: var(--fs-lg); font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
-.hs-item .d { font-size: var(--fs-2xs); color: var(--text-dim); }
+.hs-item { min-width: 116px; }
 
 /* ── 비율 공개 ── */
 .ratio-row { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; margin-bottom: 10px; }
@@ -78,8 +59,3 @@ body > section.panel { margin-bottom: 14px; }
 #premFoot b { color: var(--text); font-weight: 700; }
 #premFoot .dim { color: var(--text-faint); }
 
-@media (max-width: 1000px) {
-  .hero-value { font-size: var(--fs-3xl); }
-  .hero-side { width: 100%; }
-  .hs-item { border-left: none; padding-left: 0; flex: 1; }
-}

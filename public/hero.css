@@ -1,0 +1,26 @@
+/* 히어로 카드 — 하닉 ADR · 지수 · 램값 세 페이지가 함께 쓴다.
+ *
+ * 세 페이지의 css 에 같은 규칙이 복사돼 있었고, 그새 조금씩 갈라져 있었다
+ * (라벨 굵기 700/600/700, 부제 줄간격 1.6/1.55/1.55 …). 복사본은 결국 갈라진다.
+ * 여기엔 **세 곳이 완전히 같던 선언만** 옮겼다 — 모양은 한 픽셀도 바뀌지 않는다.
+ * 페이지마다 다르던 값은 각 페이지 css 에 남아 있고, 이 파일보다 나중에 로드돼서 그 값이 이긴다.
+ * 갈라진 값을 하나로 맞출지는 모양을 바꾸는 일이라 따로 정한다. */
+
+.hero { display: flex; align-items: stretch; justify-content: space-between; gap: 24px; flex-wrap: wrap; background: linear-gradient(135deg, var(--panel) 0%, var(--panel-2) 100%); }
+.hero-main { min-width: 0; }
+.hero-label { display: flex; align-items: center; gap: 8px; font-size: var(--fs-sm); color: var(--text-dim); }
+.hero-badge { font-size: var(--fs-2xs); border: 1px solid var(--border); border-radius: var(--r-sm); padding: 1px 6px; color: var(--text-faint); }
+.hero-value { font-size: var(--fs-4xl); font-weight: 800; letter-spacing: -0.035em; font-variant-numeric: tabular-nums; line-height: 1.1; margin: 2px 0; }
+.hero-change { font-size: var(--fs-lg); }
+.hero-sub { margin-top: 8px; font-size: var(--fs-xs); color: var(--text-faint); }
+.hero-side { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-start; }
+.hs-item { display: flex; flex-direction: column; gap: 1px; border-left: 1px solid var(--border-soft); padding-left: 14px; }
+.hs-item .k { font-size: var(--fs-2xs); color: var(--text-faint); }
+.hs-item .v { font-size: var(--fs-lg); font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+.hs-item .d { font-size: var(--fs-2xs); color: var(--text-dim); }
+
+@media (max-width: 1000px) {
+  .hero-value { font-size: var(--fs-3xl); }
+  .hero-side { width: 100%; }
+  .hs-item { border-left: none; padding-left: 0; flex: 1; }
+}
