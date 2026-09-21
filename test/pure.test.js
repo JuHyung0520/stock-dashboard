@@ -153,3 +153,55 @@ test('pct — 자릿수를 넘기면 그대로 따른다 (전고대비는 1자�
 test('money — 단위를 넘길 때마다 자릿수가 줄어든다', () => {
   assert.deepEqual([2.34e9, 1.5e6, 1500, null].map(Pure.money), ['$2.34B', '$1.5M', '$2K', '—']);
 });
+
+/* ── 그리드 매매 ──
+ * cellState 가 없는 그리드 하나가 렌더러의 g.cellState.map 에서 터져 그리드 탭 전체가 비었다.
+ * 백업 가져오기로 충분히 들어오는 경로라 불러올 때 고친다. 원칙: 지우지 않고 고친다. */
+const base = { uid: 'g1', id: 'KR:005930', name: '삼성전자', lower: 250000, upper: 300000, cells: 10, qty: 1, start: 270000, fills: [] };
+
+test('initialCellState — 시작가 이상에서 사는 칸은 보유로 시작한다', () => {
+  const cs = Pure.initialCellState(250000, 300000, 10, 270000);   // 칸 간격 5,000
+  assert.equal(cs.length, 10);
+  assert.deepEqual(cs.map((c) => c.state), ['cash', 'cash', 'cash', 'cash', 'held', 'held', 'held', 'held', 'held', 'held']);
+  assert.equal(cs[4].entryPx, 270000);
+});
+
+test('repairGrid — cellState 가 없으면 생성 규칙대로 다시 만든다', () => {
+  const { grid, repaired } = Pure.repairGrid({ ...base });
+  assert.ok(repaired);
+  assert.ok(Pure.isUsableGrid(grid), '복구했는데도 못 쓰는 그리드다');
+  assert.deepEqual(grid.cellState, Pure.initialCellState(250000, 300000, 10, 270000));
+});
+
+test('repairGrid — 멀쩡한 칸 상태(실제 체결 이력)는 보존한다', () => {
+  // 복구가 사용자의 매매 기록을 초기값으로 덮어쓰면 그게 더 큰 사고다
+  const cs = Pure.initialCellState(250000, 300000, 10, 270000);
+  cs[0] = { state: 'held', entryPx: 251000 };   // 실제로 체결된 칸
+  const { grid, repaired } = Pure.repairGrid({ ...base, cellState: cs });
+  assert.equal(repaired, false);
+  assert.deepEqual(grid.cellState[0], { state: 'held', entryPx: 251000 });
+});
+
+test('repairGrid — 망가진 칸만 골라 고치고 나머지는 둔다', () => {
+  const cs = Pure.initialCellState(250000, 300000, 10, 270000);
+  cs[0] = { state: 'held', entryPx: 251000 };
+  cs[3] = null;                                  // 손상
+  const { grid, repaired } = Pure.repairGrid({ ...base, cellState: cs });
+  assert.ok(repaired);
+  assert.deepEqual(grid.cellState[0], { state: 'held', entryPx: 251000 }, '멀쩡한 칸까지 덮었다');
+  assert.deepEqual(grid.cellState[3], { state: 'cash' });
+});
+
+test('repairGrid — 문자열 숫자(다른 도구에서 만든 JSON)를 숫자로', () => {
+  const { grid } = Pure.repairGrid({ ...base, lower: '250000', upper: '300000', cells: '10' });
+  assert.deepEqual([grid.lower, grid.upper, grid.cells], [250000, 300000, 10]);
+  assert.ok(Pure.isUsableGrid(grid));
+});
+
+test('repairGrid — 범위가 성립 안 하면 고치지 않고 못 쓴다고 알린다 (지우지도 않는다)', () => {
+  for (const bad of [{ upper: 250000 }, { upper: 200000 }, { cells: 0 }, { cells: 2.5 }, { lower: 'x' }]) {
+    const { grid } = Pure.repairGrid({ ...base, ...bad });
+    assert.ok(!Pure.isUsableGrid(grid), `${JSON.stringify(bad)} 를 쓸 수 있다고 판정했다`);
+    assert.equal(grid.uid, 'g1', '데이터를 지웠다');
+  }
+});

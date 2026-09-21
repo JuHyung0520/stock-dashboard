@@ -92,6 +92,48 @@
   const fmtKR = new Intl.NumberFormat('ko-KR');
   const fmtUS = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
+  /* ── 그리드 매매 — 칸 상태 ──
+   * 시작가 이상에서 '사는' 칸(buyPx ≥ start)은 시작가에 진입해 보유 중으로 시작한다.
+   * 새 그리드를 만들 때와 망가진 그리드를 복구할 때가 **같은 규칙**이어야 해서 여기 한 곳에 둔다. */
+  function initialCellState(lower, upper, cells, start) {
+    const step = (upper - lower) / cells;
+    return Array.from({ length: cells }, (_, i) =>
+      (Number.isFinite(start) && lower + step * i >= start ? { state: 'held', entryPx: start } : { state: 'cash' }));
+  }
+
+  // 칸을 계산할 수 있는가 — 범위가 성립하고 칸 수가 정수여야 한다
+  function isUsableGrid(g) {
+    return !!(g && g.id && Number.isFinite(g.lower) && Number.isFinite(g.upper) && g.upper > g.lower
+      && Number.isInteger(g.cells) && g.cells >= 1 && g.cells <= 200 && Array.isArray(g.cellState)
+      && g.cellState.length === g.cells);
+  }
+
+  /* 저장된(또는 가져온) 그리드를 엔진이 믿고 쓸 수 있는 모양으로.
+   * 보유 종목은 불러올 때 normalize 로 꼼꼼히 정리하는데 그리드는 aid 만 고치고
+   * "cellState 등 나머지 필드는 손대지 않았다". 그래서 cellState 가 없는 그리드가 하나라도 섞이면
+   * 렌더러의 g.cellState.map 에서 터져 **그리드 탭 전체가 빈 화면**이 됐다. 백업 가져오기로 충분히 들어오는 경로다.
+   * 원칙: 지우지 않고 고친다. 고칠 수 없는 것(범위 불성립)은 그대로 두고 화면에서만 따로 표시한다. */
+  function repairGrid(raw) {
+    if (!raw || typeof raw !== 'object') return { grid: raw, repaired: false };
+    const num = (v) => (v == null || v === '' ? NaN : Number(v));
+    const g = { ...raw,
+      lower: num(raw.lower), upper: num(raw.upper), cells: num(raw.cells), qty: num(raw.qty), start: num(raw.start),
+      fills: Array.isArray(raw.fills) ? raw.fills.filter((x) => x && typeof x === 'object') : [] };
+    let repaired = !Array.isArray(raw.fills) || g.fills.length !== raw.fills.length
+      || ['lower', 'upper', 'cells', 'qty', 'start'].some((k) => raw[k] != null && typeof raw[k] !== 'number');
+    const rangeOk = g.id && Number.isFinite(g.lower) && Number.isFinite(g.upper) && g.upper > g.lower
+      && Number.isInteger(g.cells) && g.cells >= 1 && g.cells <= 200;
+    if (!rangeOk) return { grid: g, repaired };          // 범위를 모르면 칸을 만들 수 없다 — 손대지 않는다
+    const ok = (c) => c && (c.state === 'cash' || (c.state === 'held' && Number.isFinite(Number(c.entryPx))));
+    const src = Array.isArray(raw.cellState) ? raw.cellState : [];
+    const rule = initialCellState(g.lower, g.upper, g.cells, g.start);
+    g.cellState = rule.map((r, i) => (ok(src[i])
+      ? (src[i].state === 'held' ? { state: 'held', entryPx: Number(src[i].entryPx) } : { state: 'cash' })
+      : r));
+    if (src.length !== g.cells || src.some((c) => !ok(c))) repaired = true;
+    return { grid: g, repaired };
+  }
+
   /* ── 세대 가드 ──
    * 탭·기간을 빠르게 바꾸면 느린 옛 응답이 나중에 도착해 새 화면을 덮는다.
    * (탭은 ETH 인데 BTC 캔들이 그려지는 식 — 실제로 idx·ram 에서 났던 버그다.)
@@ -107,5 +149,6 @@
   }
 
   return { KR_CODE, PEAK_CODE, isKrCode, isPeakCode, liveFacts, brief, healthSummary, makeGuard,
-    esc, cls, pct, money, fmtKR, fmtUS };
+    esc, cls, pct, money, fmtKR, fmtUS,
+    initialCellState, isUsableGrid, repairGrid };
 }));

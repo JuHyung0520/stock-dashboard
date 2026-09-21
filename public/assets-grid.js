@@ -17,10 +17,17 @@ function loadGrids() {
   const g = tryParse(localStorage.getItem('grids-v1'));
   if (!Array.isArray(g)) return [];
   // 계좌 도입 전에 만든 그리드에는 aid가 없다 — 첫 계좌로 귀속시킨다.
-  // cellState 등 나머지 필드는 손대지 않는다.
   const first = state.accounts[0].aid;
   const valid = new Set(state.accounts.map((a) => a.aid));
-  return g.map((x) => ({ ...x, aid: valid.has(x.aid) ? x.aid : first }));
+  // 예전엔 여기서 cellState 를 '손대지 않았다'. 망가진 그리드 하나가 탭 전체를 비웠다 — 이제 고친다(pure.js)
+  let fixed = 0;
+  const out = g.map((x) => {
+    const { grid, repaired } = Pure.repairGrid({ ...x, aid: valid.has(x && x.aid) ? x.aid : first });
+    if (repaired) fixed++;
+    return grid;
+  });
+  if (fixed) console.info(`[그리드] 저장 데이터 ${fixed}개를 복구했습니다 (칸 상태·숫자 형식)`);
+  return out;
 }
 let grids = loadGrids();
 const saveGrids = () => {
@@ -71,6 +78,19 @@ function gridCalc(g) {
 }
 
 /* ── 렌더 ── */
+/* 그리드 하나를 그리다 터져도 나머지는 그린다.
+ * 예전엔 전부를 한 번의 innerHTML 대입으로 그려서, 하나만 던져도 대입 자체가 안 일어나 탭 전체가 비었다.
+ * 고칠 수 없는 그리드(범위 불성립)는 데이터를 지우지 않고 그 자리에만 안내한다 — 조용히 사라지면 안 된다. */
+function gridCard(g, render) {
+  // 정상 카드와 같은 삭제 버튼(data-del-grid)을 단다 — '삭제하라'고만 하고 버튼이 없으면 막다른 길이다
+  const broken = (why) => `<div class="grid-card broken"><div class="empty-assets">
+    ${esc(g && g.name || '이름 없는 그리드')} — 저장된 값이 손상돼 표시할 수 없어요 (${esc(why)}).
+    데이터는 지우지 않았어요. 백업 파일을 확인하거나 삭제하고 다시 만드세요.
+    ${g && g.uid ? `<button class="x-btn" data-del-grid="${esc(g.uid)}" title="그리드 삭제">🗑 삭제</button>` : ''}</div></div>`;
+  if (!Pure.isUsableGrid(g)) return broken('범위·칸 수');
+  try { return render(); } catch (e) { console.warn('[그리드] 렌더 실패', g && g.uid, e); return broken(e.message); }
+}
+
 function renderGrids() {
   const list = $('#gridList');
   const shown = grids.filter((g) => state.activeAid === 'all' || g.aid === state.activeAid);
@@ -80,7 +100,7 @@ function renderGrids() {
       : '<div class="empty-assets">아직 그리드가 없어요. 아래에서 종목·범위·칸 수를 정해 시작하세요.</div>';
     return;
   }
-  list.innerHTML = shown.map((g) => {
+  list.innerHTML = shown.map((g) => gridCard(g, () => {
     const c = gridCalc(g);
     const cur = c.price;
     const ccy = gridCur(g);
@@ -135,7 +155,7 @@ function renderGrids() {
       <div class="ladder">${rows.join('')}</div>
       ${lastFills ? `<div class="gc-log">최근 체결: ${lastFills}</div>` : ''}
     </div>`;
-  }).join('');
+  })).join('');
 }
 
 /* ── 체결 기록 (위임) ── */
@@ -143,7 +163,7 @@ $('#gridList').addEventListener('click', (e) => {
   const del = e.target.closest('[data-del-grid]');
   if (del) {
     const g = grids.find((x) => x.uid === del.dataset.delGrid);
-    if (g && confirm(`${g.name} 그리드를 삭제할까요? 체결 기록도 지워져요.`)) {
+    if (g && confirm(`${g.name || "이"} 그리드를 삭제할까요? 체결 기록도 지워져요.`)) {
       grids = grids.filter((x) => x.uid !== g.uid);
       saveGrids(); renderGrids();
     }
@@ -246,8 +266,7 @@ $('#gnCreate').addEventListener('click', () => {
     lower, upper, cells, qty,
     start, startDate: new Date().toISOString().slice(0, 10),
     // 시작가 이상에서 '사는' 칸(buyPx ≥ start)은 시작가 진입 보유로 초기화
-    cellState: Array.from({ length: cells }, (_, i) =>
-      (lower + step * i) >= start ? { state: 'held', entryPx: start } : { state: 'cash' }),
+    cellState: Pure.initialCellState(lower, upper, cells, start),   // 복구와 같은 규칙(pure.js)
     fills: [],
   };
   grids.push(g);
