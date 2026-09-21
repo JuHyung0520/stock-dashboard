@@ -149,6 +149,12 @@
   <script src="pure.js"></script>
   <script src="ui.js"></script>
   <script src="nav.js"></script>
+  <!-- 대시보드 스크립트 — 순서가 곧 의존성이다. app-boot.js 는 반드시 마지막
+       (로드 즉시 다른 파일의 함수를 부른다. 클래식 스크립트는 파일을 넘어 호이스팅되지 않는다) -->
   <script src="app.js"></script>
+  <script src="app-list.js"></script>
+  <script src="app-detail.js"></script>
+  <script src="app-side.js"></script>
+  <script src="app-boot.js"></script>
 </body>
 </html>
