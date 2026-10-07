@@ -205,3 +205,73 @@ test('repairGrid — 범위가 성립 안 하면 고치지 않고 못 쓴다고 
     assert.equal(grid.uid, 'g1', '데이터를 지웠다');
   }
 });
+
+/* ── 오늘의 장 정리 ──
+ * 글 요약은 숫자에서 템플릿으로 만든다. 문장이 곧 사양이라 문장 자체를 잠근다.
+ * 아래 코스피 숫자는 2026-10-07 실제 장이다. */
+test('streak — 최신(index 0)부터 같은 부호가 몇 개 이어지나', () => {
+  assert.equal(Pure.streak([-3, -1, -7, 2, -1]), 3);
+  assert.equal(Pure.streak([5, 1]), 2);
+  assert.equal(Pure.streak([0, 1, 1]), 0, '0 은 연속이 아니다');
+  assert.equal(Pure.streak([null, 1]), 0, '잠정치가 비면 세지 않는다');
+  assert.equal(Pure.streak([]), 0);
+  assert.equal(Pure.streak(null), 0);
+});
+
+test('sessionStats — 시·고·저·종과 시각, 전일 대비', () => {
+  const s = Pure.sessionStats([{ t: '09:00', p: 6864.25 }, { t: '09:46', p: 6977.46 }, { t: '12:00', p: 6900 }, { t: '15:30', p: 6803.90 }], 6941.39);
+  assert.equal(s.open, 6864.25); assert.equal(s.high, 6977.46); assert.equal(s.highT, '09:46');
+  assert.equal(s.low, 6803.90); assert.equal(s.lowT, '15:30'); assert.equal(s.close, 6803.90);
+  assert.equal(s.openPct.toFixed(2), '-1.11'); assert.equal(s.closePct.toFixed(2), '-1.98');
+  assert.equal(s.closeAtLow, true); assert.equal(s.closeAtHigh, false);
+});
+
+test('sessionStats — 쓸 수 없는 입력은 null', () => {
+  assert.equal(Pure.sessionStats([], 1000), null);
+  assert.equal(Pure.sessionStats([{ t: '09:00', p: 1 }], 1000), null, '점 하나로는 흐름이 없다');
+  assert.equal(Pure.sessionStats([{ t: '09:00', p: 1 }, { t: '09:01', p: 2 }], null), null);
+  assert.equal(Pure.sessionStats([{ t: '09:00', p: 1 }, { t: '09:01', p: 2 }], 0), null);
+});
+
+const narr = (pts, prev) => Pure.sessionNarrative(Pure.sessionStats(pts, prev));
+
+test('sessionNarrative — 갭하락 → 오전 반등 → 저가 마감 (2026-10-07 코스피)', () => {
+  assert.equal(narr([{ t: '09:00', p: 6864.25 }, { t: '09:46', p: 6977.46 }, { t: '12:00', p: 6900 }, { t: '15:30', p: 6803.90 }], 6941.39),
+    '전일보다 1.1% 낮게 출발해 오전 09:46에 6,977.46(+0.52%)까지 반등했다가 오후 들어 내리며 6,803.90(−1.98%)에 저가 마감.');
+});
+
+test('sessionNarrative — 갭상승 뒤 밀리고 중간에서 마감 (시가가 고가면 사건이 아니다)', () => {
+  assert.equal(narr([{ t: '09:00', p: 1015 }, { t: '10:00', p: 1002 }, { t: '15:30', p: 1009 }], 1000),
+    '전일보다 1.5% 높게 출발해 오전 10:00에 1,002.00(+0.20%)까지 밀린 뒤 1,009.00(+0.90%)로 마감.');
+});
+
+test('sessionNarrative — V자: 내렸다가 고가 마감', () => {
+  assert.equal(narr([{ t: '09:00', p: 1000 }, { t: '10:30', p: 990 }, { t: '15:00', p: 1012 }, { t: '15:30', p: 1012 }], 1005),
+    '전일보다 0.5% 낮게 출발해 오전 10:30에 990.00(−1.49%)까지 내렸다가 오후 들어 반등하며 1,012.00(+0.70%)에 고가 마감.');
+});
+
+test('sessionNarrative — 보합권에서 조용한 날', () => {
+  assert.equal(narr([{ t: '09:00', p: 1000.5 }, { t: '11:00', p: 1002 }, { t: '13:00', p: 999 }, { t: '15:30', p: 1001 }], 1000),
+    '보합권에서 출발해 큰 움직임 없이 1,001.00(+0.10%)로 마감.');
+  assert.equal(Pure.sessionNarrative(null), '');
+});
+
+test('flowNarrative — 수급 한 줄 (2026-10-07 실제)', () => {
+  const m = { foreign: -31234, institution: -9283, individual: 33120,
+    breakdown: [{ label: '연기금', value: 1200 }, { label: '금융투자', value: -5079 }, { label: '투신', value: -800 }] };
+  assert.equal(Pure.flowNarrative(m, { foreign: 3, institution: 2, individual: 2 }),
+    '외국인 3.1조 순매도(3일 연속) · 기관 9,283억 순매도(2일 연속) · 개인 3.3조 순매수(2일 연속). 기관 안에선 금융투자 −5,079억이 가장 컸다.');
+  assert.equal(Pure.flowNarrative({ foreign: 500 }, { foreign: 1 }), '외국인 500억 순매수.', '1일은 연속이 아니다');
+  assert.equal(Pure.flowNarrative(null), '');
+});
+
+test('sessionStats — 봉의 시가·고가·저가가 있으면 그걸 쓴다 (분봉 종가만 보면 조금씩 놓친다)', () => {
+  // 실측: 09:00 봉 종가 6,864.98 vs 시가 6,864.25 · 고가 봉 종가 6,977.46 vs 봉 고가 6,977.77(공식 고가)
+  const s = Pure.sessionStats([
+    { t: '09:00', p: 6864.98, o: 6864.25, h: 6865.89, l: 6864.25 },
+    { t: '09:46', p: 6977.46, h: 6977.77, l: 6970 },
+    { t: '15:30', p: 6803.90, h: 6810, l: 6803.81 },
+  ], 6941.39);
+  assert.equal(s.open, 6864.25); assert.equal(s.high, 6977.77); assert.equal(s.low, 6803.81); assert.equal(s.close, 6803.90);
+  assert.equal(s.closeAtLow, true, '종가 6,803.90 은 저가 6,803.81 의 0.1% 안이다');
+});

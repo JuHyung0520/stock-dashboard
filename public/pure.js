@@ -134,6 +134,111 @@
     return { grid: g, repaired };
   }
 
+
+  /* ── 오늘의 장 정리 ──
+   * 글 요약은 AI 가 아니라 숫자에서 템플릿으로 만든다 (세력좌표의 대화체 문장과 같은 방식).
+   * 틀릴 여지가 없고 비용이 0 이며, 여기 있으니 Node 테스트가 문장을 그대로 검사할 수 있다. */
+
+  // 부호가 같은 연속 개수 — values[0] 이 가장 최근. 0 이나 null 을 만나면 끊는다
+  function streak(values) {
+    const a = Array.isArray(values) ? values : [];
+    if (!a.length || a[0] == null || a[0] === 0) return 0;
+    const sign = Math.sign(a[0]);
+    let n = 0;
+    for (const v of a) { if (v == null || Math.sign(v) !== sign) break; n++; }
+    return n;
+  }
+
+  /* 1분 시세 [{t:'09:00', p}] 와 전일 종가로 시가·고가·저가·종가와 각각의 시각, 전일 대비 % 를 낸다.
+   * '저가 마감'은 종가가 저가의 0.1% 안이면 — 정확히 같을 때만 치면 1틱 차이에 문장이 바뀐다. */
+  function sessionStats(points, prevClose) {
+    const ps = (Array.isArray(points) ? points : []).filter((x) => x && Number.isFinite(x.p));
+    if (ps.length < 2 || !Number.isFinite(prevClose) || prevClose <= 0) return null;
+    /* 봉의 시·고·저(o/h/l)가 있으면 그걸 쓴다. 분봉 종가(p)만 보면 09:00 봉의 종가를 시가로,
+     * 분봉 종가 중 최대를 고가로 적게 된다 — 실측 6,977.46 vs 공식 고가 6,977.77. 정리 페이지에서 공식값과 다르면 안 된다. */
+    let hi = { p: -Infinity, t: null }, lo = { p: Infinity, t: null };
+    for (const x of ps) {
+      const h = Number.isFinite(x.h) ? x.h : x.p, l = Number.isFinite(x.l) ? x.l : x.p;
+      if (h > hi.p) hi = { p: h, t: x.t };
+      if (l < lo.p) lo = { p: l, t: x.t };
+    }
+    const open = Number.isFinite(ps[0].o) ? ps[0].o : ps[0].p, close = ps[ps.length - 1].p;
+    const pct = (v) => (v / prevClose - 1) * 100;
+    return {
+      prevClose, open, high: hi.p, low: lo.p, close,
+      openT: ps[0].t, highT: hi.t, lowT: lo.t, closeT: ps[ps.length - 1].t,
+      openPct: pct(open), highPct: pct(hi.p), lowPct: pct(lo.p), closePct: pct(close),
+      rangePct: (hi.p - lo.p) / prevClose * 100,
+      closeAtLow: (close - lo.p) / prevClose * 100 < 0.1,
+      closeAtHigh: (hi.p - close) / prevClose * 100 < 0.1,
+      n: ps.length,
+    };
+  }
+
+  const fNum = (v) => v.toLocaleString('ko-KR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const fPct = (v) => `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v).toFixed(2)}%`;
+  const ampm = (t) => (t < '12:00' ? '오전' : '오후');
+
+  /* "전일보다 1.1% 낮게 출발해 오전 10:12에 6,977.77(+0.52%)까지 반등했다가 오후 들어 내리며 6,803.90(−1.98%)에 저가 마감."
+   * 규칙:
+   *   출발  — 전일 대비 ±0.15% 안이면 '보합권', 아니면 높게/낮게
+   *   사건  — 시가에서 0.3%p 넘게 움직인 고가·저가만 시간순으로. 시가 자체가 고가/저가면 사건이 아니다
+   *   마감  — 저가/고가 마감이면 그렇게 말하고, 아니면 종가를 그대로 */
+  function sessionNarrative(s) {
+    if (!s) return '';
+    const o = s.openPct;
+    const start = Math.abs(o) < 0.15 ? '보합권에서 출발해'
+      : `전일보다 ${Math.abs(o).toFixed(1)}% ${o > 0 ? '높게' : '낮게'} 출발해`;
+
+    const ev = [];
+    if (s.highPct - s.openPct >= 0.3 && s.highT !== s.openT) {
+      ev.push({ kind: 'high', t: s.highT, price: s.high, pct: s.highPct,
+        v: o < 0 ? { past: '반등했', mid: '반등하며', attr: '반등한' } : { past: '올랐', mid: '오르며', attr: '오른' } });
+    }
+    if (s.openPct - s.lowPct >= 0.3 && s.lowT !== s.openT) {
+      ev.push({ kind: 'low', t: s.lowT, price: s.low, pct: s.lowPct,
+        v: o > 0 ? { past: '밀렸', mid: '밀리며', attr: '밀린' } : { past: '내렸', mid: '내리며', attr: '내린' } });
+    }
+    ev.sort((a, b) => (a.t < b.t ? -1 : 1));
+
+    const closeStr = `${fNum(s.close)}(${fPct(s.closePct)})`;
+    if (!ev.length) {
+      const how = s.rangePct < 0.5 ? '큰 움직임 없이' : '좁게 오르내리다';
+      return `${start} ${how} ${closeStr}로 마감.`;
+    }
+    const at = (e) => `${ampm(e.t)} ${e.t}에 ${fNum(e.price)}(${fPct(e.pct)})까지`;
+    let out = start;
+    for (let i = 0; i < ev.length - 1; i++) out += ` ${at(ev[i])} ${ev[i].v.past}다가`;
+    const last = ev[ev.length - 1];
+    if (s.closeAtLow && last.kind === 'low') out += ` ${ampm(last.t)} 들어 ${last.v.mid} ${closeStr}에 저가 마감.`;
+    else if (s.closeAtHigh && last.kind === 'high') out += ` ${ampm(last.t)} 들어 ${last.v.mid} ${closeStr}에 고가 마감.`;
+    else out += ` ${at(last)} ${last.v.attr} 뒤 ${closeStr}로 마감.`;
+    return out;
+  }
+
+  // 억원 단위 → "3,214억" / "1.2조"
+  const fEok = (v) => {
+    if (v == null || isNaN(v)) return '—';
+    const a = Math.abs(v);
+    return a >= 10000 ? `${(a / 10000).toFixed(1)}조` : `${Math.round(a).toLocaleString('ko-KR')}억`;
+  };
+
+  /* 시장 수급 한 줄 — "외국인 3,214억 순매도(3일 연속) · 기관 1,108억 순매수 · 개인 2,050억 순매수. 기관 안에선 연기금 +640억이 컸다." */
+  function flowNarrative(m, streaks) {
+    if (!m) return '';
+    const who = [['외국인', m.foreign, streaks && streaks.foreign], ['기관', m.institution, streaks && streaks.institution], ['개인', m.individual, streaks && streaks.individual]];
+    const parts = who.filter(([, v]) => v != null).map(([name, v, n]) =>
+      `${name} ${fEok(v)} ${v >= 0 ? '순매수' : '순매도'}${n >= 2 ? `(${n}일 연속)` : ''}`);
+    if (!parts.length) return '';
+    let out = parts.join(' · ') + '.';
+    const bd = (m.breakdown || []).filter((b) => b.value != null && b.value !== 0);
+    if (bd.length) {
+      const top = bd.reduce((a, b) => (Math.abs(b.value) > Math.abs(a.value) ? b : a));
+      out += ` 기관 안에선 ${top.label} ${top.value > 0 ? '+' : '−'}${fEok(top.value)}이 가장 컸다.`;
+    }
+    return out;
+  }
+
   /* ── 세대 가드 ──
    * 탭·기간을 빠르게 바꾸면 느린 옛 응답이 나중에 도착해 새 화면을 덮는다.
    * (탭은 ETH 인데 BTC 캔들이 그려지는 식 — 실제로 idx·ram 에서 났던 버그다.)
@@ -150,5 +255,6 @@
 
   return { KR_CODE, PEAK_CODE, isKrCode, isPeakCode, liveFacts, brief, healthSummary, makeGuard,
     esc, cls, pct, money, fmtKR, fmtUS,
-    initialCellState, isUsableGrid, repairGrid };
+    initialCellState, isUsableGrid, repairGrid,
+    streak, sessionStats, sessionNarrative, flowNarrative, fEok };
 }));

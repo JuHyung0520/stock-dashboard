@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>오늘</title>
+  <meta name="description" content="오늘 국장 정규장 정리 — 장중 흐름, 수급, 오늘의 종목">
+  <!-- 모바일 브라우저 주소창 색. 여기 값은 JS 가 뜨기 전 한 프레임용 기본값이고,
+       그 뒤로는 nav.js 가 실제 --bg 를 읽어 테마·팔레트에 맞춰 갱신한다. -->
+  <meta name="theme-color" content="#05070c">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📅</text></svg>">
+  <!-- 테마 깜빡임 방지 — 그리기 전에 저장된 선택을 적용한다.
+       nav.js 는 body 끝에서 돌아 이미 한 번 그려진 뒤라 늦다. -->
+  <script>try{var r=document.documentElement,t=localStorage.getItem('theme-v1');if(t==='light'||t==='dark')r.dataset.theme=t;var p=localStorage.getItem('palette-v1');if(/^(slate|mocha|violet|ocean|forest|rose)$/.test(p||''))r.dataset.palette=p;var k=localStorage.getItem('skin-v1');if(k==='sharp'||k==='round')r.dataset.skin=k}catch(e){}</script>
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="chart.css">
+  <link rel="stylesheet" href="hero.css">
+  <link rel="stylesheet" href="today.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">📅</span>
+      <h1>오늘</h1>
+      <span class="brand-sub" id="brandDate">정규장 정리</span>
+    </div>
+    <div class="nav-links" data-nav></div>
+    <div class="status">
+      <span class="status-dot" id="statusDot"></span>
+      <span id="lastUpdated">불러오는 중…</span>
+    </div>
+  </header>
+
+  <!-- 주인공: 선택한 지수의 오늘 하루 -->
+  <section class="panel hero">
+    <div class="hero-main">
+      <div class="hero-label">
+        <span id="heroName">코스피</span>
+        <span class="hero-badge" id="heroBadge">—</span>
+      </div>
+      <div class="hero-value" id="heroValue"><span class="skel">0,000.00</span></div>
+      <div class="hero-change" id="heroChange"></div>
+      <div class="hero-sub narr" id="heroNarr"></div>
+    </div>
+    <div class="hero-side" id="heroSide"></div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <h2>장중 흐름</h2>
+      <div class="tabs" id="idxTabs">
+        <button class="tab active" data-target="KOSPI">코스피</button>
+        <button class="tab" data-target="KOSDAQ">코스닥</button>
+      </div>
+    </div>
+    <div class="chart-box" id="flowChart"><div class="skel" style="height:100%"></div></div>
+    <div class="chart-note" id="flowNote">점선은 전일 종가. 09:00부터 15:30까지 1분 단위.</div>
+  </section>
+
+  <div class="today-grid">
+    <section class="panel">
+      <div class="panel-head"><h2>수급</h2><span class="panel-sub" id="flowSrc"></span></div>
+      <div class="narr" id="flowNarr"></div>
+      <div id="flowBars"></div>
+      <div class="breakdown" id="flowBreakdown"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>오늘의 종목</h2>
+        <div class="tabs" id="rankTabs">
+          <button class="tab active" data-rank="watch">내 관심종목</button>
+          <button class="tab" data-rank="gainers">급등</button>
+          <button class="tab" data-rank="losers">급락</button>
+          <button class="tab" data-rank="amount">거래대금</button>
+        </div>
+      </div>
+      <div id="rankBody"></div>
+    </section>
+  </div>
+
+  <script src="pure.js"></script>
+  <script src="ui.js"></script>
+  <script src="nav.js"></script>
+  <script src="chart.js"></script>
+  <script src="today.js"></script>
+</body>
+</html>

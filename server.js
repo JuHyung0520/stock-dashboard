@@ -48,6 +48,7 @@ const ROUTES = [
   ...require('./routes/flow'),
   ...require('./routes/charts'),
   ...require('./routes/alerts'),
+  ...require('./routes/today'),
 ];
 
 /* 한 요청이 프로세스를 죽이면 안 된다. 실측: request-target 이 `//300.300.300.300/` 이면 llhttp 는 통과시키고
@@ -86,6 +87,7 @@ const server = http.createServer(async (req, res) => {
       '/etf': '/etf.html', '/terminal': '/terminal.html',
       '/idx': '/idx.html', '/marketcap': '/marketcap.html', '/peak': '/peak.html',
       '/ram': '/ram.html', '/adr': '/adr.html', '/alerts': '/alerts.html',
+      '/today': '/today.html',
     };
     let file = PAGES[p] || p;
     file = path.normalize(file).replace(/^(\.\.[/\\])+/, '');

@@ -23,6 +23,7 @@ const ICO = {
   percent:  '<line x1="18.5" y1="5.5" x2="5.5" y2="18.5"/><circle cx="7" cy="7" r="2.6"/><circle cx="17" cy="17" r="2.6"/>',
   wallet:   '<path d="M20.5 12V7.5H6a2.25 2.25 0 0 1 0-4.5h13v4.5"/><path d="M3.75 5.25V18a2.5 2.5 0 0 0 2.5 2.5h14.25V15"/><path d="M17.5 12a1.75 1.75 0 0 0 0 3.5h4V12Z"/>',
   bell:     '<path d="M6.3 9.3a5.7 5.7 0 0 1 11.4 0c0 6 2.55 7.7 2.55 7.7H3.75s2.55-1.7 2.55-7.7"/><path d="M10.4 20.5a1.85 1.85 0 0 0 3.2 0"/>',
+  calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/>',
   /* 테마 토글용 */
   monitor:  '<rect x="2.8" y="4" width="18.4" height="13" rx="2"/><line x1="8.5" y1="20.6" x2="15.5" y2="20.6"/><line x1="12" y1="17" x2="12" y2="20.6"/>',
   sun:      '<circle cx="12" cy="12" r="4.4"/><line x1="12" y1="1.8" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22.2"/><line x1="1.8" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22.2" y2="12"/><line x1="4.8" y1="4.8" x2="6.4" y2="6.4"/><line x1="17.6" y1="17.6" x2="19.2" y2="19.2"/><line x1="4.8" y1="19.2" x2="6.4" y2="17.6"/><line x1="17.6" y1="6.4" x2="19.2" y2="4.8"/>',
@@ -35,6 +36,7 @@ const icon = (name, size = 14) =>
 
 const NAV_PAGES = [
   { href: '/', icon: 'chart', label: '대시보드' },
+  { href: '/today', icon: 'calendar', label: '오늘' },
   { href: '/flow', icon: 'target', label: '세력좌표' },
   { href: '/terminal', icon: 'terminal', label: '터미널' },
   { href: '/idx', icon: 'bars', label: '지수' },

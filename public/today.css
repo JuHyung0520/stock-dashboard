@@ -1,0 +1,35 @@
+/* 오늘의 장 정리 — 히어로(hero.css)·탭·수급 막대(style.css)는 공용을 쓰고 여기엔 이 페이지만의 것만 둔다 */
+.panel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+.panel-head h2 { margin: 0; font-size: var(--fs-md); }
+.panel-sub { font-size: var(--fs-2xs); color: var(--text-faint); }
+
+/* 글 요약 — 숫자로 만든 문장. 읽는 글이므로 본문보다 살짝 크고 줄간격을 넉넉히 */
+.narr { font-size: var(--fs-sm); color: var(--text-dim); line-height: 1.6; }
+.hero-sub.narr { margin-top: 10px; max-width: 56ch; }
+.narr b { color: var(--text); font-weight: 600; }
+#flowNarr { margin-bottom: 10px; }
+
+.chart-note { margin-top: 6px; font-size: var(--fs-2xs); color: var(--text-faint); }
+
+.today-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 900px) { .today-grid { grid-template-columns: 1fr; } }
+
+/* 기관 세부 — 칩 */
+.breakdown { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.breakdown .chip {
+  font-size: var(--fs-2xs); padding: 3px 8px; border-radius: var(--r-pill);
+  border: 1px solid var(--border-soft); color: var(--text-dim); background: var(--panel-2);
+  font-variant-numeric: tabular-nums;
+}
+.breakdown .chip b { font-weight: 600; }
+
+/* 종목 표 */
+.rank-table { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); }
+.rank-table td { padding: 7px 4px; border-bottom: 1px solid var(--border-soft); vertical-align: middle; }
+.rank-table tr:last-child td { border-bottom: 0; }
+.rank-table .rk { width: 22px; color: var(--text-faint); font-size: var(--fs-2xs); font-variant-numeric: tabular-nums; }
+.rank-table .nm { font-weight: 600; }
+.rank-table .nm small { display: block; font-weight: 400; color: var(--text-faint); font-size: var(--fs-2xs); }
+.rank-table .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.rank-table .pct { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; width: 76px; }
+.rank-empty { padding: 18px 0; color: var(--text-faint); font-size: var(--fs-xs); text-align: center; }
