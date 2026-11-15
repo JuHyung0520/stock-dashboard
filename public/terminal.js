@@ -87,7 +87,8 @@ async function renderRelative() {
   try {
     const d = await api(`/api/relative?range=${state.range}&codes=005930,000660`);
     if (!relGuard.current(__g)) return;   // 그새 다른 대상으로 갔다
-    if (d.unavailable || !d.series?.length) { Chart.clear(box, `<div class="inv-empty">차트 데이터 없음</div>`); return; }
+    // 막혔으면 이유를, 그냥 비었으면 '데이터 없음'을 — 둘을 같은 문구로 뭉치면 무엇을 해야 할지 모른다
+    if (d.unavailable || !d.series?.length) { Chart.clear(box, `<div class="inv-empty">${esc(d.reason || '차트 데이터 없음')}</div>`); return; }
 
     // 계열마다 종가를 함께 실어 끝점 태그에 "가격 +등락%"을 찍는다
     Chart.line(box, {

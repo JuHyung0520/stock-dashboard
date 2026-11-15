@@ -29,6 +29,39 @@ const CLIENT_ID = process.env.TOSS_CLIENT_ID;
 const CLIENT_SECRET = process.env.TOSS_CLIENT_SECRET;
 const enabled = Boolean(CLIENT_ID && CLIENT_SECRET);
 
+/* ── 연결이 막혔을 때 ──
+ * 키가 있어도 막힐 수 있다. 가장 흔한 건 **집 공인 IP가 바뀌어 허용 목록에서 빠지는 것**(유동 IP).
+ * 2026-11-15 실제로 59.0.238.142 → 218.156.225.92 로 바뀌어 토스 쪽이 전부 멈췄다.
+ * 그때 라우트 절반은 502 로 터지고, 절반은 종목별로 오류를 삼켜 '빈 결과'를 10분씩 캐시했다 —
+ * 화면은 그냥 "데이터 없음"이라 이유를 알 수 없었다.
+ * 그래서 인증 단계에서 막히면 오류에 TOSS_BLOCKED 표식과 '무엇을 하면 풀리는지'를 달아 던진다.
+ * 종목별 catch 는 이 표식만은 다시 던지고, 서버 공통 처리기가 { unavailable, reason } 으로 바꿔 화면에 전한다. */
+const BLOCK_RETRY_MS = 60000;   // 막힌 동안엔 1분에 한 번만 다시 시도 — 매 요청마다 인증 서버를 두드리지 않게
+let blocked = null;             // { reason, until }
+
+function authReason(status, text) {
+  const t = String(text || '');
+  if (/IP address not allowed/i.test(t)) {
+    return '토스 허용 IP 목록에 지금 공인 IP가 없어요 — 토스증권 PC웹 → 설정 → Open API → 허용 IP 관리에서 등록하세요 (집 IP가 바뀌면 생깁니다)';
+  }
+  if (status === 401 || /invalid_client|unauthorized_client|invalid_grant/i.test(t)) {
+    return '토스 API 키가 거부됐어요 — 만료됐거나 재발급됐는지 확인하고 .env 를 바꾸세요';
+  }
+  return `토스 인증 실패 (${status}) — 잠시 뒤 다시 시도합니다`;
+}
+
+function blockedError(reason) {
+  const e = new Error(reason);
+  e.code = 'TOSS_BLOCKED';
+  return e;
+}
+
+// 화면·로그용 — 지금 토스를 쓸 수 있나, 못 쓰면 왜인가
+function status() {
+  if (!enabled) return { enabled: false, ok: false, reason: '토스 API 키가 없어요 — .env 에 TOSS_CLIENT_ID / TOSS_CLIENT_SECRET 를 넣으세요' };
+  return { enabled: true, ok: !blocked, reason: blocked ? blocked.reason : null };
+}
+
 /* ── 토큰 관리 ── */
 let token = null;        // { value, expiresAt }
 let issuing = null;      // 동시 요청이 토큰을 중복 발급하지 않도록 promise 공유
@@ -47,8 +80,8 @@ async function issueToken() {
   });
   if (!res.ok) {
     const text = await res.text().catch(() => '');
-    // 비밀값이 로그로 새지 않도록 응답 본문만 짧게 남긴다
-    throw new Error(`토스 토큰 발급 실패 (${res.status}): ${text.slice(0, 200)}`);
+    // 비밀값이 로그로 새지 않도록 응답 본문만 보고, 사람이 읽을 이유로 바꿔 던진다
+    throw blockedError(authReason(res.status, text));
   }
   const json = await res.json();
   return {
@@ -60,9 +93,18 @@ async function issueToken() {
 
 async function getToken() {
   if (token && Date.now() < token.expiresAt) return token.value;
+  // 막힌 지 1분이 안 됐으면 인증 서버에 가지 않고 같은 이유로 바로 실패한다
+  if (blocked && Date.now() < blocked.until) throw blockedError(blocked.reason);
   if (!issuing) {
     issuing = issueToken()
-      .then((t) => { token = t; return t.value; })
+      .then((t) => { token = t; blocked = null; return t.value; })   // 풀리면 바로 정상으로
+      .catch((e) => {
+        if (e.code === 'TOSS_BLOCKED') {
+          if (!blocked) console.warn(`[토스] 막힘 — ${e.message}`);   // 처음 막힐 때만 남긴다(1분마다 같은 줄이 쌓이지 않게)
+          blocked = { reason: e.message, until: Date.now() + BLOCK_RETRY_MS };
+        }
+        throw e;
+      })
       .finally(() => { issuing = null; });
   }
   return issuing;
@@ -182,7 +224,10 @@ async function stockMetrics(symbol, count = 10) {
   const get = (p) =>
     call(`/api/v1/stocks/${encodeURIComponent(symbol)}/${p}`, { count })
       .then((r) => r?.records || [])
-      .catch((e) => { console.warn(`[토스] ${p} 실패: ${e.message}`); return []; });
+      .catch((e) => {
+        if (e.code === 'TOSS_BLOCKED') throw e;   // 막힌 건 '이 지표가 없다'가 아니다 — 빈 배열로 감추면 10분간 캐시된다
+        console.warn(`[토스] ${p} 실패: ${e.message}`); return [];
+      });
 
   const [short, program, credit, lending] = await Promise.all([
     get('short-selling'), get('program-trades'), get('credit-trades'), get('securities-lending'),
@@ -364,7 +409,7 @@ async function rankings(kind = 'gainers', { country = 'KR', count = 15 } = {}) {
 }
 
 module.exports = {
-  enabled, call,
+  enabled, call, status, authReason,
   marketInvestor, stockInvestor, stockMetrics,
   candles, marketFlowSeries, stockFlowSeries,
   orderbook, rankings,

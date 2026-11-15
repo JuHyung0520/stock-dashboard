@@ -46,6 +46,7 @@ async function buildToday() {
     indices: [index('KOSPI', kospi), index('KOSDAQ', kosdaq)],
     flow: flow ? { ...flow, streaks, narrative: Pure.flowNarrative(kospiFlow, streaks) } : null,
     rankings: { gainers, losers, amount },
+    toss: toss.status(),   // 랭킹이 비었을 때 '왜'를 화면이 말할 수 있게
   };
 }
 

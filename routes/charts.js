@@ -137,7 +137,10 @@ module.exports = [
             const s = await toss.call('/api/v1/stocks', { symbols: [...new Set(allParts)].join(',') });
             sharesBy = Object.fromEntries((Array.isArray(s) ? s : [s])
               .filter(Boolean).map((x) => [x.symbol, { shares: num(x.sharesOutstanding), name: x.name }]));
-          } catch (e) { console.warn(`[시총] 발행주식수 실패: ${e.message}`); }
+          } catch (e) {
+            if (e.code === 'TOSS_BLOCKED') throw e;   // '발행주식수가 없다'로 감추지 않는다
+            console.warn(`[시총] 발행주식수 실패: ${e.message}`);
+          }
         }
         if (!codes.every((c) => sharesBy[c]?.shares)) {
           return { unavailable: true, reason: '발행주식수를 가져오지 못했습니다 (토스 API 필요)' };

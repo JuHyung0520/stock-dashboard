@@ -169,7 +169,7 @@ async function refreshNews() {
     try {
       const d = await api(`/api/rankings/${state.newsTab}`);
       if (seq !== newsSeq) return;   // 그새 다른 탭으로 갔다
-      if (d.unavailable) { list.innerHTML = '<li class="news-empty">토스증권 API 키가 필요해요</li>'; return; }
+      if (d.unavailable) { list.innerHTML = `<li class="news-empty">${Pure.esc(d.reason || '토스증권 API 키가 필요해요')}</li>`; return; }
       if (!d.rows?.length) { list.innerHTML = '<li class="news-empty">랭킹 데이터 없음</li>'; return; }
       list.innerHTML = d.rows.map((r) => {
         const added = state.watchlist.some((w) => w.id === `KR:${r.symbol}`);

@@ -109,7 +109,11 @@ function renderRank() {
     return;
   }
   const r = state.data && state.data.rankings && state.data.rankings[state.rank];
-  if (!r || !r.rows) { body.innerHTML = '<div class="rank-empty">랭킹을 불러오지 못했어요 (토스 API 필요)</div>'; return; }
+  if (!r || !r.rows) {
+    const why = state.data && state.data.toss && state.data.toss.reason;
+    body.innerHTML = `<div class="rank-empty">${esc(why || '랭킹을 불러오지 못했어요 (토스 API 필요)')}</div>`;
+    return;
+  }
   body.innerHTML = `<table class="rank-table">${r.rows.slice(0, 10).map((x) => `<tr>
       <td class="rk">${x.rank}</td>
       <td class="nm">${esc(x.name)}<small>${esc(x.symbol)}</small></td>

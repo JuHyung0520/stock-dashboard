@@ -47,6 +47,7 @@ module.exports = [
               ]);
               return analysis.scanStock({ code, name: code, flows, candles });
             } catch (e) {
+              if (e.code === 'TOSS_BLOCKED') throw e;   // 막힘은 감추지 않는다
               console.warn(`[스캔] ${code} 실패: ${e.message}`);
               return null;
             }

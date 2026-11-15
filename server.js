@@ -103,6 +103,10 @@ const server = http.createServer(async (req, res) => {
     }
     res.writeHead(404); res.end('Not found');
   } catch (e) {
+    /* 토스가 인증 단계에서 막힌 건 이 요청의 실패가 아니라 '연결 상태'다.
+     * 화면이 이미 다루는 unavailable 로 바꿔, 무엇을 하면 풀리는지(reason)를 그대로 보여준다.
+     * 로그는 toss.js 가 처음 막힐 때 한 번만 남긴다. */
+    if (e.code === 'TOSS_BLOCKED') return sendJSON(res, 200, { unavailable: true, blocked: true, reason: e.message });
     console.error(`[${new Date().toLocaleTimeString('ko-KR', { hour12: false })}] ${p} 실패:`, e.message);
     sendJSON(res, 502, { error: e.message });
   }

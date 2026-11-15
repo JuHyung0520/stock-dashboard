@@ -376,8 +376,8 @@ async function renderScan() {
   const nameBy = Object.fromEntries(watchlist.map((w) => [w.id.slice(3), w.name]));
 
   try {
-    const { stocks, unavailable } = await api(`/api/flow/scan?codes=${codes.join(',')}`);
-    if (unavailable) { wrap.innerHTML = '<div class="fempty">토스 API 키가 필요해요</div>'; return; }
+    const { stocks, unavailable, reason } = await api(`/api/flow/scan?codes=${codes.join(',')}`);
+    if (unavailable) { wrap.innerHTML = `<div class="fempty">${Pure.esc(reason || '토스 API 키가 필요해요')}</div>`; return; }
     if (!stocks?.length) { wrap.innerHTML = '<div class="fempty">데이터 없음</div>'; return; }
 
     // 세력이 세게 들어온 종목이 위로 — 등록 순서는 여기선 의미가 없다
@@ -449,7 +449,7 @@ async function load() {
     const d = await api(`/api/flow/market?market=${state.market}`);
     if (!flowGuard.current(__g)) return;   // 그새 다른 대상으로 갔다
     if (d.unavailable) {
-      $('#verdict').innerHTML = '<div class="v-loading">토스증권 API 키가 필요해요 (.env 설정)</div>';
+      $('#verdict').innerHTML = `<div class="v-loading">${Pure.esc(d.reason || '토스증권 API 키가 필요해요 (.env 설정)')}</div>`;
       return;
     }
     state.data = d;

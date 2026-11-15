@@ -135,7 +135,7 @@ module.exports = [
               code: c,
               points: asc.map((x) => ({ t: x.date, v: ((x.close / base) - 1) * 100, close: x.close })),
             };
-          } catch { return null; }
+          } catch (e) { if (e.code === 'TOSS_BLOCKED') throw e; return null; }   // 막힘은 감추지 않는다
         }));
         return { range, series: series.filter(Boolean) };
       });

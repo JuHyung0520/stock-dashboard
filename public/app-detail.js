@@ -207,7 +207,7 @@ async function renderOrderbookTab(id, wrap, hint) {
     }
     if (state.selectedId !== id || state.detailTab !== 'orderbook') return;
     if (d.unavailable) {
-      wrap.innerHTML = '<div class="inv-empty">토스증권 API 키가 필요해요</div>';
+      wrap.innerHTML = `<div class="inv-empty">${Pure.esc(d.reason || '토스증권 API 키가 필요해요')}</div>`;
       stopOrderbookPolling();
       return;
     }
@@ -317,7 +317,9 @@ async function renderMetricTab(id, code, tab, wrap, hint) {
   const m = await api(`/api/metrics/${encodeURIComponent(code)}`);
   if (state.selectedId !== id || state.detailTab !== tab) return;
   if (m.unavailable) {
-    wrap.innerHTML = '<div class="inv-empty">토스증권 API 키가 있어야 볼 수 있어요<br><span style="font-size:var(--fs-2xs)">.env에 TOSS_CLIENT_ID / SECRET 설정</span></div>';
+    wrap.innerHTML = m.reason
+      ? `<div class="inv-empty">${Pure.esc(m.reason)}</div>`
+      : '<div class="inv-empty">토스증권 API 키가 있어야 볼 수 있어요<br><span style="font-size:var(--fs-2xs)">.env에 TOSS_CLIENT_ID / SECRET 설정</span></div>';
     hint.textContent = '';
     return;
   }
